@@ -1,10 +1,4 @@
-# f = open('res_track.txt', 'r')
-# lines = f.readlines()
-
-# csv_f = open('res_track_parse.txt', 'w')
-
 from os import write
-
 
 dataset_list = [
   'BF-C2DL-HSC', 
