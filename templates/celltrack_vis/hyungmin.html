@@ -81,11 +81,11 @@ let datasetList = [
   'Fluo-N3DH-CE',
   'Fluo-N3DH-CHO',
   'Fluo-N3DH-SIM+',
-  'PhC-C2HD-U373',
+  'PhC-C2DH-U373',
   'PhC-C2DL-PSC'
 ]
 
-d3.csv("{% static 'celltrack_vis/data/celltracking_results/test_data.csv' %}", function(error, data) {
+d3.csv("{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/02_RES/parsed_track.txt' %}", function(error, data) {
   if (error) throw error;
   
   var root = stratify(data)
