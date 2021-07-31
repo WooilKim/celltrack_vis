@@ -18,8 +18,6 @@ dataset_list = [
   'PhC-C2DL-PSC'
 ]
 
-dataset_list = ['BF-C2DL-HSC']
-
 ########## PARSING FUNCTIONS ##########
 
 # returns the first and last elements from the list words
