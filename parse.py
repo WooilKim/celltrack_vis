@@ -14,7 +14,7 @@ dataset_list = [
   'Fluo-N3DH-CE',
   'Fluo-N3DH-CHO',
   'Fluo-N3DH-SIM+',
-  'PhC-C2HD-U373',
+  'PhC-C2DH-U373',
   'PhC-C2DL-PSC'
 ]
 
