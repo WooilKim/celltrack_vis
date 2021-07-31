@@ -85,7 +85,7 @@ let datasetList = [
   'PhC-C2DL-PSC'
 ]
 
-d3.csv("{% static 'celltrack_vis/data/celltracking_results/res_track.csv' %}", function(error, data) {
+d3.csv("{% static 'celltrack_vis/data/celltracking_results/test_data.csv' %}", function(error, data) {
   if (error) throw error;
   
   var root = stratify(data)
