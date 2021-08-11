@@ -2,87 +2,17 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 from django.http import JsonResponse
+import tifffile as tiff
+import matplotlib.pyplot as plt
 
 
-# from skyflow.preprocess.NBA.dominance import selected_skyline
-
-# Create your views here.
-
-# def index(request):
-#     # template = loader.get_template('skyflow/index.html')
-#     context = {
-#
-#     }
-#     return render(request, 'skyflow/index.html', context)
-
-#
-# def relation(request):
-#     # template = loader.get_template('skyflow/index.html')
-#     context = {
-#
-#     }
-#     return render(request, 'skyflow/detail.html', context)
-#
-#
-# def projection(request):
-#     # template = loader.get_template('skyflow/index.html')
-#     years = [1978 + i for i in range(39)]
-#
-#     context = {
-#         'years': years
-#     }
-#     return render(request, 'skyflow/projection.html', context)
-#
-#
-# def project_plain(request):
-#     # template = loader.get_template('skyflow/index.html')
-#     years = [1978 + i for i in range(39)]
-#
-#     context = {
-#         'years': years
-#     }
-#     return render(request, 'skyflow/project_plain.html', context)
-#
-#
-# def compare(request):
-#     # template = loader.get_template('skyflow/index.html')
-#     years = [1978 + i for i in range(39)]
-#
-#     context = {
-#         'years': years
-#     }
-#     return render(request, 'skyflow/compare.html', context)
-#
-#
-# def bundling(request):
-#     # template = loader.get_template('skyflow/index.html')
-#     years = [1978 + i for i in range(39)]
-#
-#     context = {
-#         'years': years
-#     }
-#     return render(request, 'skyflow/bundling.html', context)
-#
-#
-# def mapbox(request):
-#     # template = loader.get_template('skyflow/index.html')
-#     years = [1978 + i for i in range(39)]
-#
-#     context = {
-#         'years': years
-#     }
-#     return render(request, 'skyflow/mapbox.html', context)
-#
-
-# def glyph(request):
-#     context = {}
-#     return render(request, 'skyflow/glyph.html', context)
+# tiff file read
+# return list of [y, x, v] if v != 0
+def read_tiff(path):
+    return [[j, i, x] for j, y in enumerate(tiff.imread(path)) for i, x in enumerate(y) if x != 0]
 
 
 def index(request):
-    # template = loader.get_template('skyflow/index.html')
-    # years = [1978 + i for i in range(39)]
-
     context = {
 
     }
@@ -90,41 +20,27 @@ def index(request):
 
 
 def hyungmin(request):
-    # template = loader.get_template('skyflow/index.html')
-    # years = [1978 + i for i in range(39)]
-
     context = {
 
     }
     return render(request, 'celltrack_vis/hyungmin.html', context)
 
-# def lineup(request, question_id):
-#     # template = loader.get_template('skyflow/index.html')
-#     context = dict()
-#     context['qid'] = question_id
-#     # if question_id == 6:
-#     #     context = {
-#     #         'columns': ["2P", "PTS", "AST", "STL", "PER"]
-#     #     }
-#     # elif question_id == 7:
-#     #     context = {
-#     #         'columns': ["2P", "PTS", "AST", "STL"]
-#     #     }
-#     # elif question_id == 8:
-#     #     context = {
-#     #         'columns': ["BLK", "ORB", "DRB", "TRB", "ORB%"]
-#     #     }
-#     # elif question_id == 9:
-#     #     context = {
-#     #         'columns': ["AST%", "STL%", "BLK%", "FG"]
-#     #     }
-#     # elif question_id == 10:
-#     #     context = {
-#     #         'columns': ["G", "PTS", "TRB", "AST", "Salary"]
-#     #     }
-#     # else:
-#     #     context = {
-#     #         'columns': ["Salary", "2P", "PTS", "AST", "STL", "PER", "G", "FG", "BLK", "ORB", "DRB", "TRB", "ORB%",
-#     #                     "DRB%", "TRB%", "AST%", "STL%", "BLK%", "FG%", "3P%", "PF", "PTS"]
-#     #     }
-#     return render(request, 'skyflow/lineup.html', context)
+
+def segmentation(request):
+    # template = loader.get_template('skyflow/index.html')
+    # years = [1978 + i for i in range(39)]
+    num_files = 1764
+    path1 = '/Users/wooil/wooilkim-github/celltrack_vis/celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/01_RES_20.json'
+    path2 = '/Users/wooil/wooilkim-github/celltrack_vis/celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/02_RES_20.json'
+    res = list()
+    #
+    # for n in range(num_files):
+    #     file = 'mask' + f'{n:04d}' + '.tif'
+    #     res.append([read_tiff(path1 + file), read_tiff(path2 + file)])
+    #
+    # # print(path)
+    context = {
+        # 'res': res
+    }
+    print(context)
+    return render(request, 'celltrack_vis/segmentation.html', context)

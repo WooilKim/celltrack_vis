@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
     path('hyungmin/', views.hyungmin, name='hyungmin'),
+    path('segmentation/', views.segmentation, name='segmentation'),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
