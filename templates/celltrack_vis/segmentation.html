@@ -13,18 +13,55 @@
     <label><input type="radio" name="mode" value="tree"> Tree</label>
 </form>
 
-<svg width="960" height="2400"></svg>
+<svg width="1500" height="1500"></svg>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script type="text/javascript">
-
     let svg = d3.select("svg"),
         width = +svg.attr("width"),
         height = +svg.attr("height"),
         g = svg.append("g").attr("transform", "translate(40,0)");
 
-    d3.json("{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/01_RES_20.json' %}").then(function (treeData) {
-        console.log(treeData)
+    let scale = d3.scaleLinear()
+        .domain([0, 1000])
+        .range([0, width]);
+
+    let color_tableau = d3.scaleOrdinal(d3.schemeTableau10);
+
+    // Axis
+    let axis = d3.axisTop()
+        .scale(scale);
+    let gridlines = d3.axisTop()
+        .tickFormat("")
+        .tickSize(-height)
+        .scale(scale);
+
+    svg.append("g")
+        .call(axis);
+
+    svg.append("g")
+        .attr("class", "grid")
+        .call(gridlines);
+
+    let t = 0
+    let p = d3.line()
+        .x(function (d) {
+            return (d[1]);
+        }) // apply the x scale to the x data
+        .y(function (d) {
+            return (d[0]);
+        }) // apply the y scale to the y data
+    d3.json("{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/01_RES.json' %}").then(function (treeData) {
+
+
+        g.append("path")
+            .attr("class", "line") // attributes given one at a time
+            .attr("d", p(treeData[0]["geometry"]["coordinates"][0])) // use the value of myline(xy) as the data, 'd'
+            .style("stroke", 'red')
+            .style('fill', 'blue')
+            .style("stroke-width", 2);
     })
+
+
     {##}
     {#g.selectAll("rect")#}
     {#    .data(img)#}
