@@ -82,34 +82,47 @@ def test_gdal(path):
 
 
 def gdal_test(path):
-    in_file = path + '01_RES/mask0000.tif'
-    raster = gdal.Open(in_file)
-    # print(raster.RasterCount)
-    band = raster.GetRasterBand(1)
-    # print(band.GetMaximum())
-    drv = ogr.GetDriverByName('GeoJSON')
-    outfile = drv.CreateDataSource('output.json')
-    outlayer = outfile.CreateLayer('polygonized raster', srs=None)
-    newField = ogr.FieldDefn('DN', ogr.OFTReal)
-    outlayer.CreateField(newField)
-    gdal.Polygonize(band, None, outlayer, 0, [])
-    outfile = None
-    # dst_layername = 'polygonized_test_all_all_2.shp'
-    # drv = ogr.GetDriverByName("ESRI Shapefile")
-    # dst_ds = drv.CreateDataSource(dst_layername)
-    # dst_layer = dst_ds.CreateLayer(dst_layername, srs=in_file)
-    # fd = ogr.FieldDefn("DN", ogr.OFTInteger)
-    # dst_layer.CreateField(fd)
-    # dst_field = dst_layer.GetLayerDefn().GetFieldIndex("DN")
-    # gdal.Polygonize(in_file, None, dst_layer, dst_field, [], callback=None)
-    # out_file = "out.json"
-    # in_file = path + '01_RES/mask0000.tif'
-    # cmdline = ['gdal_polygonize.py', in_file, "-f", "GeoJSON", out_file]
-    # subprocess.call(cmdline)
+    dirs = ['01_RES/', '02_RES/']
+    num_files = 1764
+    for dir in dirs:
+        for n in range(num_files):
+            print(n)
+            file = f'mask{n:04d}.tif'
+            in_file = path + dir + file
+            raster = gdal.Open(in_file)
+            band = raster.GetRasterBand(1)
+            drv = ogr.GetDriverByName('GeoJSON')
+            outfile = drv.CreateDataSource(f'{path}{dir}{file[:-4]}.json')
+            outlayer = outfile.CreateLayer('polygonized raster', srs=None)
+            newField = ogr.FieldDefn('DN', ogr.OFTReal)
+            outlayer.CreateField(newField)
+            gdal.Polygonize(band, None, outlayer, 0, [])
+
+
+"""
+[time]
+
+"""
+
+
+def track2csv(path):
+    file = 'res_track.txt'
+    with open(f'{path}{file}', 'r') as f:
+        lines = f.readlines()
+        for i, line in enumerate(lines):
+            lines[i] = line.strip().split()
+        lines.insert(0, ['id', 'birth', 'death', 'parent'])
+        with open(f'{path}{file[:-4]}.csv', 'w') as output:
+            for line in lines:
+                output.write(','.join(line))
+                output.write('\n')
+                output.flush()
 
 
 if __name__ == '__main__':
     path = '../celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/'
     # read_tiff(path)
     # test_gdal(path)
-    gdal_test(path)
+    # gdal_test(path)
+    track2csv(f'{path}01_RES/')
+    track2csv(f'{path}02_RES/')
