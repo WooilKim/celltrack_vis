@@ -25,7 +25,7 @@
 
 .link {
   fill: none;
-  stroke: #555;
+  /* stroke: #555; */
   stroke-opacity: 0.4;
   stroke-width: 1.5px;
 }
@@ -103,7 +103,8 @@ Promise.all([
       .data(root.descendants().slice(1))
       .enter().append("path")
       .attr("class", "link")
-      .attr("d", diagonal);
+      .attr("d", diagonal)
+      .attr("stroke", randomColor);
     
     var node = g.selectAll(".node")
       .data(root.descendants())
