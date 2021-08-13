@@ -88,16 +88,23 @@ let datasetList = [
 Promise.all([
   d3.csv("{% static 'celltrack_vis/data/celltracking_results/KIT-Sch-GE/Fluo-C2DL-MSC/01_RES/parsed_track.txt' %}"),
   d3.csv("{% static 'celltrack_vis/data/celltracking_results/KIT-Sch-GE/Fluo-C2DL-MSC/02_RES/parsed_track.txt' %}"),
+  d3.csv("{% static 'celltrack_vis/data/celltracking_results/KIT-Sch-GE/DIC-C2DH-HeLa/02_RES/parsed_track.txt' %}"),
 ]).then(function(files) {
   let elements = [];
+  let csvCount = files.length;
+
+  let rootDic = {};
+  let nodeDic = {};
+  let linkDic = {};
+
   files.forEach(function (data, index) {
     g = svg.append("g").attr("transform", "translate(40,0)");
 
     var root = stratify(data);
 
-    tree(root);
+    cluster(root);
     
-    var randomColor = "#" + Math.round(Math.random() * 0xffffff).toString(16);
+    var randomColor = "#" + Math.round((Math.random() / 3.5 + index / 3) * 0xffffff).toString(16);
     
     var link = g.selectAll(".link")
       .data(root.descendants().slice(1))
@@ -122,8 +129,9 @@ Promise.all([
       .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
       .text(function(d) { return d.id.substring(d.id.lastIndexOf(".") + 1); });
 
-    element = [root, node, link];
-    elements.push(element);
+    rootDic[index] = root;
+    nodeDic[index] = node;
+    linkDic[index] = link;
   });
 
   d3.selectAll("input")
@@ -136,68 +144,21 @@ Promise.all([
   }, 1000);
 
   function changed() {
-    console.log(elements);
-    // timeout = clearTimeout(timeout);
+    timeout = clearTimeout(timeout);
     var t = d3.transition().duration(750);
-    console.log(this.value);
-    elements.forEach(function (data, index) {
-      timeout = clearTimeout(timeout);
-      console.log(data);
-      (this.value === "tree" ? tree : cluster)(data[0]);
-      data[1].transition(t).attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
-      data[2].transition(t).attr("d", diagonal);
-    });
+
+    identity = (this.value === "tree" ? tree : cluster);
+
+    for (let i = 0; i < csvCount; i++) {
+      var stringIndex = String(i);
+      (this.value === "tree" ? tree : cluster)(rootDic[i]);
+      nodeDic[i].transition(t).attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+      linkDic[i].transition(t).attr("d", diagonal);
+    }
   }
 }).catch(function(error) {
   console.log("There was an error...", error);
 })
-
-// d3.csv("{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/02_RES/parsed_track.txt' %}", function(error, data) {
-//   if (error) throw error;
-  
-//   var root = stratify(data)
-//       // .sort(function(a, b) { return (a.height - b.height) || a.id.localeCompare(b.id); });
-
-//   cluster(root);
-
-//   var link = g.selectAll(".link")
-//       .data(root.descendants().slice(1))
-//     .enter().append("path")
-//       .attr("class", "link")
-//       .attr("d", diagonal);
-
-//   var node = g.selectAll(".node")
-//       .data(root.descendants())
-//     .enter().append("g")
-//       .attr("class", function(d) { return "node" + (d.children ? " node--internal" : " node--leaf"); })
-//       .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
-
-//   node.append("circle")
-//       .attr("r", 2.5);
-
-//   node.append("text")
-//       .attr("dy", 3)
-//       .attr("x", function(d) { return d.children ? -8 : 8; })
-//       .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-//       .text(function(d) { return d.id.substring(d.id.lastIndexOf(".") + 1); });
-
-//   d3.selectAll("input")
-//       .on("change", changed);
-
-//   var timeout = setTimeout(function() {
-//     d3.select("input[value=\"tree\"]")
-//         .property("checked", true)
-//         .dispatch("change");
-//   }, 1000);
-
-//   function changed() {
-//     timeout = clearTimeout(timeout);
-//     (this.value === "tree" ? tree : cluster)(root);
-//     var t = d3.transition().duration(750);
-//     node.transition(t).attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
-//     link.transition(t).attr("d", diagonal);
-//   }
-// });
 
 function diagonal(d) {
   return "M" + d.y + "," + d.x
