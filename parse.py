@@ -1,23 +1,5 @@
 from os import write
 
-dataset_list = [
-  'BF-C2DL-HSC', 
-  'BF-C2DL-MuSC', 
-  'DIC-C2DH-HeLa', 
-  'Fluo-C2DL-MSC', 
-  'Fluo-C3DH-A549', 
-  'Fluo-C3DH-H157', 
-  'Fluo-C3DL-MDA231',
-  'Fluo-N2DH-GOWT1',
-  'Fluo-N2DH-SIM+',
-  'Fluo-N2DL-HeLa',
-  'Fluo-N3DH-CE',
-  'Fluo-N3DH-CHO',
-  'Fluo-N3DH-SIM+',
-  'PhC-C2DH-U373',
-  'PhC-C2DL-PSC'
-]
-
 ########## PARSING FUNCTIONS ##########
 
 # returns the first and last elements from the list words
@@ -88,39 +70,62 @@ def print_leaf(entry, target):
 
 ######################################
 
-base_url = "./celltrack_vis/static/celltrack_vis/data/celltracking_results/"
-res_track = "/res_track.txt"
-parsed_track = "/parsed_track.txt"
 
-for dataset in dataset_list:
-    for res in ['01_RES','02_RES']:
-        # read from url and parse the data appropriately
-        read_url = base_url + dataset + "/" + res + res_track
+def main():
+    dataset_list = [
+    'BF-C2DL-HSC', 
+    'BF-C2DL-MuSC', 
+    'DIC-C2DH-HeLa', 
+    'Fluo-C2DL-MSC', 
+    'Fluo-C3DH-A549', 
+    'Fluo-C3DH-H157', 
+    'Fluo-C3DL-MDA231',
+    'Fluo-N2DH-GOWT1',
+    'Fluo-N2DH-SIM+',
+    'Fluo-N2DL-HeLa',
+    'Fluo-N3DH-CE',
+    'Fluo-N3DH-CHO',
+    'Fluo-N3DH-SIM+',
+    'PhC-C2DH-U373',
+    'PhC-C2DL-PSC'
+    ]
+    
+    base_url = "./celltrack_vis/static/celltrack_vis/data/celltracking_results/KIT-Sch-GE"
+    res_track = "/res_track.txt"
+    parsed_track = "/parsed_track.txt"
 
-        read_file = open(read_url, 'r')
-        lines = read_file.readlines()
-        read_file.close()
+    for dataset in dataset_list:
+        for res in ['01_RES','02_RES']:
+            # read from url and parse the data appropriately
+            read_url = base_url + dataset + "/" + res + res_track
 
-        final_result = []
-        final_result.append([0])
+            read_file = open(read_url, 'r')
+            lines = read_file.readlines()
+            read_file.close()
 
-        for line in lines:
-            words = line.split()
-            (index, parent) = parse_line(words)
-            append_to_list(index, parent, final_result)
+            final_result = []
+            final_result.append([0])
 
-        # write the parsed data onto url
-        write_url = base_url + dataset + "/" + res + parsed_track
-        write_file = open(write_url, 'w')
-        write_file.write('id,value\n')
+            for line in lines:
+                words = line.split()
+                (index, parent) = parse_line(words)
+                append_to_list(index, parent, final_result)
 
-        for i, result in enumerate(final_result):
-            if i == len(final_result) - 1:
-                print_leaf(result, write_file)
-            else:
-                if len(final_result[i]) < len(final_result[i+1]):
-                    print_internal(result, write_file)
-                else:
+            # write the parsed data onto url
+            write_url = base_url + dataset + "/" + res + parsed_track
+            write_file = open(write_url, 'w')
+            write_file.write('id,value\n')
+
+            for i, result in enumerate(final_result):
+                if i == len(final_result) - 1:
                     print_leaf(result, write_file)
+                else:
+                    if len(final_result[i]) < len(final_result[i+1]):
+                        print_internal(result, write_file)
+                    else:
+                        print_leaf(result, write_file)
 
-        write_file.close()
+            write_file.close()
+
+if __name__ == '__main__':
+    main()
