@@ -86,10 +86,10 @@ let datasetList = [
 ]
 
 Promise.all([
-  d3.csv("{% static 'celltrack_vis/data/celltracking_results/Fluo-C2DL-MSC/01_RES/parsed_track.txt' %}"),
-  d3.csv("{% static 'celltrack_vis/data/celltracking_results/Fluo-C2DL-MSC/02_RES/parsed_track.txt' %}"),
+  d3.csv("{% static 'celltrack_vis/data/celltracking_results/KIT-Sch-GE/Fluo-C2DL-MSC/01_RES/parsed_track.txt' %}"),
+  d3.csv("{% static 'celltrack_vis/data/celltracking_results/KIT-Sch-GE/Fluo-C2DL-MSC/02_RES/parsed_track.txt' %}"),
 ]).then(function(files) {
-  var elements = [];
+  let elements = [];
   files.forEach(function (data, index) {
     g = svg.append("g").attr("transform", "translate(40,0)");
 

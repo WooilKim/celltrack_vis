@@ -90,7 +90,7 @@ def main():
     'PhC-C2DL-PSC'
     ]
     
-    base_url = "./celltrack_vis/static/celltrack_vis/data/celltracking_results/"
+    base_url = "./celltrack_vis/static/celltrack_vis/data/celltracking_results/KIT-Sch-GE"
     res_track = "/res_track.txt"
     parsed_track = "/parsed_track.txt"
 
