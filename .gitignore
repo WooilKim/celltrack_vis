@@ -2,3 +2,4 @@
 __pycache__
 celltrack_vis/__pycache__
 *.pyc
+celltrack_vis/static/celltrack_vis/data/celltracking_results/.DS_Store
