@@ -29,7 +29,19 @@
 <body>
 <div class="container-fluid">
     <div class="row">
-        menu
+        <div id="menu_div" class="col-12">
+            menu
+            <svg id="menu_svg" width="100%">
+            </svg>
+        </div>
+    </div>
+    <div class="row">
+        <div id="time_div" class="col-12">
+            timeline
+            <svg id="time_svg" width="100%">
+
+            </svg>
+        </div>
     </div>
     <div class="row">
         <div id='table_div' class="col-4">
@@ -47,6 +59,7 @@
 
 
 <script type="text/javascript">
+    let data_paths = {{ paths }};
     let seg_div = document.getElementById("seg_div"),
         table_div = document.getElementById("table_div");
     let seg_svg = d3.select("#seg_svg"),
@@ -55,7 +68,7 @@
         g = seg_svg.append("g").attr("transform", "translate(40,0)"),
         seg_width = Math.min(seg_div.clientWidth, 800)
     seg_svg.attr('width', seg_width)
-
+    let num_timestep = 0
 
     let img_width = 1010,
         img_height = 1010;
@@ -63,9 +76,135 @@
         .domain([0, img_width])
         .range([0, seg_width]);
 
+    let main_dataset = {},
+        comparative_datasets = [],
+        candidate_datasets = [];
+
     let color_tableau = d3.scaleOrdinal(d3.schemeTableau10);
 
+    function draw_grid() {
 
+        let gridverticallines = d3.axisTop()
+            .tickFormat("")
+            .ticks(img_width / 10)
+            .tickSize(-seg_width)
+            .scale(seg_scale);
+
+        let gridhorizontallines = d3.axisLeft()
+            .tickFormat("")
+            .ticks(img_height / 10)
+            .tickSize(-seg_width)
+            .scale(seg_scale);
+
+
+        grid_vg
+            .attr("class", "grid")
+            .call(gridverticallines);
+        grid_hg
+            .attr("class", "grid")
+            .call(gridhorizontallines);
+
+        let t = 0
+        let p = d3.line()
+            .x(function (d) {
+                return seg_scale(d[1]);
+            }) // apply the x scale to the x data
+            .y(function (d) {
+                return seg_scale(d[0]);
+            }) // apply the y scale to the y data
+        d3.json("{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/01_RES.json' %}").then(function (treeData) {
+            g.append("path")
+                .attr("class", "line") // attributes given one at a time
+                .attr("d", p(treeData[0]["geometry"]["coordinates"][0])) // use the value of myline(xy) as the data, 'd'
+                .style("stroke", color_tableau(0))
+                .style('fill', color_tableau(0))
+                .style("stroke-width", 2);
+        })
+    }
+
+
+    function draw_table() {
+
+        let table_svg = d3.select('#table_svg'),
+            table_width = table_div.clientWidth,
+            table_row_height = 20
+
+        table_svg.attr('width', table_width)
+            .attr('overflow', 'auto')
+
+        let table_header = table_svg.append('g')
+            .attr('class', 'header')
+        table_header.append('text')
+            .text('id')
+            .attr('y', 20)
+
+
+        table_header.append('text')
+            .text('parent')
+            .attr('y', 20)
+            .attr('x', 30)
+
+        d3.csv("{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/01_RES/res_track.csv' %}").then(function (data) {
+            table_svg.attr('height', data.length * table_row_height)
+            let rows = table_svg.selectAll('.table_row')
+                .data(data)
+                .enter()
+                .append('g')
+                .attr('class', 'table_row')
+                .attr('transform', (d, i) => 'translate(0,' + ((i + 2) * table_row_height) + ')')
+            rows.append('text')
+                .text(d => d['id'])
+
+            rows.append('text')
+                .text(d => d['parent'])
+                .attr('x', 50)
+
+            let table_cell_life_scale = d3.scaleLinear()
+                .domain([0, 2000])
+                .range([10, 100])
+
+            rows.append('rect')
+                .attr('x', d => 100 + table_cell_life_scale(d['birth']))
+                .attr('y', -table_row_height / 2)
+                .attr('width', d => table_cell_life_scale(d['death'] - d['birth']))
+                .attr('fill', 'red')
+                .attr('height', table_row_height / 2)
+        })
+        table_div.addEventListener('scroll', function () {
+            table_header.node().setAttribute('transform', 'translate(0,' + this.scrollTop + ')');
+        }, false)
+    }
+
+    let data_sets = [];
+
+    function read_datasets() {
+        for (let path of data_paths) {
+            console.log('path', path)
+            let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + path
+            d3.json(p).then(function (data) {
+                data_sets.push(data)
+            })
+            {#let dataset = {}#}
+            {#dataset['name'] = path#}
+            {#dataset['num_timestep'] = data_paths[path]#}
+            {#dataset['num_cell'] = 0#}
+            {#dataset['segmentation'] = null#}
+            {#dataset['lineage'] = null#}
+
+        }
+    }
+
+<<<<<<< HEAD
+    function draw_menu() {
+
+        for (let path in data_paths) {
+            let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + path
+            console.log(p, data_paths[path])
+        }
+        let menu_svg = d3.select('#menu_svg')
+        let menu_rows = menu_svg.selectAll('g')
+            .data(Object.keys(data_paths))
+=======
     let gridverticallines = d3.axisTop()
         .tickFormat("")
         .ticks(img_width / 10)
@@ -94,7 +233,7 @@
         .y(function (d) {
             return seg_scale(d[0]);
         }) // apply the y scale to the y data
-    d3.json("{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/KIT-Sch-GE/01_RES.json' %}").then(function (treeData) {
+    d3.json("{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/01_RES.json' %}").then(function (treeData) {
 
 
         g.append("path")
@@ -130,34 +269,39 @@
         table_svg.attr('height', data.length * table_row_height)
         let rows = table_svg.selectAll('.table_row')
             .data(data)
+>>>>>>> parent of b47ecd5 (polygonize)
             .enter()
             .append('g')
-            .attr('class', 'table_row')
-            .attr('transform', (d, i) => 'translate(0,' + ((i + 2) * table_row_height) + ')')
-        rows.append('text')
-            .text(d => d['id'])
+            .attr('transform', (d, i) => 'translate(0,' + (i * 20 + 20) + ')')
+        menu_rows.append('rect')
+            .attr('x', 0)
+            .attr('y', -10)
+            .attr('width', 10)
+            .attr('height', 10)
+            .attr('stroke', 'black')
+        menu_rows.append('text')
+            .text(d => d)
+            .attr('x', 20)
+        menu_rows.append('text')
+            .text(d => data_paths[d])
+            .attr('x', 220)
 
-        rows.append('text')
-            .text(d => d['parent'])
-            .attr('x', 50)
+        // TODO : timestep change
+        num_timestep = 1764
+    }
 
-        let table_cell_life_scale = d3.scaleLinear()
-            .domain([0, 2000])
-            .range([10, 100])
+    // timeline
+    function draw_timeline() {
+        let time_svg = d3.select('#time_svg')
+    }
 
-        rows.append('rect')
-            .attr('x', d => 100 + table_cell_life_scale(d['birth']))
-            .attr('y', -table_row_height / 2)
-            .attr('width', d => table_cell_life_scale(d['death'] - d['birth']))
-            .attr('fill', 'red')
-            .attr('height', table_row_height / 2)
-    })
-    table_div.addEventListener('scroll', function () {
-        table_header.node().setAttribute('transform', 'translate(0,' + this.scrollTop + ')');
-    }, false)
-    {#table.selectAll('g.row')#}
-    {#    .append('text')#}
-    {#    .text(d => d)#}
+    read_datasets()
+    draw_grid()
+    draw_table()
+    draw_menu()
+    draw_timeline()
+
+
 </script>
 </body>
 </html>
