@@ -117,14 +117,22 @@
 
         let di = 0
         let timestep = 1730
-        seg_g.selectAll('path')
-            .data(Object.keys(data_sets[di]['segmentation'][timestep]))
+        let cell_g = seg_g.selectAll('.cell')
+            .data(Object.values(data_sets[di]['segmentation'][timestep]))
+            .enter()
+            .append('g')
+            .attr('class', (d, i) => 'cell cell-' + Object.keys(data_sets[di]['segmentation'][timestep])[i])
+
+        cell_g.selectAll('path')
+            .data(function (d) {
+                console.log('data', d);
+                return d
+            })
             .enter()
             .append('path')
             .attr('stroke', (d) => color_tableau(d))
             .attr('d', function (d) {
-                console.log('key',d, data_sets[di]['segmentation'][timestep][d])
-                return p(data_sets[di]['segmentation'][timestep][d][0])
+                return p(d)
             })
             .style('fill', (d) => (color_tableau(d)))
             .style("stroke-width", 1)
