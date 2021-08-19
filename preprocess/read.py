@@ -2,13 +2,11 @@ import tifffile as tiff
 import matplotlib.pyplot as plt
 import cv2 as cv
 import numpy as np
-import gdal
 import copy
 from collections import defaultdict
 import json
-from shapely.geometry import Polygon
 import geopandas as gpd
-import gdal, ogr
+from osgeo import gdal, ogr
 from pathlib import Path
 import csv
 import subprocess
@@ -82,7 +80,7 @@ def test_gdal(path):
             output_file.flush()
 
 
-def gdal_test(path):
+def polygonize(path):
     algs = ['KIT-Sch-GE', 'Mu-Lux-CZ']
     datasets = ['BF-C2DL-HSC']
     dirs = ['01_RES', '02_RES']
@@ -173,8 +171,9 @@ if __name__ == '__main__':
     path = 'data/celltracking_results/'
     # read_tiff(path)
     # test_gdal(path)
-    # gdal_test(path)
+    # polygonize(path)
     # track2csv(path)
+
     merge_polygonized(path)
     # track2csv(f'{path}01_RES/')
     # track2csv(f'{path}02_RES/')
