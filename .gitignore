@@ -3,3 +3,8 @@ __pycache__
 celltrack_vis/__pycache__
 *.pyc
 celltrack_vis/static/celltrack_vis/data/celltracking_results/.DS_Store
+celltrack_vis/__pycache__/wsgi.cpython-39.pyc
+celltrack_vis/__pycache__/views.cpython-39.pyc
+celltrack_vis/__pycache__/urls.cpython-39.pyc
+celltrack_vis/__pycache__/settings.cpython-39.pyc
+celltrack_vis/__pycache__/__init__.cpython-39.pyc
