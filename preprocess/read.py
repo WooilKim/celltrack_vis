@@ -9,7 +9,8 @@ import json
 from shapely.geometry import Polygon
 import geopandas as gpd
 import gdal, ogr
-
+from pathlib import Path
+import csv
 import subprocess
 import glob
 import os
@@ -82,47 +83,98 @@ def test_gdal(path):
 
 
 def gdal_test(path):
-    dirs = ['01_RES/', '02_RES/']
+    algs = ['KIT-Sch-GE', 'Mu-Lux-CZ']
+    datasets = ['BF-C2DL-HSC']
+    dirs = ['01_RES', '02_RES']
     num_files = 1764
-    for dir in dirs:
-        for n in range(num_files):
-            print(n)
-            file = f'mask{n:04d}.tif'
-            in_file = path + dir + file
-            raster = gdal.Open(in_file)
-            band = raster.GetRasterBand(1)
-            drv = ogr.GetDriverByName('GeoJSON')
-            outfile = drv.CreateDataSource(f'{path}{dir}{file[:-4]}.json')
-            outlayer = outfile.CreateLayer('polygonized raster', srs=None)
-            newField = ogr.FieldDefn('DN', ogr.OFTReal)
-            outlayer.CreateField(newField)
-            gdal.Polygonize(band, None, outlayer, 0, [])
 
-
-"""
-[time]
-
-"""
+    for alg in algs:
+        for dataset in datasets:
+            cur = f"{path}{alg}/{dataset}/polygonized"
+            Path(cur).mkdir(parents=True, exist_ok=True)
+            for dir in dirs:
+                Path(f"{cur}/{dir}").mkdir(parents=True, exist_ok=True)
+                for n in range(num_files):
+                    print(n)
+                    file = f'mask{n:04d}.tif'
+                    in_file = f'{path}{alg}/{dataset}/{dir}/{file}'
+                    raster = gdal.Open(in_file)
+                    band = raster.GetRasterBand(1)
+                    drv = ogr.GetDriverByName('GeoJSON')
+                    outfile = drv.CreateDataSource(f'{cur}/{dir}/{file[:-4]}.json')
+                    outlayer = outfile.CreateLayer('polygonized raster', srs=None)
+                    newField = ogr.FieldDefn('DN', ogr.OFTReal)
+                    outlayer.CreateField(newField)
+                    gdal.Polygonize(band, None, outlayer, 0, [])
 
 
 def track2csv(path):
+    algs = ['KIT-Sch-GE', 'Mu-Lux-CZ']
+    datasets = ['BF-C2DL-HSC']
+    dirs = ['01_RES', '02_RES']
     file = 'res_track.txt'
-    with open(f'{path}{file}', 'r') as f:
-        lines = f.readlines()
-        for i, line in enumerate(lines):
-            lines[i] = line.strip().split()
-        lines.insert(0, ['id', 'birth', 'death', 'parent'])
-        with open(f'{path}{file[:-4]}.csv', 'w') as output:
-            for line in lines:
-                output.write(','.join(line))
-                output.write('\n')
-                output.flush()
+    for alg in algs:
+        for dataset in datasets:
+            for dir in dirs:
+                with open(f'{path}{alg}/{dataset}/{dir}/{file}', 'r') as f:
+                    lines = f.readlines()
+                    for i, line in enumerate(lines):
+                        lines[i] = line.strip().split()
+                    lines.insert(0, ['id', 'birth', 'death', 'parent'])
+                    with open(f'{path}{alg}/{dataset}/polygonized/{dir}.csv', 'w') as output:
+                        for line in lines:
+                            output.write(','.join(line))
+                            output.write('\n')
+                            output.flush()
+
+
+def merge_polygonized(path):
+    algs = ['KIT-Sch-GE', 'Mu-Lux-CZ']
+    datasets = ['BF-C2DL-HSC']
+    dirs = ['01_RES', '02_RES']
+    num_timestep = 1764
+    for alg in algs:
+        for dataset in datasets:
+            for dir in dirs:
+                res = dict()
+                res['name'] = f'{dataset}/{alg}/{dir}'
+                res['num_timestep'] = num_timestep
+                cur_path = f'{path}{alg}/{dataset}/polygonized/{dir}/'
+                segmentation = dict()
+                for n in range(num_timestep):
+                    dn_dict = defaultdict(list)
+                    file = f'mask{n:04d}.json'
+                    with open(f'{cur_path}{file}', 'r') as f:
+                        data = json.load(f)
+                        for feature in data['features']:
+                            dn = int(feature['properties']['DN'])
+                            polygon = feature['geometry']['coordinates']
+                            # if len(polygon) > 1:
+                            #     print('more than 1', n, dn, polygon)
+                            if dn == 0:
+                                continue
+                            dn_dict[dn].extend(polygon)
+                    segmentation[n] = dn_dict
+                res['segmentation'] = segmentation
+                lineage = list()
+                with open(f'{cur_path[:-1]}.csv', 'r') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        lineage.append(row)
+                res['lineage'] = lineage
+
+                with open(f'{path}{alg}/{dataset}/{dir}.json', 'w') as output:
+                    output.write(json.dumps(res))
+                    output.flush()
 
 
 if __name__ == '__main__':
-    path = '../celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/'
+    # path = '../celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/'
+    path = 'data/celltracking_results/'
     # read_tiff(path)
     # test_gdal(path)
     # gdal_test(path)
-    track2csv(f'{path}01_RES/')
-    track2csv(f'{path}02_RES/')
+    # track2csv(path)
+    merge_polygonized(path)
+    # track2csv(f'{path}01_RES/')
+    # track2csv(f'{path}02_RES/')
