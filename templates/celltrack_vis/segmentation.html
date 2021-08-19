@@ -65,11 +65,11 @@
     let seg_svg = d3.select("#seg_svg"),
         grid_vg = seg_svg.append("g").attr("transform", "translate(40,0)"),
         grid_hg = seg_svg.append("g").attr("transform", "translate(40,0)"),
-        g = seg_svg.append("g").attr("transform", "translate(40,0)"),
+        seg_g = seg_svg.append("g").attr("transform", "translate(40,0)"),
         seg_width = Math.min(seg_div.clientWidth, 800)
     seg_svg.attr('width', seg_width)
     let num_timestep = 0
-
+    let num_cells = 1000
     let img_width = 1010,
         img_height = 1010;
     let seg_scale = d3.scaleLinear()
@@ -81,6 +81,8 @@
         candidate_datasets = [];
 
     let color_tableau = d3.scaleOrdinal(d3.schemeTableau10);
+
+    let color_cell = d3.scaleOrdinal(d3.interpolateTurbo)
 
     function draw_grid() {
 
@@ -107,21 +109,33 @@
         let t = 0
         let p = d3.line()
             .x(function (d) {
-                return seg_scale(d[1]);
+                return seg_scale(d[0]);
             }) // apply the x scale to the x data
             .y(function (d) {
-                return seg_scale(d[0]);
+                return seg_scale(d[1]);
             }) // apply the y scale to the y data
-        d3.json("{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/01_RES.json' %}").then(function (treeData) {
-            g.append("path")
-                .attr("class", "line") // attributes given one at a time
-                .attr("d", p(treeData[0]["geometry"]["coordinates"][0])) // use the value of myline(xy) as the data, 'd'
-                .style("stroke", color_tableau(0))
-                .style('fill', color_tableau(0))
-                .style("stroke-width", 2);
-        })
+
+        let di = 0
+        let timestep = 1730
+        seg_g.selectAll('path')
+            .data(Object.keys(data_sets[di]['segmentation'][timestep]))
+            .enter()
+            .append('path')
+            .attr('stroke', (d) => color_tableau(d))
+            .attr('d', function (d) {
+                console.log('key',d, data_sets[di]['segmentation'][timestep][d])
+                return p(data_sets[di]['segmentation'][timestep][d][0])
+            })
+            .style('fill', (d) => (color_tableau(d)))
+            .style("stroke-width", 1)
+
+
     }
 
+    function draw_cells(di, timestep) {
+
+
+    }
 
     function draw_table() {
 
@@ -177,24 +191,25 @@
 
     let data_sets = [];
 
-    function read_datasets() {
-        for (let path of data_paths) {
-            console.log('path', path)
-            let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + path
-            d3.json(p).then(function (data) {
-                data_sets.push(data)
-            })
-            {#let dataset = {}#}
-            {#dataset['name'] = path#}
-            {#dataset['num_timestep'] = data_paths[path]#}
-            {#dataset['num_cell'] = 0#}
-            {#dataset['segmentation'] = null#}
-            {#dataset['lineage'] = null#}
+    function read_datasets(i) {
 
-        }
+        let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + data_paths[i]
+        d3.json(p).then(function (data) {
+            data_sets.push(data)
+            draw_grid()
+        })
+        {#let dataset = {}#}
+        {#dataset['name'] = path#}
+        {#dataset['num_timestep'] = data_paths[path]#}
+        {#dataset['num_cell'] = 0#}
+        {#dataset['segmentation'] = null#}
+        {#dataset['lineage'] = null#}
+
     }
 
-<<<<<<< HEAD
+    {#draw_grid()#}
+
+
     function draw_menu() {
 
         for (let path in data_paths) {
@@ -204,72 +219,6 @@
         let menu_svg = d3.select('#menu_svg')
         let menu_rows = menu_svg.selectAll('g')
             .data(Object.keys(data_paths))
-=======
-    let gridverticallines = d3.axisTop()
-        .tickFormat("")
-        .ticks(img_width / 10)
-        .tickSize(-seg_width)
-        .scale(seg_scale);
-
-    let gridhorizontallines = d3.axisLeft()
-        .tickFormat("")
-        .ticks(img_height / 10)
-        .tickSize(-seg_width)
-        .scale(seg_scale);
-
-
-    grid_vg
-        .attr("class", "grid")
-        .call(gridverticallines);
-    grid_hg
-        .attr("class", "grid")
-        .call(gridhorizontallines);
-
-    let t = 0
-    let p = d3.line()
-        .x(function (d) {
-            return seg_scale(d[1]);
-        }) // apply the x scale to the x data
-        .y(function (d) {
-            return seg_scale(d[0]);
-        }) // apply the y scale to the y data
-    d3.json("{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/01_RES.json' %}").then(function (treeData) {
-
-
-        g.append("path")
-            .attr("class", "line") // attributes given one at a time
-            .attr("d", p(treeData[0]["geometry"]["coordinates"][0])) // use the value of myline(xy) as the data, 'd'
-            .style("stroke", color_tableau(0))
-            .style('fill', color_tableau(0))
-            .style("stroke-width", 2);
-    })
-
-
-    let table_svg = d3.select('#table_svg'),
-        table_width = table_div.clientWidth,
-        table_row_height = 20
-
-    table_svg.attr('width', table_width)
-        .attr('overflow', 'auto')
-
-    let table_header = table_svg.append('g')
-        .attr('class', 'header')
-    table_header.append('text')
-        .text('id')
-        .attr('y', 20)
-
-
-    table_header.append('text')
-        .text('parent')
-        .attr('y', 20)
-        .attr('x', 30)
-
-    d3.csv("{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/01_RES/res_track.csv' %}").then(function (data) {
-        console.log(data)
-        table_svg.attr('height', data.length * table_row_height)
-        let rows = table_svg.selectAll('.table_row')
-            .data(data)
->>>>>>> parent of b47ecd5 (polygonize)
             .enter()
             .append('g')
             .attr('transform', (d, i) => 'translate(0,' + (i * 20 + 20) + ')')
@@ -295,9 +244,9 @@
         let time_svg = d3.select('#time_svg')
     }
 
-    read_datasets()
-    draw_grid()
-    draw_table()
+    read_datasets(0)
+    {#draw_grid()#}
+    {#draw_table()#}
     draw_menu()
     draw_timeline()
 

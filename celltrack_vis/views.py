@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 from django.http import JsonResponse
+from django.utils.safestring import mark_safe
 import tifffile as tiff
 import matplotlib.pyplot as plt
 
@@ -33,6 +34,12 @@ def segmentation(request):
     path1 = '/Users/wooil/wooilkim-github/celltrack_vis/celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/01_RES_20.json'
     path2 = '/Users/wooil/wooilkim-github/celltrack_vis/celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/02_RES_20.json'
     res = list()
+    paths = [
+        'BF-C2DL-HSC/KIT-Sch-GE/01_RES.json',
+        'BF-C2DL-HSC/KIT-Sch-GE/02_RES.json',
+        'BF-C2DL-HSC/MU-Lux-CZ/01_RES.json',
+        'BF-C2DL-HSC/MU-Lux-CZ/02_RES.json'
+    ]
     #
     # for n in range(num_files):
     #     file = 'mask' + f'{n:04d}' + '.tif'
@@ -41,6 +48,7 @@ def segmentation(request):
     # # print(path)
     context = {
         # 'res': res
+        'paths': mark_safe(paths)
     }
     print(context)
     return render(request, 'celltrack_vis/segmentation.html', context)
