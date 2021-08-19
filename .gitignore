@@ -1,3 +1,4 @@
 .idea/*
 __pycache__
 celltrack_vis/__pycache__
+*.pyc
