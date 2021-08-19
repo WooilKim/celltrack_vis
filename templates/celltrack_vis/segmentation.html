@@ -15,6 +15,54 @@
         overflow: auto;
         height: 800px
     }
+
+    #play-button {
+        position: absolute;
+        top: 140px;
+        left: 50px;
+        background: #f08080;
+        padding-right: 26px;
+        border-radius: 3px;
+        border: none;
+        color: white;
+        margin: 0;
+        padding: 0 12px;
+        width: 60px;
+        cursor: pointer;
+        height: 30px;
+    }
+
+    #play-button:hover {
+        background-color: #696969;
+    }
+
+    .ticks {
+        font-size: 10px;
+    }
+
+    .track,
+    .track-inset,
+    .track-overlay {
+        stroke-linecap: round;
+    }
+
+    .track {
+        stroke: #000;
+        stroke-opacity: 0.3;
+        stroke-width: 10px;
+    }
+
+    .track-inset {
+        stroke: #dcdcdc;
+        stroke-width: 8px;
+    }
+
+    .track-overlay {
+        pointer-events: stroke;
+        stroke-width: 50px;
+        stroke: transparent;
+        cursor: crosshair;
+    }
 </style>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -107,6 +155,11 @@
             .call(gridhorizontallines);
 
         let t = 0
+
+
+    }
+
+    function draw_cells(di, timestep) {
         let p = d3.line()
             .x(function (d) {
                 return seg_scale(d[0]);
@@ -115,8 +168,9 @@
                 return seg_scale(d[1]);
             }) // apply the y scale to the y data
 
-        let di = 0
-        let timestep = 1730
+
+        {#let timestep = 1730#}
+        seg_g.selectAll('.cell').remove()
         let cell_g = seg_g.selectAll('.cell')
             .data(Object.values(data_sets[di]['segmentation'][timestep]))
             .enter()
@@ -125,7 +179,7 @@
 
         cell_g.selectAll('path')
             .data(function (d) {
-                console.log('data', d);
+                {#console.log('data', d);#}
                 return d
             })
             .enter()
@@ -136,12 +190,6 @@
             })
             .style('fill', (d) => (color_tableau(d)))
             .style("stroke-width", 1)
-
-
-    }
-
-    function draw_cells(di, timestep) {
-
 
     }
 
@@ -204,7 +252,7 @@
         let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + data_paths[i]
         d3.json(p).then(function (data) {
             data_sets.push(data)
-            draw_grid()
+
         })
         {#let dataset = {}#}
         {#dataset['name'] = path#}
@@ -250,10 +298,79 @@
     // timeline
     function draw_timeline() {
         let time_svg = d3.select('#time_svg')
+        let time_scale = d3.scaleLinear().domain([0, num_timestep]).range([0, 1000])
+        let slider = time_svg.append('g')
+            .attr('class', 'slider')
+            .attr('transform', 'translate(20, 50)')
+
+        let currentValue = 0
+        slider.append("line")
+            .attr("class", "track")
+            .attr("x1", time_scale.range()[0])
+            .attr("x2", time_scale.range()[1])
+            .select(function () {
+                return this.parentNode.appendChild(this.cloneNode(true));
+            })
+            .attr("class", "track-inset")
+            .select(function () {
+                return this.parentNode.appendChild(this.cloneNode(true));
+            })
+            .attr("class", "track-overlay")
+            .call(d3.drag()
+                .on("start", function () {
+                    console.log('start')
+                    slider.interrupt();
+                })
+                .on("drag", function (event) {
+
+                    {#d3.select(this).attr('cx',event.x)#}
+                    currentValue = Math.ceil(event.x);
+                    update(time_scale.invert(currentValue));
+                    draw_grid()
+                })
+            );
+
+
+        slider.insert("g", ".track-overlay")
+            .attr("class", "ticks")
+            .attr("transform", "translate(0," + 18 + ")")
+            .selectAll("text")
+            .data(time_scale.ticks(10))
+            .enter()
+            .append("text")
+            .attr("x", time_scale)
+            .attr("y", 10)
+            .attr("text-anchor", "middle")
+            .text(function (d) {
+                return (d);
+            });
+
+        let handle = slider.insert("circle", ".track-overlay")
+            .attr("class", "handle")
+            .attr("r", 9);
+
+        let label = slider.append("text")
+            .attr("class", "label")
+            .attr("text-anchor", "middle")
+            .text(0)
+            .attr("transform", "translate(0," + (-25) + ")")
+
+        function update(h) {
+            // update position and text of label according to slider scale
+            console.log('update', h)
+            h = Math.floor(h)
+            handle.attr("cx", time_scale(h));
+            label.attr("x", time_scale(h))
+                .text(h);
+            draw_cells(0, h)
+            // filter data set and redraw plot
+
+        }
     }
 
+
     read_datasets(0)
-    {#draw_grid()#}
+    draw_grid()
     {#draw_table()#}
     draw_menu()
     draw_timeline()
