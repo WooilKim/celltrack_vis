@@ -359,10 +359,13 @@
             // update position and text of label according to slider scale
             console.log('update', h)
             h = Math.floor(h)
-            handle.attr("cx", time_scale(h));
-            label.attr("x", time_scale(h))
-                .text(h);
-            draw_cells(0, h)
+            if (h >= 0 && h < num_timestep) {
+
+                handle.attr("cx", time_scale(h));
+                label.attr("x", time_scale(h))
+                    .text(h);
+                draw_cells(0, h)
+            }
             // filter data set and redraw plot
 
         }
