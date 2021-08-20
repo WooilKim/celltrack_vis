@@ -116,9 +116,10 @@
     let seg_div = document.getElementById("seg_div"),
         table_div = document.getElementById("table_div");
     let seg_svg = d3.select("#seg_svg"),
+        grid_bg = seg_svg.append("g").attr("transform", "translate(40,0)").attr('class', 'grid-bg'),
         grid_vg = seg_svg.append("g").attr("transform", "translate(40,0)"),
         grid_hg = seg_svg.append("g").attr("transform", "translate(40,0)"),
-        seg_g = seg_svg.append("g").attr("transform", "translate(40,0)").attr('filter','url(#minus)'),
+        seg_g = seg_svg.append("g").attr("transform", "translate(40,0)").attr('filter', 'url(#minus)'),
         seg_width = Math.min(seg_div.clientWidth, 800)
     seg_svg.attr('width', seg_width)
     let num_timestep = 0
@@ -137,6 +138,15 @@
 
     let color_cell = d3.scaleOrdinal(d3.interpolateTurbo)
 
+    function zeroPad(nr, base) {
+        let len = (String(base).length - String(nr).length) + 1;
+        return len > 0 ? new Array(len).join('0') + nr : nr;
+    }
+
+    {#zeroPad(1, 10);   //=> 01#}
+    {#zeroPad(1, 100);  //=> 001#}
+    {#zeroPad(1, 1000); //=> 0001#}
+
     function draw_grid() {
 
         let gridverticallines = d3.axisTop()
@@ -152,6 +162,13 @@
             .scale(seg_scale);
 
 
+        grid_bg
+            .append('rect')
+            .attr('width', seg_width)
+            .attr('height', seg_width)
+        .attr('x', 0)
+        .attr('y', 0)
+
         grid_vg
             .attr("class", "grid")
             .call(gridverticallines);
@@ -161,6 +178,19 @@
 
         let t = 0
 
+        d3.select('#seg_svg')
+            .select('defs')
+            .append('pattern')
+            .attr('id', 'seg_bg')
+            .attr('patternUnits', 'userSpaceOnUse')
+            .attr('width', seg_width)
+            .attr('height', seg_width)
+            .append('image')
+            .attr("width", seg_width)
+            .attr("height", seg_width)
+            .attr("x", 0)
+            .attr("y", 0);
+
         let mask = d3.select('#seg_svg')
             .select('defs')
             .append('filter')
@@ -169,13 +199,13 @@
         mask.append('feComposite')
             .attr('in2', 'SourceGraphic')
             .attr('operator', 'in')
-{#            {% comment %}.attr('type', 'linear')#}
-{#            .attr('intercept', '-.05')#}
-{#        mask.append('feComponentTransfer')#}
-{#            .append('feFuncA')#}
-{#            .attr('type', 'gamma')#}
-{#            .attr('amplitude', '4')#}
-{#            .attr('exponent', '.4'){% endcomment %}#}
+        {#            {% comment %}.attr('type', 'linear')#}
+        {#            .attr('intercept', '-.05')#}
+        {#        mask.append('feComponentTransfer')#}
+        {#            .append('feFuncA')#}
+        {#            .attr('type', 'gamma')#}
+        {#            .attr('amplitude', '4')#}
+        {#            .attr('exponent', '.4'){% endcomment %}#}
 
         {##}
         {#mask.append('rect')#}
@@ -198,6 +228,14 @@
     }
 
     function draw_cells(di, timestep) {
+
+
+        d3.select('#seg_svg')
+            .select('defs')
+            .select('pattern')
+            .select('image')
+            .attr('xlink:href', "{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/input/images/01/t' %}" + zeroPad(timestep, 1000) + '.jpg')
+        seg_svg.select('.grid-bg').select('rect').attr('fill', 'url(#seg_bg)')
         let p = d3.line()
             .x(function (d) {
                 return seg_scale(d[0]);
@@ -205,7 +243,6 @@
             .y(function (d) {
                 return seg_scale(d[1]);
             }) // apply the y scale to the y data
-
 
         {#let timestep = 1730#}
 
