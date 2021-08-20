@@ -100,7 +100,12 @@
         <div id='seg_div' class="col-8">
             segmentation
             <br/>
-            <svg id="seg_svg" width="800" height="800"></svg>
+            <div id="seg_mask_div">
+
+            </div>
+            <svg id="seg_svg" width="800" height="800">
+                <defs></defs>
+            </svg>
         </div>
     </div>
 </div>
@@ -113,7 +118,7 @@
     let seg_svg = d3.select("#seg_svg"),
         grid_vg = seg_svg.append("g").attr("transform", "translate(40,0)"),
         grid_hg = seg_svg.append("g").attr("transform", "translate(40,0)"),
-        seg_g = seg_svg.append("g").attr("transform", "translate(40,0)"),
+        seg_g = seg_svg.append("g").attr("transform", "translate(40,0)").attr('filter','url(#minus)'),
         seg_width = Math.min(seg_div.clientWidth, 800)
     seg_svg.attr('width', seg_width)
     let num_timestep = 0
@@ -156,6 +161,39 @@
 
         let t = 0
 
+        let mask = d3.select('#seg_svg')
+            .select('defs')
+            .append('filter')
+            .attr('id', 'minus')
+
+        mask.append('feComposite')
+            .attr('in2', 'SourceGraphic')
+            .attr('operator', 'in')
+{#            {% comment %}.attr('type', 'linear')#}
+{#            .attr('intercept', '-.05')#}
+{#        mask.append('feComponentTransfer')#}
+{#            .append('feFuncA')#}
+{#            .attr('type', 'gamma')#}
+{#            .attr('amplitude', '4')#}
+{#            .attr('exponent', '.4'){% endcomment %}#}
+
+        {##}
+        {#mask.append('rect')#}
+        {#    .attr('class', 'cell')#}
+        {#    .attr('x', 0)#}
+        {#    .attr('y', 0)#}
+        {#    .attr('width', 1000)#}
+        {#    .attr('height', 1000)#}
+        {#mask.append('use')#}
+        {#    .attr('xlink:href', '.data-0')#}
+        {#    .attr('fill', 'white')#}
+        {#mask.append('use')#}
+        {#    .attr('xlink:href', '.data-1')#}
+        {#    .attr('fill', 'black')#}
+        {#d3.select('#seg_svg')#}
+        {#    .append('use')#}
+        {#    .attr('xlink:href', '.cell')#}
+        {#    .attr('mask', 'url(#minus)')#}
 
     }
 
@@ -170,12 +208,14 @@
 
 
         {#let timestep = 1730#}
-        seg_g.selectAll('.cell').remove()
-        let cell_g = seg_g.selectAll('.cell')
+
+
+        let cell_g = seg_g.selectAll('.data-' + di)
             .data(Object.values(data_sets[di]['segmentation'][timestep]))
             .enter()
             .append('g')
-            .attr('class', (d, i) => 'cell cell-' + Object.keys(data_sets[di]['segmentation'][timestep])[i])
+            .attr('class', (d, i) => 'cell cell-' + Object.keys(data_sets[di]['segmentation'][timestep])[i] + ' data-' + di)
+
 
         cell_g.selectAll('path')
             .data(function (d) {
@@ -184,12 +224,13 @@
             })
             .enter()
             .append('path')
-            .attr('stroke', (d) => color_tableau(d))
+            .attr('stroke', color_tableau(di))
             .attr('d', function (d) {
                 return p(d)
             })
-            .style('fill', (d) => (color_tableau(d)))
-            .style("stroke-width", 1)
+            .style('fill', color_tableau(di))
+            .style("stroke-width", 0)
+            .style('fill-opacity', 1)
 
     }
 
@@ -326,7 +367,7 @@
                     {#d3.select(this).attr('cx',event.x)#}
                     currentValue = Math.ceil(event.x);
                     update(time_scale.invert(currentValue));
-                    draw_grid()
+
                 })
             );
 
@@ -359,13 +400,15 @@
             // update position and text of label according to slider scale
             console.log('update', h)
             h = Math.floor(h)
-            if (h >= 0 && h < num_timestep) {
-
-                handle.attr("cx", time_scale(h));
-                label.attr("x", time_scale(h))
-                    .text(h);
-                draw_cells(0, h)
-            }
+            h = Math.max(0, h)
+            h = Math.min(num_timestep, h)
+            handle.attr("cx", time_scale(h));
+            label.attr("x", time_scale(h))
+                .text(h);
+            seg_g.selectAll('.cell').remove()
+            {#seg_svg.select('dfs').selectAll('.cell').remove()#}
+            draw_cells(0, h)
+            draw_cells(1, h)
             // filter data set and redraw plot
 
         }
@@ -373,6 +416,9 @@
 
 
     read_datasets(0)
+    read_datasets(1)
+    read_datasets(2)
+    read_datasets(3)
     draw_grid()
     {#draw_table()#}
     draw_menu()

@@ -3,11 +3,13 @@ import json
 
 item_dict = {}
 
+
 ########## PARSING FUNCTIONS ##########
 
 # returns the first and last elements from the list words
 def parse_line(words):
     return (int(words[0]), int(words[3]))
+
 
 # checks if entry matches any elements of final_result
 def check_duplicate(entry, final_result):
@@ -15,6 +17,7 @@ def check_duplicate(entry, final_result):
         if entry == result:
             return True
     return False
+
 
 # gets the last index that has the same parent id
 # if entry = [0,3,9]
@@ -34,11 +37,12 @@ def get_last_index(entry, final_result):
             continue
         if len(result) < entry_len - 1:
             continue
-        if len(final_result[i-1]) < entry_len - 1:
+        if len(final_result[i - 1]) < entry_len - 1:
             continue
-        if final_result[i-1][entry_len-2] == entry[-2] and final_result[i][entry_len-2] != entry[-2]:
+        if final_result[i - 1][entry_len - 2] == entry[-2] and final_result[i][entry_len - 2] != entry[-2]:
             return i
     return len(final_result)
+
 
 def append_to_list(index, parent, final_result):
     for i, result in enumerate(final_result):
@@ -48,6 +52,7 @@ def append_to_list(index, parent, final_result):
             last_index = get_last_index(temp, final_result)
             final_result.insert(last_index, temp)
             break
+
 
 ######################################
 
@@ -65,7 +70,7 @@ def recursive_insertion(children_array, item_list):
                 children['end'] = item_dict[str(popped)]['end']
             recursive_insertion(children['children'], item_list)
             return
-    
+
     if len(item_list) == 1:
         new_child = {
             'name': str(item_list[0]),
@@ -87,23 +92,24 @@ def recursive_insertion(children_array, item_list):
         children_array.append(new_child)
         return
 
+
 def main():
     dataset_list = [
-    'BF-C2DL-HSC', 
-    'BF-C2DL-MuSC', 
-    'DIC-C2DH-HeLa', 
-    'Fluo-C2DL-MSC', 
-    'Fluo-C3DH-A549', 
-    'Fluo-C3DH-H157', 
-    'Fluo-C3DL-MDA231',
-    'Fluo-N2DH-GOWT1',
-    'Fluo-N2DH-SIM+',
-    'Fluo-N2DL-HeLa',
-    'Fluo-N3DH-CE',
-    'Fluo-N3DH-CHO',
-    'Fluo-N3DH-SIM+',
-    'PhC-C2DH-U373',
-    'PhC-C2DL-PSC'
+        'BF-C2DL-HSC',
+        'BF-C2DL-MuSC',
+        'DIC-C2DH-HeLa',
+        'Fluo-C2DL-MSC',
+        'Fluo-C3DH-A549',
+        'Fluo-C3DH-H157',
+        'Fluo-C3DL-MDA231',
+        'Fluo-N2DH-GOWT1',
+        'Fluo-N2DH-SIM+',
+        'Fluo-N2DL-HeLa',
+        'Fluo-N3DH-CE',
+        'Fluo-N3DH-CHO',
+        'Fluo-N3DH-SIM+',
+        'PhC-C2DH-U373',
+        'PhC-C2DL-PSC'
     ]
 
     read_url = "./celltrack_vis/static/celltrack_vis/data/celltracking_results/res_track.txt"
@@ -126,7 +132,7 @@ def main():
         (index, parent) = parse_line(words)
         append_to_list(index, parent, final_result)
 
-    final_json = {"name": "0", "children": [], "start":0, "end": 0}
+    final_json = {"name": "0", "children": [], "start": 0, "end": 0}
 
     for index, item in enumerate(final_result):
         if index == 0:
@@ -136,6 +142,7 @@ def main():
 
     with open('./result.json', 'w') as json_file:
         json.dump(final_json, json_file)
+
 
 if __name__ == '__main__':
     main()
