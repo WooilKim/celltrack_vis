@@ -1,4 +1,4 @@
-celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/KIT-Sch-GE/01_RES.json filter=lfs diff=lfs merge=lfs -text
-celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/KIT-Sch-GE/02_RES.json filter=lfs diff=lfs merge=lfs -text
-celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/MU-Lux-CZ/01_RES.json filter=lfs diff=lfs merge=lfs -text
-celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/MU-Lux-CZ/02_RES.json filter=lfs diff=lfs merge=lfs -text
+celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/KIT-Sch-GE/01_SEG.json filter=lfs diff=lfs merge=lfs -text
+celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/KIT-Sch-GE/02_SEG.json filter=lfs diff=lfs merge=lfs -text
+celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/MU-Lux-CZ/01_SEG.json filter=lfs diff=lfs merge=lfs -text
+celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/MU-Lux-CZ/02_SEG.json filter=lfs diff=lfs merge=lfs -text
