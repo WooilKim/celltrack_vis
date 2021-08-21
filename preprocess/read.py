@@ -2,13 +2,12 @@ import tifffile as tiff
 import matplotlib.pyplot as plt
 import cv2 as cv
 import numpy as np
-import gdal
+from osgeo import gdal, ogr
 import copy
 from collections import defaultdict
 import json
 from shapely.geometry import Polygon
 import geopandas as gpd
-import gdal, ogr
 from pathlib import Path
 import csv
 import subprocess
@@ -133,13 +132,13 @@ def merge_polygonized(path):
     datasets = ['BF-C2DL-HSC']
     dirs = ['01_RES', '02_RES']
     num_timestep = 1764
-    for alg in algs:
-        for dataset in datasets:
+    for dataset in datasets:
+        for alg in algs:
             for dir in dirs:
                 res = dict()
                 res['name'] = f'{dataset}/{alg}/{dir}'
                 res['num_timestep'] = num_timestep
-                cur_path = f'{path}{alg}/{dataset}/polygonized/{dir}/'
+                cur_path = f'{path}{dataset}/{alg}/polygonized/{dir}/'
                 segmentation = dict()
                 for n in range(num_timestep):
                     dn_dict = defaultdict(list)
@@ -155,7 +154,7 @@ def merge_polygonized(path):
                                 continue
                             dn_dict[dn].extend(polygon)
                     segmentation[n] = dn_dict
-                res['segmentation'] = segmentation
+                # res['segmentation'] = segmentation
                 lineage = list()
                 with open(f'{cur_path[:-1]}.csv', 'r') as f:
                     reader = csv.DictReader(f)
@@ -163,8 +162,12 @@ def merge_polygonized(path):
                         lineage.append(row)
                 res['lineage'] = lineage
 
-                with open(f'{path}{alg}/{dataset}/{dir}.json', 'w') as output:
+                with open(f'{path}{dataset}/{alg}/{dir}.json', 'w') as output:
                     output.write(json.dumps(res))
+                    output.flush()
+
+                with open(f'{path}{dataset}/{alg}/{dir[:-3]}SEG.json', 'w') as output:
+                    output.write(json.dumps(segmentation))
                     output.flush()
 
 

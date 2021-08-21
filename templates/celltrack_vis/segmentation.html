@@ -63,6 +63,78 @@
         stroke: transparent;
         cursor: crosshair;
     }
+
+    #grid_div {
+        border-width: 1px;
+        border-style: solid;
+        border-color: black;
+    }
+
+    #title_div {
+        padding-top: 50px;
+        font-size: 50px;
+        font-weight: bold;
+        text-align: center;
+
+    }
+
+    #author_div {
+        font-size: 20px;
+        text-align: center;
+        color: gray;
+    }
+
+    #structure {
+        height: 100%;
+        background-color: #f0f4f9;
+        -webkit-transition: opacity .5s ease-in-out;
+        -moz-transition: opacity .5s ease-in-out;
+        -ms-transition: opacity .5s ease-in-out;
+        -o-transition: opacity .5s ease-in-out;
+        transition: opacity .5s ease-in-out;
+    }
+
+    .row-content {
+        padding: 5px;
+    }
+
+    .row-content--active {
+        background-color: rgba(0, 125, 193, 0.4);
+    }
+
+    .mdi {
+        margin-right: 5px;
+    }
+
+    .json {
+        color: gray;
+    }
+
+    .dir {
+        color: orange;
+    }
+
+    .depth-1 {
+        margin-left: 10px;
+    }
+
+    .depth-2 {
+        margin-left: 20px;
+    }
+
+    .depth-3 {
+        margin-left: 30px;
+    }
+
+    .depth-4 {
+        margin-left: 40px;
+    }
+
+    .depth-5 {
+        margin-left: 50px;
+    }
+
+    }
 </style>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -70,6 +142,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
         crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@5.9.55/css/materialdesignicons.min.css"></link>
 {#<form>#}
 {#    <label><input type="radio" name="mode" value="cluster" checked> Dendrogram</label>#}
 {#    <label><input type="radio" name="mode" value="tree"> Tree</label>#}
@@ -77,35 +150,60 @@
 <body>
 <div class="container-fluid">
     <div class="row">
+        <div class="col-2">
+            <img class="fit-picture"
+                 src="{% static 'celltrack_vis/image/KUDL_logo_EN_transparent.png' %}"
+                 alt="Korea University Database Lab"
+                 style="width:100%">
+        </div>
+        <div id="title_div" class="col-8">
+            XXXXX : A comparative visual analytic system for celltracking algorithms
+        </div>
+        <div class="col-2"></div>
+
+        <div id="author_div" class="col-12">
+            by Wooil Kim et al.
+        </div>
+    </div>
+    <div class="row">
         <div id="menu_div" class="col-12">
-            menu
             <svg id="menu_svg" width="100%">
             </svg>
         </div>
     </div>
     <div class="row">
         <div id="time_div" class="col-12">
-            timeline
             <svg id="time_svg" width="100%">
 
             </svg>
         </div>
     </div>
     <div class="row">
-        <div id='table_div' class="col-4">
-            table
-            <br/>
-            <svg id="table_svg" height="2000"></svg>
+        <div id="structure" class="col-2">
+            <script>
+
+            </script>
+        </div>
+        <div id='table_div' class="col-2">
+            <svg id="table_svg" height="2000">
+                <g class="table-rows"></g>
+                <g class="header"></g>
+            </svg>
         </div>
         <div id='seg_div' class="col-8">
-            segmentation
-            <br/>
+
             <div id="seg_mask_div">
 
             </div>
-            <svg id="seg_svg" width="800" height="800">
-                <defs></defs>
-            </svg>
+            <div id="grid_div" width="800" height="800">
+                <svg id="seg_svg" width="800" height="800">
+                    <defs></defs>
+                </svg>
+            </div>
+            <div id="seg_minimap_div">
+                <svg id="seg_minimap_svg">
+                </svg>
+            </div>
         </div>
     </div>
 </div>
@@ -116,10 +214,11 @@
     let seg_div = document.getElementById("seg_div"),
         table_div = document.getElementById("table_div");
     let seg_svg = d3.select("#seg_svg"),
-        grid_bg = seg_svg.append("g").attr("transform", "translate(40,0)").attr('class', 'grid-bg'),
-        grid_vg = seg_svg.append("g").attr("transform", "translate(40,0)"),
-        grid_hg = seg_svg.append("g").attr("transform", "translate(40,0)"),
-        seg_g = seg_svg.append("g").attr("transform", "translate(40,0)").attr('filter', 'url(#minus)'),
+        seg_main_container = seg_svg.append('g').attr('id', 'seg_main_container'),
+        grid_bg = seg_main_container.append("g").attr('class', 'grid-bg'),
+        grid_vg = seg_main_container.append("g"),
+        grid_hg = seg_main_container.append("g"),
+        seg_g = seg_main_container.append("g").attr('id', 'seg_g'),
         seg_width = Math.min(seg_div.clientWidth, 800)
     seg_svg.attr('width', seg_width)
     let num_timestep = 0
@@ -149,6 +248,7 @@
 
     function draw_grid() {
 
+        seg_svg.attr('viewBox')
         let gridverticallines = d3.axisTop()
             .tickFormat("")
             .ticks(img_width / 10)
@@ -166,8 +266,8 @@
             .append('rect')
             .attr('width', seg_width)
             .attr('height', seg_width)
-        .attr('x', 0)
-        .attr('y', 0)
+            .attr('x', 0)
+            .attr('y', 0)
 
         grid_vg
             .attr("class", "grid")
@@ -177,7 +277,7 @@
             .call(gridhorizontallines);
 
         let t = 0
-
+        {##}
         d3.select('#seg_svg')
             .select('defs')
             .append('pattern')
@@ -190,15 +290,15 @@
             .attr("height", seg_width)
             .attr("x", 0)
             .attr("y", 0);
-
-        let mask = d3.select('#seg_svg')
-            .select('defs')
-            .append('filter')
-            .attr('id', 'minus')
-
-        mask.append('feComposite')
-            .attr('in2', 'SourceGraphic')
-            .attr('operator', 'in')
+        {##}
+        {#let mask = d3.select('#seg_svg')#}
+        {#    .select('defs')#}
+        {#    .append('filter')#}
+        {#    .attr('id', 'minus')#}
+        {##}
+        {#mask.append('feComposite')#}
+        {#    .attr('in2', 'SourceGraphic')#}
+        {#    .attr('operator', 'in')#}
         {#            {% comment %}.attr('type', 'linear')#}
         {#            .attr('intercept', '-.05')#}
         {#        mask.append('feComponentTransfer')#}
@@ -235,7 +335,8 @@
             .select('pattern')
             .select('image')
             .attr('xlink:href', "{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/input/images/01/t' %}" + zeroPad(timestep, 1000) + '.jpg')
-        seg_svg.select('.grid-bg').select('rect').attr('fill', 'url(#seg_bg)')
+
+        grid_bg.select('rect').attr('fill', 'url(#seg_bg)')
         let p = d3.line()
             .x(function (d) {
                 return seg_scale(d[0]);
@@ -243,8 +344,6 @@
             .y(function (d) {
                 return seg_scale(d[1]);
             }) // apply the y scale to the y data
-
-        {#let timestep = 1730#}
 
 
         let cell_g = seg_g.selectAll('.data-' + di)
@@ -280,44 +379,51 @@
         table_svg.attr('width', table_width)
             .attr('overflow', 'auto')
 
-        let table_header = table_svg.append('g')
-            .attr('class', 'header')
+        let table_header = table_svg.select('.header')
+
+        table_header.append('rect')
+            .attr('y', 0)
+            .attr('width', 200)
+            .attr('height', 20)
+            .attr('fill', 'white')
         table_header.append('text')
             .text('id')
-            .attr('y', 20)
+            .attr('y', 10)
+            .attr('alignment-baseline', 'central')
 
 
         table_header.append('text')
             .text('parent')
-            .attr('y', 20)
+            .attr('y', 10)
             .attr('x', 30)
+            .attr('alignment-baseline', 'central')
 
-        d3.csv("{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/01_RES/res_track.csv' %}").then(function (data) {
-            table_svg.attr('height', data.length * table_row_height)
-            let rows = table_svg.selectAll('.table_row')
-                .data(data)
-                .enter()
-                .append('g')
-                .attr('class', 'table_row')
-                .attr('transform', (d, i) => 'translate(0,' + ((i + 2) * table_row_height) + ')')
-            rows.append('text')
-                .text(d => d['id'])
+        let curr_data = data_sets[0]['lineage']
+        table_svg.attr('height', curr_data.length * table_row_height)
+        let rows = table_svg.select('.table-rows').selectAll('.table_row')
+            .data(curr_data)
+            .enter()
+            .append('g')
+            .attr('class', 'table_row')
+            .attr('transform', (d, i) => 'translate(0,' + ((i + 2) * table_row_height) + ')')
+        rows.append('text')
+            .text(d => d['id'])
 
-            rows.append('text')
-                .text(d => d['parent'])
-                .attr('x', 50)
+        rows.append('text')
+            .text(d => d['parent'])
+            .attr('x', 50)
 
-            let table_cell_life_scale = d3.scaleLinear()
-                .domain([0, 2000])
-                .range([10, 100])
+        let table_cell_life_scale = d3.scaleLinear()
+            .domain([0, 2000])
+            .range([10, 100])
 
-            rows.append('rect')
-                .attr('x', d => 100 + table_cell_life_scale(d['birth']))
-                .attr('y', -table_row_height / 2)
-                .attr('width', d => table_cell_life_scale(d['death'] - d['birth']))
-                .attr('fill', 'red')
-                .attr('height', table_row_height / 2)
-        })
+        rows.append('rect')
+            .attr('x', d => 100 + table_cell_life_scale(d['birth']))
+            .attr('y', -table_row_height / 2)
+            .attr('width', d => table_cell_life_scale(d['death'] - d['birth']))
+            .attr('fill', 'red')
+            .attr('height', table_row_height / 2)
+
         table_div.addEventListener('scroll', function () {
             table_header.node().setAttribute('transform', 'translate(0,' + this.scrollTop + ')');
         }, false)
@@ -330,7 +436,9 @@
         let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + data_paths[i]
         d3.json(p).then(function (data) {
             data_sets.push(data)
-
+            d3.json(p.replace('RES', 'SEG')).then(function (seg) {
+                data_sets[i]['segmentation'] = seg
+            })
         })
         {#let dataset = {}#}
         {#dataset['name'] = path#}
@@ -362,6 +470,9 @@
             .attr('width', 10)
             .attr('height', 10)
             .attr('stroke', 'black')
+            .on('click', function (d) {
+                draw_table()
+            })
         menu_rows.append('text')
             .text(d => d)
             .attr('x', 20)
@@ -445,11 +556,202 @@
             seg_g.selectAll('.cell').remove()
             {#seg_svg.select('dfs').selectAll('.cell').remove()#}
             draw_cells(0, h)
-            draw_cells(1, h)
+            draw_cells(2, h)
             // filter data set and redraw plot
 
         }
+
+        let zoom = d3.zoom()
+            .scaleExtent([1, 3])
+            .on('zoom', function (event) {
+
+                d3.select('#seg_main_container')
+                    .attr('transform', event.transform)
+            })
+        seg_svg.call(zoom)
+            .call(zoom.transform, d3.zoomIdentity.translate(0, 0).scale(1))
+
+        function zoomed() {
+            console.log('zoomed')
+            {#let mapMainContainer = d3.select('#seg_main_container')#}
+            {#    .attr('transform', function (event) {#}
+            {#        return event.transform#}
+            {#    })#}
+            {##}
+            {#minimap.select('#minimapRect').remove();#}
+            {##}
+            {#let mapWidth = parseFloat(d3.select('#map').style('width'));#}
+            {#let mapHeight = parseFloat(d3.select('#map').style('height'));#}
+            {#let factor = mapWidth / d3.select('#map svg').attr('viewBox').split(' ')[2]#}
+            {##}
+            {#let dx = d3.event.transform.x / d3.event.transform.k;#}
+            {#let dy = d3.event.transform.y / d3.event.transform.k;#}
+            {##}
+            {#let minimapRect = minimap.append('rect')#}
+            {#    .attr('id', 'minimapRect')#}
+            {#    .attr('width', mapWidth / factor / d3.event.transform.k)#}
+            {#    .attr('height', mapHeight / factor / d3.event.transform.k)#}
+            {#    .attr('stroke', 'red')#}
+            {#    .attr('stroke-width', 10)#}
+            {#    .attr('fill', 'none')#}
+            {#    .attr('transform', `translate(${-dx},${-dy})`);#}
+        }
     }
+
+    {# structure #}
+    let paths = [
+        'BF-C2DL-HSC/KIT-Sch-GE/01_RES.json',
+        'BF-C2DL-HSC/KIT-Sch-GE/02_RES.json',
+        'BF-C2DL-HSC/MU-Lux-CZ/01_RES.json',
+        'BF-C2DL-HSC/MU-Lux-CZ/02_RES.json'
+    ];
+    let grouped = []; // key state for rendering
+    let last_clicked = -1;
+    let active = {};
+    let checked = {};
+    let checked_list = []; // array which file is checked
+
+    function group_by_dir(paths) {
+        let group = [];
+        let idx = 0;
+
+        for (let path of paths) {
+            const splitted = path.split('/');
+            let current_group = group;
+
+            for (let [index, part] of splitted.entries()) {
+                if (index === Object.keys(splitted).length - 1 && part.includes('.')) { // check if node is leaf node
+                    active[idx] = false;
+                    checked[idx] = false;
+                    current_group.push({
+                        name: part,
+                        type: part.split('.').pop(),
+                        fullPath: path,
+                        idx: idx++,
+                    });
+                    continue;
+                }
+
+                let next = current_group.find(el => el.name === part);
+                if (next) {
+                    current_group = next.children;
+                } else {
+                    active[idx] = false;
+                    checked[idx] = false;
+                    current_group.push({
+                        name: part,
+                        type: 'dir',
+                        children: [],
+                        idx: idx++,
+                    });
+                    current_group = current_group[current_group.length - 1].children;
+                }
+
+
+            }
+        }
+        return group;
+    }
+
+    function render_paths(grouped) {
+        let structure = document.getElementById('structure'); // place to draw
+
+        function on_clicked(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            let idx = e.target.getAttribute('idx');
+            last_clicked = Number(idx);
+            active[idx] = !active[idx];
+            render_paths(grouped);
+        }
+
+        function on_checked(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            let idx = e.target.parentNode.getAttribute('idx');
+            last_clicked = Number(idx);
+            checked[idx] = !checked[idx];
+            render_paths(grouped);
+        }
+
+        function set_event_listener(add = true) {
+            let rows = document.getElementsByClassName('file-row');
+            for (let row of rows) {
+                if (add) {
+                    row.addEventListener('click', on_clicked);
+                } else {
+                    row.removeEventListener('click', on_clicked);
+                }
+            }
+
+            let checkboxes = document.getElementsByClassName('row-checkbox');
+            for (let checkbox of checkboxes) {
+                if (add) {
+                    checkbox.addEventListener('click', on_checked);
+                } else {
+                    checkbox.removeEventListener('click', on_checked);
+                }
+            }
+        }
+
+        function add_row(element, depth) {
+            let {name, type, fullPath, idx} = element;
+            const isChecked = checked[idx];
+            const isActive = active[idx];
+
+            if (isChecked) {
+                checked_list.push(fullPath);
+            }
+
+            switch (type) {
+                case 'json':
+                    return `<div class='file-row depth-${depth}'>
+                                        <div class='row-content ${last_clicked === idx ? 'row-content--active' : ''}' idx='${idx}'>
+                                            <span class="mdi mdi-file json"></span>${name}
+                                            <input type='checkbox' class='row-checkbox' ${isChecked ? 'checked' : ''}>
+                                        </div>`;
+                case 'dir':
+                    let html = `<div class='file-row depth-${depth}'><div class='row-content ${last_clicked === idx ? 'row-content--active' : ''}' idx='${idx}'>`;
+                    if (isActive) {
+                        html += `<span class="mdi mdi-folder-open dir"></span>${name}</div>`;
+                    } else {
+                        html += `<span class="mdi mdi-folder-outline dir"></span>${name}</div>`;
+                    }
+                    return html;
+            }
+        }
+
+        function add_rows(current, depth) {
+            let html = '';
+            for (let element of current) {
+                let {idx} = element;
+                html += add_row(element, depth);
+                if (!('children' in element)) { // leaf node
+                    html += '</div>';
+                    continue;
+                } else if (active[idx]) {
+                    html += add_rows(element.children, depth + 1);
+                }
+                html += '</div>';
+            }
+            return html;
+        }
+
+        checked_list = [];
+        set_event_listener(add = false);
+
+        structure.style.opacity = 0;
+        let html = add_rows(grouped, 1);
+        structure.innerHTML = html;
+        structure.style.opacity = 1;
+
+        set_event_listener(add = true);
+    }
+
+    grouped = group_by_dir(paths);
+    render_paths(grouped);
 
 
     read_datasets(0)
