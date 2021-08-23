@@ -6,6 +6,7 @@
     <title>Title</title>
 </head>
 <style>
+
     .grid {
         opacity: 0.5;
         color: silver;
@@ -13,27 +14,6 @@
 
     #table_div {
         overflow: auto;
-        height: 800px
-    }
-
-    #play-button {
-        position: absolute;
-        top: 140px;
-        left: 50px;
-        background: #f08080;
-        padding-right: 26px;
-        border-radius: 3px;
-        border: none;
-        color: white;
-        margin: 0;
-        padding: 0 12px;
-        width: 60px;
-        cursor: pointer;
-        height: 30px;
-    }
-
-    #play-button:hover {
-        background-color: #696969;
     }
 
     .ticks {
@@ -78,24 +58,48 @@
 
     }
 
+
     #author_div {
         font-size: 20px;
         text-align: center;
         color: gray;
     }
 
-    #structure {
+    #table_div {
+        border: 1px dashed gray;
         height: 100%;
         background-color: #f0f4f9;
+        font-size: 12px;
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+
+    #time_div {
+        background-color: #f0f4f9;
+    }
+
+    #seg_div {
+        background-color: #f0f4f9;
+    }
+
+    #linegraph_div {
+        background-color: #f0f4f9;
+    }
+
+    #lineage_div {
+        background-color: #f0f4f9;
+    }
+
+    #structure {
+        background-color: #f0f4f9;
+        height: 100%;
+        font-size: 12px;
+        border: 1px dashed gray;
         -webkit-transition: opacity .5s ease-in-out;
         -moz-transition: opacity .5s ease-in-out;
         -ms-transition: opacity .5s ease-in-out;
         -o-transition: opacity .5s ease-in-out;
         transition: opacity .5s ease-in-out;
-    }
-
-    .row-content {
-        padding: 5px;
     }
 
     .row-content--active {
@@ -134,7 +138,6 @@
         margin-left: 50px;
     }
 
-    }
 </style>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -147,7 +150,7 @@
 {#    <label><input type="radio" name="mode" value="cluster" checked> Dendrogram</label>#}
 {#    <label><input type="radio" name="mode" value="tree"> Tree</label>#}
 {#</form>#}
-<body>
+<body style="background-color: #98A3DF; height:100%">
 <div class="container-fluid">
     <div class="row">
         <div class="col-2">
@@ -163,23 +166,25 @@
 
         <div id="author_div" class="col-12">
             by Wooil Kim et al.
+            <br/>
         </div>
     </div>
     <div class="row">
-        <div id="menu_div" class="col-12">
-            <svg id="menu_svg" width="100%">
-            </svg>
+        <div class="buttons">
+            <button type="button" class="btn btn-primary">Data upload</button>
+            <button type="button" class="btn btn-info">Tutorial</button>
+            <button type="button" class="btn btn-success">Quick trip</button>
+            {#            <button type="button" class="btn btn-danger">Danger</button>#}
+            {#            <button type="button" class="btn btn-warning">Warning</button>#}
+            {#            <button type="button" class="btn btn-info">Info</button>#}
+            {#            <button type="button" class="btn btn-success">Quick trip</button>#}
+            {#            <button type="button" class="btn btn-light">Light</button>#}
+            {#            <button type="button" class="btn btn-dark">Dark</button>#}
         </div>
     </div>
-    <div class="row">
-        <div id="time_div" class="col-12">
-            <svg id="time_svg" width="100%">
 
-            </svg>
-        </div>
-    </div>
-    <div class="row">
-        <div id="structure" class="col-2">
+    <div class="row" style="margin-top: 30px; height:1200px">
+        <div id="structure" class="col-1">
             <script>
 
             </script>
@@ -190,20 +195,43 @@
                 <g class="header"></g>
             </svg>
         </div>
-        <div id='seg_div' class="col-8">
+        <div class="col-9">
+            <div class="row" style="border: 1px dashed gray;">
+                <div id="linegraph_div" class="col-12">
+                    <svg id="linegraph_svg" width="100%" height="100px">
 
-            <div id="seg_mask_div">
+                    </svg>
+                </div>
+                <div id="time_div" class="col-12">
+                    <svg id="time_svg" width="100%" height="100px">
 
+                    </svg>
+                </div>
+                <div class=row">
+                    <div id='seg_div' class="col-7">
+                        <div class="row" style="display:inline-block; flex: 0 0 auto; padding-left:0; padding-right:0">
+                            <div id="grid_div" width="800" height="800" style="padding-left:0; padding-right:0">
+                                <svg id="seg_svg" width="800" height="800">
+                                    <defs></defs>
+                                </svg>
+                            </div>
+                            <div id="seg_minimap_div">
+                                <svg id="seg_minimap_svg">
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div id='lineage_div' class="col-5">
+                    </div>
+                </div>
             </div>
-            <div id="grid_div" width="800" height="800">
-                <svg id="seg_svg" width="800" height="800">
-                    <defs></defs>
-                </svg>
-            </div>
-            <div id="seg_minimap_div">
-                <svg id="seg_minimap_svg">
-                </svg>
-            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div id="menu_div" class="col-12">
+            <svg id="menu_svg" width="100%">
+            </svg>
         </div>
     </div>
 </div>
@@ -365,8 +393,9 @@
                 return p(d)
             })
             .style('fill', color_tableau(di))
-            .style("stroke-width", 0)
-            .style('fill-opacity', 1)
+            .style("stroke-width", 0.2)
+            .style('stroke-opacity', 0.5)
+            .style('fill-opacity', 0.3)
 
     }
 
@@ -374,55 +403,169 @@
 
         let table_svg = d3.select('#table_svg'),
             table_width = table_div.clientWidth,
-            table_row_height = 20
+            table_row_height = 25,
+            table_padding_left = 10
 
         table_svg.attr('width', table_width)
             .attr('overflow', 'auto')
 
         let table_header = table_svg.select('.header')
 
+
         table_header.append('rect')
             .attr('y', 0)
-            .attr('width', 200)
-            .attr('height', 20)
-            .attr('fill', 'white')
+            .attr('width', table_width)
+            .attr('height', table_row_height)
+            .attr('fill', '#f0f4f9')
         table_header.append('text')
-            .text('id')
-            .attr('y', 10)
+            .text('ID')
+            .attr('y', table_row_height / 2)
+            .attr('x', table_padding_left)
             .attr('alignment-baseline', 'central')
 
 
         table_header.append('text')
-            .text('parent')
-            .attr('y', 10)
-            .attr('x', 30)
+            .text('BIRTH')
+            .attr('y', table_row_height / 2)
+            .attr('x', table_padding_left + 100)
             .attr('alignment-baseline', 'central')
 
-        let curr_data = data_sets[0]['lineage']
-        table_svg.attr('height', curr_data.length * table_row_height)
+        table_header.append('text')
+            .text('DEATH')
+            .attr('y', table_row_height / 2)
+            .attr('x', table_padding_left + 300)
+            .attr('alignment-baseline', 'central')
+
+        let data_idxs = [0, 2]
+
+        let map = new Map();
+        data_sets[data_idxs[0]]['lineage'].forEach(item => map.set(+item['id'], [[data_idxs[0], +item['parent'], +item['birth'], +item['death']]]))
+        for (let i = 1; i < data_idxs.length; i++) {
+            let draw_data = data_sets[data_idxs[i]]['lineage'];
+            draw_data.forEach(function (item) {
+                if (map.has(+item['id'])) {
+                    let arr = map.get(+item['id'])
+                    arr.push([data_idxs[i], +item['parent'], +item['birth'], +item['death']])
+                    map.set(+item['id'], arr)
+                } else {
+                    map.set(+item['id'], [[data_idxs[i], +item['parent'], +item['birth'], +item['death']]])
+                }
+            })
+        }
+
+        let keys = Array.from(map.keys())
+        keys.sort(function (a, b) {
+            return a - b
+        })
+        let mergedArr = Array.from(keys, key => [key, map.get(key)]);
+        console.log(mergedArr)
+        table_svg.attr('height', mergedArr.length * table_row_height)
         let rows = table_svg.select('.table-rows').selectAll('.table_row')
-            .data(curr_data)
+            .data(mergedArr)
             .enter()
             .append('g')
             .attr('class', 'table_row')
             .attr('transform', (d, i) => 'translate(0,' + ((i + 2) * table_row_height) + ')')
         rows.append('text')
-            .text(d => d['id'])
-
-        rows.append('text')
-            .text(d => d['parent'])
-            .attr('x', 50)
-
-        let table_cell_life_scale = d3.scaleLinear()
-            .domain([0, 2000])
-            .range([10, 100])
+            .text(d => d[0])
+            .attr('alignment-baseline', 'central')
+            .attr('x', table_padding_left)
+            .attr('y', -table_row_height / 2)
 
         rows.append('rect')
-            .attr('x', d => 100 + table_cell_life_scale(d['birth']))
-            .attr('y', -table_row_height / 2)
-            .attr('width', d => table_cell_life_scale(d['death'] - d['birth']))
-            .attr('fill', 'red')
-            .attr('height', table_row_height / 2)
+            .attr('fill', 'none')
+            .attr('stroke-width', '0.5px')
+            .attr('stroke', 'silver')
+            .attr('stroke-dasharray', '4')
+            .attr('stroke-linecap', 'butt')
+            .attr('x', 0)
+            .attr('y', -table_row_height)
+            .attr('height', table_row_height)
+            .attr('width', table_width)
+
+        {#rows.append('text')#}
+        {#    .text(d => d[0])#}
+        {#    .attr('x', 50)#}
+
+
+        let table_cell_life_scale = d3.scaleLinear()
+            .domain([0, num_timestep - 1])
+            .range([0, table_width - 100])
+
+        rows.selectAll('.life-rect')
+            .data(function (d) {
+                return d[1]
+            })
+            .enter()
+            .append('rect')
+            .attr('class', 'life-rect')
+            .attr('x', d => 100 + table_cell_life_scale(d[2]))
+            .attr('y', function (d) {
+                switch (d[0]) {
+                    case 0:
+                        return -table_row_height
+                    default :
+                        return -table_row_height + (data_idxs.indexOf(d[0]) - 1) * (0.25) * table_row_height
+                }
+            })
+            .attr('width', d => table_cell_life_scale(d[3] - d[2]))
+            .attr('fill', d => color_tableau(d[0]))
+            .attr('height', function (d) {
+                switch (d[0]) {
+                    case 0 :
+                        return table_row_height
+                    default:
+                        return table_row_height / 4
+                }
+            })
+
+
+        rows.selectAll('.cell-exist')
+            .data(function (d) {
+                return d[1]
+            })
+            .enter()
+            .append('circle')
+            .attr('class', 'cell-exist')
+            .attr('cx', function (d) {
+                switch (d[0]) {
+                    case 0:
+                        return 50
+                    default:
+                        return 80
+                }
+            })
+            .attr('cy', function (d) {
+                switch (d[0]) {
+                    case 0:
+                        return -table_row_height/2
+                    default :
+                        return -table_row_height/2 + (data_idxs.indexOf(d[0]) - 1) * (0.25) * table_row_height
+                }
+            })
+            .attr('fill', d => color_tableau(d[0]))
+            .attr('r', function (d) {
+                switch (d[0]) {
+                    case 0 :
+                        return table_row_height/2
+                    default:
+                        return table_row_height / 8
+                }
+            })
+        {#rows.append('rect')#}
+        {#    .attr('x', d => 100 + table_cell_life_scale(d['birth']))#}
+        {#    .attr('y', -table_row_height / 2)#}
+        {#    .attr('width', d => table_cell_life_scale(d['death'] - d['birth']))#}
+        {#    .attr('fill', 'red')#}
+        {#    .attr('height', table_row_height / 2)#}
+        {##}
+        {##}
+        {#rows.append('rect')#}
+        {#    .attr('x', (d, i) => 100 + table_cell_life_scale(curr_data2[i]['birth']))#}
+        {#    .attr('y', -table_row_height / 2)#}
+        {#    .attr('width', (d, i) => table_cell_life_scale(curr_data2[i]['death'] - curr_data2[i]['birth']))#}
+        {#    .attr('fill', 'blue')#}
+        {#    .attr('height', table_row_height / 4)#}
 
         table_div.addEventListener('scroll', function () {
             table_header.node().setAttribute('transform', 'translate(0,' + this.scrollTop + ')');
@@ -481,7 +624,7 @@
             .attr('x', 220)
 
         // TODO : timestep change
-        num_timestep = 1764
+        num_timestep = 1763
     }
 
     // timeline
@@ -754,6 +897,30 @@
     render_paths(grouped);
 
 
+    function draw_linegraph() {
+        let x = d3.scaleLinear().range([0, num_timestep]),
+            y = d3.scaleLinear().range([100, 0]),
+            valueline = d3.line().x((d, i) => i)
+                .y((d) => d)
+        let svg = d3.select('#linegraph_svg')
+        let line_data = [];
+        for (let i = 0; i < num_timestep; i++) {
+            line_data.push(Math.floor(Math.random() * 100))
+        }
+        svg.append("path")
+            .data([line_data])
+            .attr('class', 'line')
+            .attr('d', valueline)
+            .attr('fill', 'none')
+            .attr('stroke', 'black')
+            .attr('stroke-width', '0.5px')
+
+        svg.append("g")
+            .attr("transform", "translate(0," + 100 + ")")
+            .call(d3.axisBottom(x));
+
+    }
+
     read_datasets(0)
     read_datasets(1)
     read_datasets(2)
@@ -762,7 +929,7 @@
     {#draw_table()#}
     draw_menu()
     draw_timeline()
-
+    draw_linegraph()
 
 </script>
 </body>
