@@ -42,6 +42,8 @@ def organize_id(dataset):
         fw = csv.writer(f)
 
         for algorithm in difference_list:
+            if algorithm == 'input':
+                continue
             fw.writerow([index, algorithm])
             index += 1
 
@@ -52,8 +54,12 @@ def organize_id(dataset):
         fw = csv.writer(f)
         fw.writerow(['id','name'])
 
-        for i, algorithm in enumerate(algorithms):
-            fw.writerow([i, algorithm])
+        index = 0
+        for algorithm in algorithms:
+            if algorithm == 'input':
+                continue
+            fw.writerow([index, algorithm])
+            index += 1
 
         f.close()
     pass
@@ -67,6 +73,79 @@ def jaccard(dataset):
     0, 30,
     0,
     """
+    base_url = 'data/celltracking_results/' + dataset
+    csv_name = '/ids.csv'
+    
+    ids = base_url + csv_name
+
+    algorithms = []
+
+    if Path(ids).is_file():
+        f = open(ids, 'r')
+        fr = list(csv.reader(f))
+        f.close()
+        algorithms = fr[1:]
+    else:
+        algorithms = []
+        for (_, dirnames, _) in os.walk(base_url):
+            algorithms.extend(dirnames)
+            break
+        if 'input' in algorithms:
+            algorithms.remove('input')
+            
+    algo_len = len(algorithms)
+    for i in range(0, algo_len):
+        for j in range(i+1, algo_len):
+            outer_algorithm = algorithms[i][1]
+            inner_algorithm = algorithms[j][1]
+
+            # for 01_RES and 02_RES
+            for k in range(2): 
+                write_url = base_url + '/' + str(i) + '_' + str(j) + '_0' + str(k + 1) + '_RES.csv'
+                f = open(write_url, 'w', newline='')
+                wr = csv.writer(f)
+
+                tif_count = 0
+                outer_dirname = base_url + '/' + outer_algorithm + '/0' + str(k + 1) + '_RES'
+                inner_dirname = base_url + '/' + inner_algorithm + '/0' + str(k + 1) + '_RES'
+
+                for file in os.listdir(outer_dirname):
+                    if file.endswith(".tif"):
+                        tif_count += 1
+                
+                length = len(str(tif_count))
+
+                denominator = 0
+                numerator = 0
+
+                for l in range(tif_count):
+                    tif_name = '/mask' + str(l).zfill(length) + '.tif'
+
+                    outer_tif_name = outer_dirname + tif_name
+                    inner_tif_name = inner_dirname + tif_name
+
+                    if not Path(outer_tif_name).is_file() or not Path(inner_tif_name).is_file():
+                        wr.writerow([l, -1])
+                        continue
+
+                    a = tiff.imread(outer_tif_name)
+                    b = tiff.imread(inner_tif_name)
+
+                    for x_index, x in enumerate(a):
+                        for y_index, y in enumerate(x):
+                            if (y == 0) and (b[x_index][y_index] == 0):
+                                continue
+                            else:
+                                denominator += 1
+                                if y == b[x_index][y_index]:
+                                    numerator += 1
+                    
+                    if denominator == 0:
+                        wr.writerow([l, 0])
+                    else:
+                        wr.writerow([l, numerator/denominator])
+                
+                f.close()
     pass
 
 
@@ -90,5 +169,5 @@ def test():
 
 
 if __name__ == '__main__':
-    organize_id('BF-C2DL-HSC')
+    jaccard('BF-C2DL-HSC')
     test()
