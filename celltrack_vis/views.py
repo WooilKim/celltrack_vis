@@ -34,6 +34,13 @@ def jsonvis(request):
     return render(request, 'celltrack_vis/json_visualization.html', context)
 
 
+def lineage(request):
+    context = {
+
+    }
+    return render(request, 'celltrack_vis/lineage.html', context)
+
+
 def segmentation(request):
     # template = loader.get_template('skyflow/index.html')
     # years = [1978 + i for i in range(39)]

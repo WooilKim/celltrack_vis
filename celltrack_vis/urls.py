@@ -25,6 +25,7 @@ urlpatterns = [
     path('hyungmin/', views.hyungmin, name='hyungmin'),
     path('jsonvis/', views.jsonvis, name='jsonvis'),
     path('segmentation/', views.segmentation, name='segmentation'),
+    path('lineage/', views.lineage, name='segmentation'),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
