@@ -1,4 +1,5 @@
-from os import write
+import os
+from pathlib import Path
 import json
 
 item_dict = {}
@@ -112,37 +113,51 @@ def main():
         'PhC-C2DL-PSC'
     ]
 
-    read_url = "./celltrack_vis/static/celltrack_vis/data/celltracking_results/res_track.txt"
+    for dataset in dataset_list:
+        read_url = "./data/celltracking_results/" + dataset + "/"
 
-    read_file = open(read_url, 'r')
-    lines = read_file.readlines()
-    read_file.close()
+        algorithms = []
 
-    final_result = []
-    final_result.append([0])
+        for _, dirnames, _ in os.walk(read_url):
+            algorithms.extend(dirnames)
+            break
+        
+        for algorithm in algorithms:
+            for i in range(2):
+                res_track_url = read_url + algorithm + "/0" + str(i+1) + "_RES/res_track.txt"
+                if not Path(res_track_url).is_file():
+                    continue
+                
+                read_file = open(res_track_url, 'r')
+                lines = read_file.readlines()
+                read_file.close()
 
-    for line in lines:
-        words = line.split()
+                final_result = []
+                final_result.append([0])
 
-        obj = {}
-        obj["start"] = int(words[1])
-        obj["end"] = int(words[2])
-        item_dict[words[0]] = obj
+                for line in lines:
+                    words = line.split()
 
-        (index, parent) = parse_line(words)
-        append_to_list(index, parent, final_result)
+                    obj = {}
+                    obj["start"] = int(words[1])
+                    obj["end"] = int(words[2])
+                    item_dict[words[0]] = obj
 
-    final_json = {"name": "0", "children": [], "start": 0, "end": 0}
+                    (index, parent) = parse_line(words)
+                    append_to_list(index, parent, final_result)
 
-    for index, item in enumerate(final_result):
-        if index == 0:
-            continue
-        item.pop(0)
-        recursive_insertion(final_json['children'], item)
+                final_json = {"name": "0", "children": [], "start": 0, "end": 0}
 
-    with open('./result.json', 'w') as json_file:
-        json.dump(final_json, json_file)
+                for index, item in enumerate(final_result):
+                    if index == 0:
+                        continue
+                    item.pop(0)
+                    recursive_insertion(final_json['children'], item)
+                
+                json_url = res_track_url[:-3] + "json"
 
+                with open(json_url, 'w') as json_file:
+                    json.dump(final_json, json_file)
 
 if __name__ == '__main__':
     main()
