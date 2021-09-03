@@ -88,6 +88,7 @@
 
     #lineage_div {
         background-color: #f0f4f9;
+        overflow: auto;
     }
 
     #structure {
@@ -209,8 +210,8 @@
 
                     </svg>
                 </div>
-                <div class=row">
-                    <div id='seg_div' class="col-7">
+                <div class=row>
+                    <div id='seg_div' class="col-7" style="float: left">
                         <div class="row" style="display:inline-block; flex: 0 0 auto; padding-left:0; padding-right:0">
                             <div id="grid_div" width="800" height="800" style="padding-left:0; padding-right:0">
                                 <svg id="seg_svg" width="800" height="800">
@@ -223,7 +224,8 @@
                             </div>
                         </div>
                     </div>
-                    <div id='lineage_div' class="col-5">
+                    <div id='lineage_div' class="col-5" height=650 width=650 style="float: left">
+                        <svg height=3200 width=38000 overflow="auto"></svg>
                     </div>
                 </div>
             </div>
@@ -249,7 +251,7 @@
         grid_vg = seg_main_container.append("g"),
         grid_hg = seg_main_container.append("g"),
         seg_g = seg_main_container.append("g").attr('id', 'seg_g'),
-        seg_width = Math.min(seg_div.clientWidth, 800)
+        seg_width = Math.min(seg_div.clientWidth, 800) // seg height
     seg_svg.attr('width', seg_width)
     let num_timestep = 0
     let num_cells = 1000
@@ -572,6 +574,74 @@
         table_div.addEventListener('scroll', function () {
             table_header.node().setAttribute('transform', 'translate(0,' + this.scrollTop + ')');
         }, false)
+
+        console.log(data_sets)
+
+        let data_sets_num = data_sets.length
+        console.log(data_sets[0]['lineage'])
+        lineage_div = d3.select('#lineage_div')
+        // lineage_div.setAttribute("")
+
+        let lineage_data = Array.from(Array(1800), () => new Array())
+        let parent = {}
+        let node_data = data_sets[0]['lineage']
+        for(let i=0; i<node_data.length; i++){
+            let cur_node = node_data[i]
+            parent[cur_node.id]=(cur_node.parent!="0") ? cur_node.parent : cur_node.id            
+            for(let j=(+cur_node.birth); j<=(+cur_node.death); j++)
+                lineage_data[j].push(+cur_node.id)
+        }
+        console.log(parent)
+
+        let lineage_svg = lineage_div.select("svg")
+        let lineage_node = lineage_svg.append("g")
+        let lineage_txt = lineage_svg.append("text")
+            .attr("font-size", 10)
+            .attr("text-anchor", "middle")
+        let lineage_line = lineage_svg.append("g")
+
+        for(let i=0; i<node_data.length; i++){
+            for(let j=0; j<lineage_data[i].length; j++){
+                lineage_txt.append("tspan")
+                    .attr("x", i*20+10)
+                    .attr("y", j*20+13)
+                    .text(lineage_data[i][j])
+                lineage_node.append("circle")
+                    .attr("r", 5)
+                    .attr("cx", i*20+10)
+                    .attr("cy", j*20+10)
+                    .attr("fill", () => d3.interpolateRainbow(((+parent[lineage_data[i][j]]) * 728513 % 320) / 320))
+                
+                if(i>0){
+                    let k;
+                    for(k=0; k<lineage_data[i-1].length; k++){
+                        if(lineage_data[i][j]==lineage_data[i-1][k]){
+                            lineage_line.append("line")
+                                .attr("x1", i*20+10)
+                                .attr("y1", j*20+10)
+                                .attr("x2", (i-1)*20+10)
+                                .attr("y2", k*20+10)
+                                .attr("stroke-width", 1)
+                                .attr("stroke", "black")
+                            break;
+                        }
+                    }
+                    if(k<lineage_data[i-1].length) continue;
+                    for(k=0; k<lineage_data[i-1].length; k++){
+                        if(parent[`${lineage_data[i][j]}`]==parent[`${lineage_data[i-1][k]}`]){
+                            lineage_line.append("line")
+                                .attr("x1", i*20+10)
+                                .attr("y1", j*20+10)
+                                .attr("x2", (i-1)*20+10)
+                                .attr("y2", k*20+10)
+                                .attr("stroke-width", 1)
+                                .attr("stroke", "black")
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     let data_sets = [];
