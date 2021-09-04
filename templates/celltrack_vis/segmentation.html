@@ -594,11 +594,11 @@
         console.log(parent)
 
         let lineage_svg = lineage_div.select("svg")
+        let lineage_line = lineage_svg.append("g")
         let lineage_node = lineage_svg.append("g")
         let lineage_txt = lineage_svg.append("text")
             .attr("font-size", 10)
             .attr("text-anchor", "middle")
-        let lineage_line = lineage_svg.append("g")
 
         for(let i=0; i<node_data.length; i++){
             for(let j=0; j<lineage_data[i].length; j++){
@@ -611,7 +611,7 @@
                     .attr("cx", i*20+10)
                     .attr("cy", j*20+10)
                     .attr("fill", () => d3.interpolateRainbow(((+parent[lineage_data[i][j]]) * 728513 % 320) / 320))
-                
+                    
                 if(i>0){
                     let k;
                     for(k=0; k<lineage_data[i-1].length; k++){
