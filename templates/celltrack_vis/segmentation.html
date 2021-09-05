@@ -44,6 +44,103 @@
         cursor: crosshair;
     }
 
+    .sidebar {
+        padding-left: 0px !important;
+        padding-right: 0px !important;
+    }
+
+    .overlay {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    #structure-outer {
+        position: relative;
+        top: 300px;
+        left: 100px;
+        width: 20%;
+        height: 400px;
+        padding: 20px;
+        background-color: lightgray;
+    }
+
+    #structure {
+        margin-top: 10px;
+    }
+
+    #dialog-button {
+        text-align: center;
+    }
+
+    #dialog-close-button, #structure-close-button {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 24px;
+    }
+
+    .dialog-row {
+        margin-bottom: 10px;
+    }
+
+    .dialog-row:last-of-type {
+        display: flex;
+        justify-content: center;
+    }
+
+    .row-content {
+        padding: 5px;
+    }
+
+    .file-content, .checked-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .checked-row {
+        cursor: row-resize;
+    }
+
+    .close {
+        cursor: pointer;
+    }
+
+    .dialog {
+        top: 25%;
+        left: 40%;
+        width: 20%;
+        height: 200px;
+        padding: 20px;
+        background-color: lightgray;
+        position: relative;
+    }
+
+    .checked-row-content {
+        display: flex;
+        align-items: center;
+    }
+
+    .checked-color {
+        cursor: default;
+        border: 1px solid black;
+        width: 22px;
+        height: 22px;
+        margin-right: 5px;
+    }
+    .checked-color-inner {
+        width: 20px;
+        height: 20px;
+    }
+
+    .checked-content {
+        font-size: 12px;
+    }
+
     #grid_div {
         border-width: 1px;
         border-style: solid;
@@ -63,6 +160,11 @@
         font-size: 20px;
         text-align: center;
         color: gray;
+    }
+
+    #checked_div {
+        background-color: #f0f4f9;
+        height: 200px;
     }
 
     #table_div {
@@ -89,18 +191,6 @@
     #lineage_div {
         background-color: #f0f4f9;
         overflow: auto;
-    }
-
-    #structure {
-        background-color: #f0f4f9;
-        height: 100%;
-        font-size: 12px;
-        border: 1px dashed gray;
-        -webkit-transition: opacity .5s ease-in-out;
-        -moz-transition: opacity .5s ease-in-out;
-        -ms-transition: opacity .5s ease-in-out;
-        -o-transition: opacity .5s ease-in-out;
-        transition: opacity .5s ease-in-out;
     }
 
     .row-content--active {
@@ -146,6 +236,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
         crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@5.9.55/css/materialdesignicons.min.css"></link>
 {#<form>#}
 {#    <label><input type="radio" name="mode" value="cluster" checked> Dendrogram</label>#}
@@ -153,6 +246,27 @@
 {#</form>#}
 <body style="background-color: #98A3DF; height:100%">
 <div class="container-fluid">
+    <div class="overlay">
+        <div class="dialog">
+            <span class="mdi mdi-close" id="dialog-close-button"></span>
+            <div class="dialog-row">
+                <label for="opacity">opacity</label>
+                <input type="range" id="opacity" name="opacity" min="0.0" max="1.0" step="0.01" style="width: 200px;">
+            </div>
+            <div class="dialog-row">
+                <label for="color">color</label>
+                <input type="color" id="color" name="color" value="#FFFFFF">
+            </div>
+            <div class="dialog-row">
+                <button id="dialog-button">Submit</button>
+            </div>
+        </div>
+        <div id="structure-outer">
+            <span class="mdi mdi-close" id="structure-close-button"></span>
+            <div id="structure"></div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-2">
             <img class="fit-picture"
@@ -173,7 +287,7 @@
 
     <div class="row">
         <div class="buttons">
-            <button type="button" class="btn btn-primary">Data load</button>
+            <button type="button" class="btn btn-primary data-load-button">Data load</button>
             <button type="button" class="btn btn-primary">Request data upload</button>
             <button type="button" class="btn btn-info">Tutorial</button>
             <button type="button" class="btn btn-success">Quick trip</button>
@@ -187,17 +301,15 @@
     </div>
 
     <div class="row" style="margin-top: 30px; height:1200px">
-        <div id="structure" class="col-1">
-            <script>
-
-            </script>
-        </div>
-        <div id='table_div' class="col-2">
-            <svg id="table_svg" height="2000">
-                <g class="table-rows"></g>
-                <g class="header"></g>
-            </svg>
-        </div>
+        <div class="sidebar col-3">
+            <div id="checked_div"></div>
+            <div id='table_div'>
+                <svg id="table_svg" height="2000">
+                    <g class="table-rows"></g>
+                    <g class="header"></g>
+                </svg>
+            </div>
+        </div> 
         <div class="col-9">
             <div class="row" style="border: 1px dashed gray;">
                 <div id="linegraph_div" class="col-12">
@@ -824,7 +936,11 @@
     let last_clicked = -1;
     let active = {};
     let checked = {};
+    let dialog_opened = false;
+    let dialog_idx = -1; // 0 for data load, 1 for select color
+    let dialog = {'idx': -1, 'opacity': 1.0, 'color': '#FFFFFF'};
     let checked_list = []; // array which file is checked
+    let k = [{'a': 1}, {'a': 2}, {'a': 3}];
 
     function group_by_dir(paths) {
         let group = [];
@@ -870,6 +986,49 @@
 
     function render_paths(grouped) {
         let structure = document.getElementById('structure'); // place to draw
+        let checked_area = document.getElementById('checked_div'); // place to draw checked
+        let overlay = document.getElementsByClassName('overlay')[0];
+
+        document.getElementsByClassName('data-load-button')[0].addEventListener('click', () => {
+            dialog_opened = true;
+            dialog_idx = 0;
+            set_dialog();
+            render_paths(grouped);
+        });
+
+        function render_checked() {
+            let html = '';
+            checked_list.forEach(element => {
+                html += `<div class='checked-row row-content' idx=${element['idx']}>
+                            <div class='checked-row-content'>
+                                <div class='checked-color'>
+                                    <div class='checked-color-inner' style='background-color: ${element['color']}; opacity: ${element['opacity']}'></div>
+                                </div>
+                                <div class='checked-content'>${element['path']}</div>
+                            </div>
+                            <span class='mdi mdi-close close'></span>
+                        </div>`;
+            });
+
+            checked_area.innerHTML = html;
+
+            function update_checked_row() {
+                let new_checked_list = [];
+                let checked_row = Array.from(document.getElementsByClassName('checked-row'));
+                checked_row.forEach(element => {
+                    let idx = Number(element.getAttribute('idx'));
+                    let item = checked_list.find(inner => inner['idx'] === idx);
+                    new_checked_list.push(item);
+                });
+                checked_list = new_checked_list; // deep copy
+            }
+
+            $('#checked_div').sortable({
+                cursor: "row-resize",
+                items: $('.checked-row'), 
+                stop: update_checked_row
+            }).disableSelection();
+        }
 
         function on_clicked(e) {
             e.preventDefault();
@@ -886,8 +1045,61 @@
             e.stopImmediatePropagation();
 
             let idx = e.target.parentNode.getAttribute('idx');
-            last_clicked = Number(idx);
+            if(e.target.getAttribute('type') === 'checkbox') {
+                last_clicked = Number(idx);
+            } else {
+                last_clicked = -1;
+            }
             checked[idx] = !checked[idx];
+            render_paths(grouped);
+        }
+
+        function on_color_clicked(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            let idx = Number(e.target.parentNode.parentNode.parentNode.getAttribute('idx'));
+            const selected_item = checked_list.find(element => element['idx'] === idx);
+
+            dialog['idx'] = Number(selected_item['idx']);
+            dialog['color'] = selected_item['color'];
+            dialog['opacity'] = selected_item['opacity'];
+            dialog_opened = true;
+            dialog_idx = 1;
+
+            set_dialog();
+        }
+
+        function on_dialog_changed(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            if(e.target.getAttribute('type') === 'range') {
+                dialog['opacity'] = e.target.value;
+            } else if(e.target.getAttribute('type') === 'color') {
+                dialog['color'] = e.target.value;
+            }
+        }
+
+        function on_dialog_close_clicked(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            dialog_opened = false;
+            dialog_idx = -1;
+            set_dialog();
+        }
+
+        function on_dialog_submit_clicked(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            dialog_opened = false;
+            let idx = dialog['idx'];
+            checked_list = checked_list.map(element => (element['idx'] === idx ? 
+                {...element, opacity: dialog['opacity'], color: dialog['color']} : element)
+            );
+            set_dialog();
             render_paths(grouped);
         }
 
@@ -909,6 +1121,85 @@
                     checkbox.removeEventListener('click', on_checked);
                 }
             }
+
+            let delete_buttons = document.getElementsByClassName('close');
+            for(let delete_button of delete_buttons) {
+                if(add) {
+                    delete_button.addEventListener('click', on_checked);
+                } else {
+                    delete_button.removeEventListener('click', on_checked);
+                }
+            }
+
+            let color_pickers = document.getElementsByClassName('checked-color');
+            for(let color_picker of color_pickers) {
+                if(add) {
+                    color_picker.addEventListener('click', on_color_clicked);
+                } else {
+                    color_picker.removeEventListener('click', on_color_clicked);
+                }
+            }
+            let dialog_close_button = document.getElementById('dialog-close-button');
+            if(!dialog_close_button) { // if overlay not exists
+                return;
+            }
+
+            if(add) {
+                dialog_close_button.addEventListener('click', on_dialog_close_clicked);
+            } else {
+                dialog_close_button.removeEventListener('click', on_dialog_close_clicked);
+            }
+
+            let dialog_button = document.getElementById('dialog-button');
+            if(add) {
+                dialog_button.addEventListener('click', on_dialog_submit_clicked);
+            } else {
+                dialog_button.removeEventListener('click', on_dialog_submit_clicked);
+            }
+
+            let opacity = document.getElementById('opacity');
+            if(add) {
+                opacity.addEventListener('change', on_dialog_changed);
+            } else {
+                opacity.removeEventListener('change', on_dialog_changed);
+            }
+
+            let color = document.getElementById('color');
+            if(add) {
+                color.addEventListener('change', on_dialog_changed);
+            } else {
+                color.removeEventListener('change', on_dialog_changed);
+            }
+
+            let structure_close_button = document.getElementById('structure-close-button');
+            if(!structure_close_button) { // if overlay not exists
+                return;
+            }
+
+            if(add) {
+                structure_close_button.addEventListener('click', on_dialog_close_clicked);
+            } else {
+                structure_close_button.removeEventListener('click', on_dialog_close_clicked);
+            }
+        }
+
+        function set_dialog() {
+            if(dialog_opened) {
+                overlay.style.display = 'flex';
+            } else {
+                overlay.style.display = 'none';
+            }
+
+            if(dialog_idx === 0) {
+                document.getElementById('structure-outer').style.display = 'block';
+                document.getElementsByClassName('dialog')[0].style.display = 'none';
+            } else {
+                document.getElementById('structure-outer').style.display = 'none';
+                document.getElementsByClassName('dialog')[0].style.display = 'block';
+            }
+
+            document.getElementById('opacity').value = dialog['opacity'];
+            document.getElementById('color').value = dialog['color'];
         }
 
         function add_row(element, depth) {
@@ -916,8 +1207,11 @@
             const isChecked = checked[idx];
             const isActive = active[idx];
 
-            if (isChecked) {
-                checked_list.push(fullPath);
+            if(isChecked) {
+                const item = checked_list.find(el => el['idx'] === idx);
+                if(!item) checked_list.push({'idx': idx, 'path': fullPath, color: '#FFFFFF', opacity: 1.0}); // push only if item is not exists
+            } else {
+                checked_list = checked_list.filter(el => el['idx'] !== idx);
             }
 
             switch (type) {
@@ -954,15 +1248,15 @@
             return html;
         }
 
-        checked_list = [];
         set_event_listener(add = false);
 
-        structure.style.opacity = 0;
         let html = add_rows(grouped, 1);
         structure.innerHTML = html;
-        structure.style.opacity = 1;
+        render_checked(checked_list);
 
         set_event_listener(add = true);
+
+        set_dialog();
     }
 
     grouped = group_by_dir(paths);
