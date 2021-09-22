@@ -8,3 +8,7 @@ celltrack_vis/__pycache__/views.cpython-39.pyc
 celltrack_vis/__pycache__/urls.cpython-39.pyc
 celltrack_vis/__pycache__/settings.cpython-39.pyc
 celltrack_vis/__pycache__/__init__.cpython-39.pyc
+celltrack_vis/static/.DS_Store
+celltrack_vis/static/celltrack_vis/.DS_Store
+celltrack_vis/static/celltrack_vis/data/.DS_Store
+celltrack_vis/static/celltrack_vis/data/celltracking_results/.DS_Store
