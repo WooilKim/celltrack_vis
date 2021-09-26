@@ -697,6 +697,9 @@
         let lineage_data = Array.from(Array(1800), () => new Array())
         let parent = {}
         let node_data = data_sets[0]['lineage']
+        node_data.sort(function(a, b){
+            return a.birth-b.birth;
+        });
         for(let i=0; i<node_data.length; i++){
             let cur_node = node_data[i]
             parent[cur_node.id]=(cur_node.parent!="0") ? cur_node.parent : cur_node.id            
