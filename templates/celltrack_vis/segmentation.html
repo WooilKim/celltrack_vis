@@ -478,7 +478,7 @@
             .select('defs')
             .select('pattern')
             .select('image')
-            .attr('xlink:href', "{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC-01/input/images/01/t' %}" + zeroPad(timestep, 1000) + '.jpg')
+            .attr('xlink:href', "{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC-01/input/images/t' %}" + zeroPad(timestep, 1000) + '.jpg')
 
         grid_bg.select('rect').attr('fill', 'url(#seg_bg)')
         let p = d3.line()
