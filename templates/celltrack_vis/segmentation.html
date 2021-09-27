@@ -478,7 +478,7 @@
             .select('defs')
             .select('pattern')
             .select('image')
-            .attr('xlink:href', "{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC/input/images/01/t' %}" + zeroPad(timestep, 1000) + '.jpg')
+            .attr('xlink:href', "{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC-01/input/images/01/t' %}" + zeroPad(timestep, 1000) + '.jpg')
 
         grid_bg.select('rect').attr('fill', 'url(#seg_bg)')
         let p = d3.line()
@@ -930,10 +930,10 @@
 
     {# structure #}
     let paths = [
-        'BF-C2DL-HSC/KIT-Sch-GE/01_RES.json',
-        'BF-C2DL-HSC/KIT-Sch-GE/02_RES.json',
-        'BF-C2DL-HSC/MU-Lux-CZ/01_RES.json',
-        'BF-C2DL-HSC/MU-Lux-CZ/02_RES.json'
+        'BF-C2DL-HSC-01/KIT-Sch-GE/RES.json',
+        'BF-C2DL-HSC-02/KIT-Sch-GE/RES.json',
+        'BF-C2DL-HSC-01/MU-Lux-CZ/RES.json',
+        'BF-C2DL-HSC-02/MU-Lux-CZ/RES.json'
     ];
     let grouped = []; // key state for rendering
     let last_clicked = -1;
