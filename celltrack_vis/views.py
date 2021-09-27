@@ -49,10 +49,10 @@ def segmentation(request):
     path2 = '/Users/wooil/wooilkim-github/celltrack_vis/celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/02_RES_20.json'
     res = list()
     paths = [
-        'BF-C2DL-HSC/KIT-Sch-GE/01_RES.json',
-        'BF-C2DL-HSC/KIT-Sch-GE/02_RES.json',
-        'BF-C2DL-HSC/MU-Lux-CZ/01_RES.json',
-        'BF-C2DL-HSC/MU-Lux-CZ/02_RES.json'
+        'BF-C2DL-HSC-01/KIT-Sch-GE/RES.json',
+        'BF-C2DL-HSC-02/KIT-Sch-GE/RES.json',
+        'BF-C2DL-HSC-01/MU-Lux-CZ/RES.json',
+        'BF-C2DL-HSC-02/MU-Lux-CZ/RES.json'
     ]
     #
     # for n in range(num_files):
