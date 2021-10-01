@@ -574,7 +574,6 @@
             return a - b
         })
         let mergedArr = Array.from(keys, key => [key, map.get(key)]);
-        console.log(mergedArr)
         table_svg.attr('height', mergedArr.length * table_row_height)
         let rows = table_svg.select('.table-rows').selectAll('.table_row')
             .data(mergedArr)
@@ -687,26 +686,18 @@
             table_header.node().setAttribute('transform', 'translate(0,' + this.scrollTop + ')');
         }, false)
 
-        console.log(data_sets)
+        // console.log(data_sets)
 
         let data_sets_num = data_sets.length
-        console.log(data_sets[0]['lineage'])
         lineage_div = d3.select('#lineage_div')
-        // lineage_div.setAttribute("")
 
         let lineage_data = Array.from(Array(1800), () => new Array())
-        let parent = {}
-        let node_data = data_sets[0]['lineage']
-        node_data.sort(function(a, b){
-            return a.birth-b.birth;
-        });
-        for(let i=0; i<node_data.length; i++){
-            let cur_node = node_data[i]
-            parent[cur_node.id]=(cur_node.parent!="0") ? cur_node.parent : cur_node.id            
-            for(let j=(+cur_node.birth); j<=(+cur_node.death); j++)
-                lineage_data[j].push(+cur_node.id)
-        }
-        console.log(parent)
+        const num_datasets = 4
+        let parent = new Array()
+        for(i=0; i<num_datasets; i++)
+            parent.push({});
+        let node_data
+
 
         let lineage_svg = lineage_div.select("svg")
         let lineage_line = lineage_svg.append("g")
@@ -714,23 +705,45 @@
         let lineage_txt = lineage_svg.append("text")
             .attr("font-size", 10)
             .attr("text-anchor", "middle")
-
-        for(let i=0; i<node_data.length; i++){
+        function super_ances(sib, nb){
+            if(+parent[nb][sib]==sib) return sib;
+            return super_ances(+parent[nb][sib], nb)
+        }
+        for(let nd=0; nd<num_datasets; nd++){
+            node_data = data_sets[nd]['lineage']
+            
+            console.log(data_sets[nd]['lineage'])
+            for(let i=0; i<node_data.length; i++){
+                node_data[i]['dataset']=nd;
+                let cur_node = node_data[i]
+                parent[nd][cur_node.id]=(cur_node.parent!="0") ? cur_node.parent : cur_node.id
+                for(let j=(+cur_node.birth); j<=(+cur_node.death); j++)
+                    lineage_data[j].push([cur_node.id, nd])
+            }
+        }
+            // console.log(parent)
+        // console.log(lineage_data)
+        for(let i=0; i<lineage_data.length; i++){
+            if(i>50) return
+            lineage_data[i].sort(function(a, b){
+                if(a[1]==b[1]) return super_ances(a[0], a[1])-super_ances(b[0], b[1]);
+                return a[1]-b[1];
+            })
             for(let j=0; j<lineage_data[i].length; j++){
                 lineage_txt.append("tspan")
                     .attr("x", i*20+10)
                     .attr("y", j*20+13)
-                    .text(lineage_data[i][j])
+                    .text(lineage_data[i][j][0])
                 lineage_node.append("circle")
                     .attr("r", 5)
                     .attr("cx", i*20+10)
                     .attr("cy", j*20+10)
-                    .attr("fill", () => d3.interpolateRainbow(((+parent[lineage_data[i][j]]) * 728513 % 320) / 320))
+                    .attr("fill", () => d3.interpolateRainbow((lineage_data[i][j][1] * 728513 % 320) / 320))
                     
                 if(i>0){
                     let k;
                     for(k=0; k<lineage_data[i-1].length; k++){
-                        if(lineage_data[i][j]==lineage_data[i-1][k]){
+                        if(lineage_data[i][j][0]==lineage_data[i-1][k][0] && lineage_data[i][j][1]==lineage_data[i-1][k][1]){
                             lineage_line.append("line")
                                 .attr("x1", i*20+10)
                                 .attr("y1", j*20+10)
@@ -743,17 +756,18 @@
                     }
                     if(k<lineage_data[i-1].length) continue;
                     for(k=0; k<lineage_data[i-1].length; k++){
-                        if(parent[`${lineage_data[i][j]}`]==parent[`${lineage_data[i-1][k]}`]){
-                            lineage_line.append("line")
-                                .attr("x1", i*20+10)
-                                .attr("y1", j*20+10)
-                                .attr("x2", (i-1)*20+10)
-                                .attr("y2", k*20+10)
-                                .attr("stroke-width", 1)
-                                .attr("stroke", "black")
-                            break;
+                        if(parent[`${lineage_data[i][j][1]}`][`${lineage_data[i][j][0]}`]==parent[`${lineage_data[i-1][k][1]}`][`${lineage_data[i-1][k][0]}`]
+                        && lineage_data[i][j][1]==lineage_data[i-1][k][1]){
+                                lineage_line.append("line")
+                                    .attr("x1", i*20+10)
+                                    .attr("y1", j*20+10)
+                                    .attr("x2", (i-1)*20+10)
+                                    .attr("y2", k*20+10)
+                                    .attr("stroke-width", 1)
+                                    .attr("stroke", "black")
+                                break;
+                            }
                         }
-                    }
                 }
             }
         }
