@@ -696,8 +696,6 @@
         let parent = new Array()
         for(i=0; i<num_datasets; i++)
             parent.push({});
-        let node_data
-
 
         let lineage_svg = lineage_div.select("svg")
         let lineage_line = lineage_svg.append("g")
@@ -709,10 +707,10 @@
             if(+parent[nb][sib]==sib) return sib;
             return super_ances(+parent[nb][sib], nb)
         }
+
         for(let nd=0; nd<num_datasets; nd++){
-            node_data = data_sets[nd]['lineage']
+            let node_data = data_sets[nd]['lineage']
             
-            console.log(data_sets[nd]['lineage'])
             for(let i=0; i<node_data.length; i++){
                 node_data[i]['dataset']=nd;
                 let cur_node = node_data[i]
@@ -721,43 +719,39 @@
                     lineage_data[j].push([cur_node.id, nd])
             }
         }
-            // console.log(parent)
-        // console.log(lineage_data)
-        for(let i=0; i<lineage_data.length; i++){
-            if(i>50) return
-            lineage_data[i].sort(function(a, b){
-                if(a[1]==b[1]) return super_ances(a[0], a[1])-super_ances(b[0], b[1]);
-                return a[1]-b[1];
-            })
-            for(let j=0; j<lineage_data[i].length; j++){
-                lineage_txt.append("tspan")
-                    .attr("x", i*20+10)
-                    .attr("y", j*20+13)
-                    .text(lineage_data[i][j][0])
-                lineage_node.append("circle")
-                    .attr("r", 5)
-                    .attr("cx", i*20+10)
-                    .attr("cy", j*20+10)
-                    .attr("fill", () => d3.interpolateRainbow((lineage_data[i][j][1] * 728513 % 320) / 320))
-                    
-                if(i>0){
-                    let k;
-                    for(k=0; k<lineage_data[i-1].length; k++){
-                        if(lineage_data[i][j][0]==lineage_data[i-1][k][0] && lineage_data[i][j][1]==lineage_data[i-1][k][1]){
-                            lineage_line.append("line")
-                                .attr("x1", i*20+10)
-                                .attr("y1", j*20+10)
-                                .attr("x2", (i-1)*20+10)
-                                .attr("y2", k*20+10)
-                                .attr("stroke-width", 1)
-                                .attr("stroke", "black")
-                            break;
-                        }
-                    }
-                    if(k<lineage_data[i-1].length) continue;
-                    for(k=0; k<lineage_data[i-1].length; k++){
-                        if(parent[`${lineage_data[i][j][1]}`][`${lineage_data[i][j][0]}`]==parent[`${lineage_data[i-1][k][1]}`][`${lineage_data[i-1][k][0]}`]
-                        && lineage_data[i][j][1]==lineage_data[i-1][k][1]){
+
+        function draw_lineage(start_timestep)
+        {
+            lineage_line.remove()
+            lineage_node.remove()
+            lineage_txt.remove()
+            lineage_line = lineage_svg.append("g")
+            lineage_node = lineage_svg.append("g")
+            lineage_txt = lineage_svg.append("text")
+                .attr("font-size", 10)
+                .attr("text-anchor", "middle")
+
+            console.log(start_timestep, Math.min(lineage_data.length, start_timestep+50))
+            for(let i=start_timestep; i<=Math.min(lineage_data.length, start_timestep+50); i++){
+                lineage_data[i].sort(function(a, b){
+                    if(a[1]==b[1]) return super_ances(a[0], a[1])-super_ances(b[0], b[1]);
+                    return a[1]-b[1];
+                })
+                for(let j=0; j<lineage_data[i].length; j++){
+                    lineage_txt.append("tspan")
+                        .attr("x", i*20+10)
+                        .attr("y", j*20+13)
+                        .text(lineage_data[i][j][0])
+                    lineage_node.append("circle")
+                        .attr("r", 5)
+                        .attr("cx", i*20+10)
+                        .attr("cy", j*20+10)
+                        .attr("fill", () => d3.interpolateRainbow((lineage_data[i][j][1] * 728513 % 320) / 320))
+                        
+                    if(i>0){
+                        let k;
+                        for(k=0; k<lineage_data[i-1].length; k++){
+                            if(lineage_data[i][j][0]==lineage_data[i-1][k][0] && lineage_data[i][j][1]==lineage_data[i-1][k][1]){
                                 lineage_line.append("line")
                                     .attr("x1", i*20+10)
                                     .attr("y1", j*20+10)
@@ -768,9 +762,35 @@
                                 break;
                             }
                         }
+                        if(k<lineage_data[i-1].length) continue;
+                        for(k=0; k<lineage_data[i-1].length; k++){
+                            if(parent[`${lineage_data[i][j][1]}`][`${lineage_data[i][j][0]}`]==parent[`${lineage_data[i-1][k][1]}`][`${lineage_data[i-1][k][0]}`]
+                            && lineage_data[i][j][1]==lineage_data[i-1][k][1]){
+                                    lineage_line.append("line")
+                                        .attr("x1", i*20+10)
+                                        .attr("y1", j*20+10)
+                                        .attr("x2", (i-1)*20+10)
+                                        .attr("y2", k*20+10)
+                                        .attr("stroke-width", 1)
+                                        .attr("stroke", "black")
+                                    break;
+                                }
+                            }
+                    }
                 }
             }
         }
+
+        draw_lineage(0);
+
+        document.getElementById('lineage_div').addEventListener('scroll', () => {
+            let cur_scroll = $('#lineage_div').scrollLeft()
+            cur_scroll -= cur_scroll%20;
+            cur_scroll/=20
+            cur_scroll = Math.max(0, cur_scroll-10);
+
+            draw_lineage(cur_scroll);
+        })
     }
 
     let data_sets = [];
