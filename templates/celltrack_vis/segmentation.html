@@ -169,11 +169,20 @@
 
     #table_div {
         border: 1px dashed gray;
-        height: 100%;
+        height: 2000px;
         background-color: #f0f4f9;
         font-size: 12px;
         padding-left: 0px;
         padding-right: 0px;
+    }
+
+    #table_div > table {
+        border-collapse: unset; 
+        width: 100%; 
+        text-align: center; 
+        table-layout: fixed;
+        height: 1000px;
+        overflow-y: auto;
     }
 
     #time_div {
@@ -304,12 +313,12 @@
         <div class="sidebar col-4">
             <div id="checked_div"></div>
             <div id='table_div'>
-                <table style="border-collapse: unset; width: 100%; text-align: center; table-layout: fixed;" cellspacing="5">
+                <table cellspacing="5">
                     <thead>
                         <tr>
                             <th colspan="5">Cell ID</th>
                             <th>Threshold</th>
-                            <th><input type="number" style="width: 40px;" name="threshold" value="80" min="0" max="100"></th>
+                            <th><input type="number" style="width: 40px;" name="threshold" value="70" min="0" max="100"></th>
                         </tr>
                         <tr>
                             <th>Time</th>
@@ -321,8 +330,7 @@
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody id="table_before_select"></tbody>
-                    <tbody id="table_after_select"></tbody>
+                    <tbody id="table_tbody"></tbody>
                     <template id="table_row_template">
                         <tr>
                             <td></td>
@@ -565,6 +573,11 @@
     // table div rendering
 
     document.getElementsByName('threshold')[0].addEventListener('input', filter_table);
+    document.getElementById('table_div').addEventListener('scroll', (e) => {
+        render_table(refresh=false);
+    })
+
+    let max_start_idx = 0;
     let raw_data = [];
     let unselected_rows = [];
     let selected_rows = [];
@@ -663,7 +676,7 @@
             for(const [column, obj] of Object.entries(row)) {
                 const options = [];
                 for(const [idx, acc] of Object.entries(obj['acc'])) {
-                    if(obj['acc'] > threshold) {
+                    if(obj['acc'][idx] >= threshold) {
                         options.push({
                             target: obj['target'][idx],
                             acc: obj['acc'][idx]
@@ -692,8 +705,7 @@
             for(const [column, obj] of Object.entries(row)) {
                 result_row['column' + column] = obj;
             }
-
-            if(number_of_options === row_values.length) {
+            if(number_of_options === row_values.length) { // option이 각각 1개씩만 있는 경우
                 selected_rows.push(result_row);
             }
             else {
@@ -704,13 +716,14 @@
         render_table();
     }
 
-    function render_table() {
-        const before_select = document.getElementById("table_before_select");
-        const after_select = document.getElementById("table_after_select");
+    function render_table(refresh=true) {
+        const NUM_OF_MAX_ELEMENTS = 100;
+
+        const table_div = document.getElementById("table_div");
+        const tbody = document.getElementById("table_tbody");
         const template = document.getElementById("table_row_template");
 
-        before_select.querySelectorAll("tr").forEach(el => el.remove());
-        after_select.querySelectorAll("tr").forEach(el => el.remove());
+        if(refresh) tbody.querySelectorAll("tr").forEach(el => el.remove());
 
         sort_table();
 
@@ -735,15 +748,31 @@
                 td[td.length - 1].querySelector("button").style.display = "none";
             }
 
-            if(selected) after_select.appendChild(clone);
-            else before_select.appendChild(clone);
+            tbody.appendChild(clone);
         }
-        
-        unselected_rows.forEach(el => {
+
+        if(!refresh) {
+            const WINDOW_SIZE = 50;
+            const scrollTop = table_div.scrollTop;
+            let start_idx = parseInt(Math.max(((scrollTop - 57) / 21) - 1, 0));
+
+            if(start_idx <= max_start_idx) return;
+            max_start_idx = start_idx + WINDOW_SIZE;
+
+            for(let idx=start_idx;idx<start_idx+WINDOW_SIZE;idx++) {
+                if(idx >= unselected_rows.length) add_row(selected_rows[idx - unselected_rows.length], true);
+                else add_row(unselected_rows[idx], false);
+            }
+            return;
+        }
+
+        max_start_idx = 0;
+
+        unselected_rows.slice(0, NUM_OF_MAX_ELEMENTS).forEach(el => {
             add_row(el, false);
         });
 
-        selected_rows.forEach(el => {
+        selected_rows.slice(0, Math.max(0, NUM_OF_MAX_ELEMENTS - unselected_rows.length)).forEach(el => {
             add_row(el, true);
         });
 
