@@ -238,6 +238,14 @@
         margin-left: 50px;
     }
 
+    .solid{
+        stroke: solid;
+    }
+
+    .dashed{
+        stroke-dasharray: 3, 3;
+    }
+
 </style>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -623,7 +631,7 @@
         selected_rows.sort(compare_func);
     }
 
-    async function draw_table() {
+    async function draw_selection_table() {
         const files = ["0_1.json", "0_2.json", "0_3.json", "0_4.json"];
         
         raw_data = [];
@@ -780,249 +788,249 @@
         // add_row(selected_rows[0], true);
     }
 
-    // function draw_table() {
+    function draw_table() {
 
-    //     let table_svg = d3.select('#table_svg'),
-    //         table_width = table_div.clientWidth,
-    //         table_row_height = 25,
-    //         table_padding_left = 10
+        let table_svg = d3.select('#table_svg'),
+            table_width = table_div.clientWidth,
+            table_row_height = 25,
+            table_padding_left = 10
 
-    //     table_svg.attr('width', table_width)
-    //         .attr('overflow', 'auto')
+        table_svg.attr('width', table_width)
+            .attr('overflow', 'auto')
 
-    //     let table_header = table_svg.select('.header')
-
-
-    //     table_header.append('rect')
-    //         .attr('y', 0)
-    //         .attr('width', table_width)
-    //         .attr('height', table_row_height)
-    //         .attr('fill', '#f0f4f9')
-    //     table_header.append('text')
-    //         .text('ID')
-    //         .attr('y', table_row_height / 2)
-    //         .attr('x', table_padding_left)
-    //         .attr('alignment-baseline', 'central')
+        let table_header = table_svg.select('.header')
 
 
-    //     table_header.append('text')
-    //         .text('BIRTH')
-    //         .attr('y', table_row_height / 2)
-    //         .attr('x', table_padding_left + 100)
-    //         .attr('alignment-baseline', 'central')
-
-    //     table_header.append('text')
-    //         .text('DEATH')
-    //         .attr('y', table_row_height / 2)
-    //         .attr('x', table_padding_left + 300)
-    //         .attr('alignment-baseline', 'central')
-
-    //     let data_idxs = [0, 2]
-
-    //     let map = new Map();
-    //     data_sets[data_idxs[0]]['lineage'].forEach(item => map.set(+item['id'], [[data_idxs[0], +item['parent'], +item['birth'], +item['death']]]))
-    //     for (let i = 1; i < data_idxs.length; i++) {
-    //         let draw_data = data_sets[data_idxs[i]]['lineage'];
-    //         draw_data.forEach(function (item) {
-    //             if (map.has(+item['id'])) {
-    //                 let arr = map.get(+item['id'])
-    //                 arr.push([data_idxs[i], +item['parent'], +item['birth'], +item['death']])
-    //                 map.set(+item['id'], arr)
-    //             } else {
-    //                 map.set(+item['id'], [[data_idxs[i], +item['parent'], +item['birth'], +item['death']]])
-    //             }
-    //         })
-    //     }
-
-    //     let keys = Array.from(map.keys())
-    //     keys.sort(function (a, b) {
-    //         return a - b
-    //     })
-    //     let mergedArr = Array.from(keys, key => [key, map.get(key)]);
-    //     console.log(mergedArr)
-    //     table_svg.attr('height', mergedArr.length * table_row_height)
-    //     let rows = table_svg.select('.table-rows').selectAll('.table_row')
-    //         .data(mergedArr)
-    //         .enter()
-    //         .append('g')
-    //         .attr('class', 'table_row')
-    //         .attr('transform', (d, i) => 'translate(0,' + ((i + 2) * table_row_height) + ')')
-    //     rows.append('text')
-    //         .text(d => d[0])
-    //         .attr('alignment-baseline', 'central')
-    //         .attr('x', table_padding_left)
-    //         .attr('y', -table_row_height / 2)
-
-    //     rows.append('rect')
-    //         .attr('fill', 'none')
-    //         .attr('stroke-width', '0.5px')
-    //         .attr('stroke', 'silver')
-    //         .attr('stroke-dasharray', '4')
-    //         .attr('stroke-linecap', 'butt')
-    //         .attr('x', 0)
-    //         .attr('y', -table_row_height)
-    //         .attr('height', table_row_height)
-    //         .attr('width', table_width)
-
-    //     {#rows.append('text')#}
-    //     {#    .text(d => d[0])#}
-    //     {#    .attr('x', 50)#}
+        table_header.append('rect')
+            .attr('y', 0)
+            .attr('width', table_width)
+            .attr('height', table_row_height)
+            .attr('fill', '#f0f4f9')
+        table_header.append('text')
+            .text('ID')
+            .attr('y', table_row_height / 2)
+            .attr('x', table_padding_left)
+            .attr('alignment-baseline', 'central')
 
 
-    //     let table_cell_life_scale = d3.scaleLinear()
-    //         .domain([0, num_timestep - 1])
-    //         .range([0, table_width - 100])
+        table_header.append('text')
+            .text('BIRTH')
+            .attr('y', table_row_height / 2)
+            .attr('x', table_padding_left + 100)
+            .attr('alignment-baseline', 'central')
 
-    //     rows.selectAll('.life-rect')
-    //         .data(function (d) {
-    //             return d[1]
-    //         })
-    //         .enter()
-    //         .append('rect')
-    //         .attr('class', 'life-rect')
-    //         .attr('x', d => 100 + table_cell_life_scale(d[2]))
-    //         .attr('y', function (d) {
-    //             switch (d[0]) {
-    //                 case 0:
-    //                     return -table_row_height
-    //                 default :
-    //                     return -table_row_height + (data_idxs.indexOf(d[0]) - 1) * (0.25) * table_row_height
-    //             }
-    //         })
-    //         .attr('width', d => table_cell_life_scale(d[3] - d[2]))
-    //         .attr('fill', d => color_tableau(d[0]))
-    //         .attr('height', function (d) {
-    //             switch (d[0]) {
-    //                 case 0 :
-    //                     return table_row_height
-    //                 default:
-    //                     return table_row_height / 4
-    //             }
-    //         })
+        table_header.append('text')
+            .text('DEATH')
+            .attr('y', table_row_height / 2)
+            .attr('x', table_padding_left + 300)
+            .attr('alignment-baseline', 'central')
+
+        let data_idxs = [0, 2]
+
+        let map = new Map();
+        data_sets[data_idxs[0]]['lineage'].forEach(item => map.set(+item['id'], [[data_idxs[0], +item['parent'], +item['birth'], +item['death']]]))
+        for (let i = 1; i < data_idxs.length; i++) {
+            let draw_data = data_sets[data_idxs[i]]['lineage'];
+            draw_data.forEach(function (item) {
+                if (map.has(+item['id'])) {
+                    let arr = map.get(+item['id'])
+                    arr.push([data_idxs[i], +item['parent'], +item['birth'], +item['death']])
+                    map.set(+item['id'], arr)
+                } else {
+                    map.set(+item['id'], [[data_idxs[i], +item['parent'], +item['birth'], +item['death']]])
+                }
+            })
+        }
+
+        let keys = Array.from(map.keys())
+        keys.sort(function (a, b) {
+            return a - b
+        })
+        let mergedArr = Array.from(keys, key => [key, map.get(key)]);
+        console.log(mergedArr)
+        table_svg.attr('height', mergedArr.length * table_row_height)
+        let rows = table_svg.select('.table-rows').selectAll('.table_row')
+            .data(mergedArr)
+            .enter()
+            .append('g')
+            .attr('class', 'table_row')
+            .attr('transform', (d, i) => 'translate(0,' + ((i + 2) * table_row_height) + ')')
+        rows.append('text')
+            .text(d => d[0])
+            .attr('alignment-baseline', 'central')
+            .attr('x', table_padding_left)
+            .attr('y', -table_row_height / 2)
+
+        rows.append('rect')
+            .attr('fill', 'none')
+            .attr('stroke-width', '0.5px')
+            .attr('stroke', 'silver')
+            .attr('stroke-dasharray', '4')
+            .attr('stroke-linecap', 'butt')
+            .attr('x', 0)
+            .attr('y', -table_row_height)
+            .attr('height', table_row_height)
+            .attr('width', table_width)
+
+        {#rows.append('text')#}
+        {#    .text(d => d[0])#}
+        {#    .attr('x', 50)#}
 
 
-    //     rows.selectAll('.cell-exist')
-    //         .data(function (d) {
-    //             return d[1]
-    //         })
-    //         .enter()
-    //         .append('circle')
-    //         .attr('class', 'cell-exist')
-    //         .attr('cx', function (d) {
-    //             switch (d[0]) {
-    //                 case 0:
-    //                     return 50
-    //                 default:
-    //                     return 80
-    //             }
-    //         })
-    //         .attr('cy', function (d) {
-    //             switch (d[0]) {
-    //                 case 0:
-    //                     return -table_row_height/2
-    //                 default :
-    //                     return -table_row_height/2 + (data_idxs.indexOf(d[0]) - 1) * (0.25) * table_row_height
-    //             }
-    //         })
-    //         .attr('fill', d => color_tableau(d[0]))
-    //         .attr('r', function (d) {
-    //             switch (d[0]) {
-    //                 case 0 :
-    //                     return table_row_height/2
-    //                 default:
-    //                     return table_row_height / 8
-    //             }
-    //         })
-    //     {#rows.append('rect')#}
-    //     {#    .attr('x', d => 100 + table_cell_life_scale(d['birth']))#}
-    //     {#    .attr('y', -table_row_height / 2)#}
-    //     {#    .attr('width', d => table_cell_life_scale(d['death'] - d['birth']))#}
-    //     {#    .attr('fill', 'red')#}
-    //     {#    .attr('height', table_row_height / 2)#}
-    //     {##}
-    //     {##}
-    //     {#rows.append('rect')#}
-    //     {#    .attr('x', (d, i) => 100 + table_cell_life_scale(curr_data2[i]['birth']))#}
-    //     {#    .attr('y', -table_row_height / 2)#}
-    //     {#    .attr('width', (d, i) => table_cell_life_scale(curr_data2[i]['death'] - curr_data2[i]['birth']))#}
-    //     {#    .attr('fill', 'blue')#}
-    //     {#    .attr('height', table_row_height / 4)#}
+        let table_cell_life_scale = d3.scaleLinear()
+            .domain([0, num_timestep - 1])
+            .range([0, table_width - 100])
 
-    //     table_div.addEventListener('scroll', function () {
-    //         table_header.node().setAttribute('transform', 'translate(0,' + this.scrollTop + ')');
-    //     }, false)
+        rows.selectAll('.life-rect')
+            .data(function (d) {
+                return d[1]
+            })
+            .enter()
+            .append('rect')
+            .attr('class', 'life-rect')
+            .attr('x', d => 100 + table_cell_life_scale(d[2]))
+            .attr('y', function (d) {
+                switch (d[0]) {
+                    case 0:
+                        return -table_row_height
+                    default :
+                        return -table_row_height + (data_idxs.indexOf(d[0]) - 1) * (0.25) * table_row_height
+                }
+            })
+            .attr('width', d => table_cell_life_scale(d[3] - d[2]))
+            .attr('fill', d => color_tableau(d[0]))
+            .attr('height', function (d) {
+                switch (d[0]) {
+                    case 0 :
+                        return table_row_height
+                    default:
+                        return table_row_height / 4
+                }
+            })
 
-    //     console.log(data_sets)
 
-    //     let data_sets_num = data_sets.length
-    //     console.log(data_sets[0]['lineage'])
-    //     lineage_div = d3.select('#lineage_div')
-    //     // lineage_div.setAttribute("")
+        rows.selectAll('.cell-exist')
+            .data(function (d) {
+                return d[1]
+            })
+            .enter()
+            .append('circle')
+            .attr('class', 'cell-exist')
+            .attr('cx', function (d) {
+                switch (d[0]) {
+                    case 0:
+                        return 50
+                    default:
+                        return 80
+                }
+            })
+            .attr('cy', function (d) {
+                switch (d[0]) {
+                    case 0:
+                        return -table_row_height/2
+                    default :
+                        return -table_row_height/2 + (data_idxs.indexOf(d[0]) - 1) * (0.25) * table_row_height
+                }
+            })
+            .attr('fill', d => color_tableau(d[0]))
+            .attr('r', function (d) {
+                switch (d[0]) {
+                    case 0 :
+                        return table_row_height/2
+                    default:
+                        return table_row_height / 8
+                }
+            })
+        {#rows.append('rect')#}
+        {#    .attr('x', d => 100 + table_cell_life_scale(d['birth']))#}
+        {#    .attr('y', -table_row_height / 2)#}
+        {#    .attr('width', d => table_cell_life_scale(d['death'] - d['birth']))#}
+        {#    .attr('fill', 'red')#}
+        {#    .attr('height', table_row_height / 2)#}
+        {##}
+        {##}
+        {#rows.append('rect')#}
+        {#    .attr('x', (d, i) => 100 + table_cell_life_scale(curr_data2[i]['birth']))#}
+        {#    .attr('y', -table_row_height / 2)#}
+        {#    .attr('width', (d, i) => table_cell_life_scale(curr_data2[i]['death'] - curr_data2[i]['birth']))#}
+        {#    .attr('fill', 'blue')#}
+        {#    .attr('height', table_row_height / 4)#}
 
-    //     let lineage_data = Array.from(Array(1800), () => new Array())
-    //     let parent = {}
-    //     let node_data = data_sets[0]['lineage']
-    //     node_data.sort(function(a, b){
-    //         return a.birth-b.birth;
-    //     });
-    //     for(let i=0; i<node_data.length; i++){
-    //         let cur_node = node_data[i]
-    //         parent[cur_node.id]=(cur_node.parent!="0") ? cur_node.parent : cur_node.id            
-    //         for(let j=(+cur_node.birth); j<=(+cur_node.death); j++)
-    //             lineage_data[j].push(+cur_node.id)
-    //     }
-    //     console.log(parent)
+        table_div.addEventListener('scroll', function () {
+            table_header.node().setAttribute('transform', 'translate(0,' + this.scrollTop + ')');
+        }, false)
 
-    //     let lineage_svg = lineage_div.select("svg")
-    //     let lineage_line = lineage_svg.append("g")
-    //     let lineage_node = lineage_svg.append("g")
-    //     let lineage_txt = lineage_svg.append("text")
-    //         .attr("font-size", 10)
-    //         .attr("text-anchor", "middle")
+        console.log(data_sets)
 
-    //     for(let i=0; i<node_data.length; i++){
-    //         for(let j=0; j<lineage_data[i].length; j++){
-    //             lineage_txt.append("tspan")
-    //                 .attr("x", i*20+10)
-    //                 .attr("y", j*20+13)
-    //                 .text(lineage_data[i][j])
-    //             lineage_node.append("circle")
-    //                 .attr("r", 5)
-    //                 .attr("cx", i*20+10)
-    //                 .attr("cy", j*20+10)
-    //                 .attr("fill", () => d3.interpolateRainbow(((+parent[lineage_data[i][j]]) * 728513 % 320) / 320))
+        let data_sets_num = data_sets.length
+        console.log(data_sets[0]['lineage'])
+        lineage_div = d3.select('#lineage_div')
+        // lineage_div.setAttribute("")
+
+        let lineage_data = Array.from(Array(1800), () => new Array())
+        let parent = {}
+        let node_data = data_sets[0]['lineage']
+        node_data.sort(function(a, b){
+            return a.birth-b.birth;
+        });
+        for(let i=0; i<node_data.length; i++){
+            let cur_node = node_data[i]
+            parent[cur_node.id]=(cur_node.parent!="0") ? cur_node.parent : cur_node.id            
+            for(let j=(+cur_node.birth); j<=(+cur_node.death); j++)
+                lineage_data[j].push(+cur_node.id)
+        }
+        console.log(parent)
+
+        let lineage_svg = lineage_div.select("svg")
+        let lineage_line = lineage_svg.append("g")
+        let lineage_node = lineage_svg.append("g")
+        let lineage_txt = lineage_svg.append("text")
+            .attr("font-size", 10)
+            .attr("text-anchor", "middle")
+
+        for(let i=0; i<node_data.length; i++){
+            for(let j=0; j<lineage_data[i].length; j++){
+                lineage_txt.append("tspan")
+                    .attr("x", i*20+10)
+                    .attr("y", j*20+13)
+                    .text(lineage_data[i][j])
+                lineage_node.append("circle")
+                    .attr("r", 5)
+                    .attr("cx", i*20+10)
+                    .attr("cy", j*20+10)
+                    .attr("fill", () => d3.interpolateRainbow(((+parent[lineage_data[i][j]]) * 728513 % 320) / 320))
                     
-    //             if(i>0){
-    //                 let k;
-    //                 for(k=0; k<lineage_data[i-1].length; k++){
-    //                     if(lineage_data[i][j]==lineage_data[i-1][k]){
-    //                         lineage_line.append("line")
-    //                             .attr("x1", i*20+10)
-    //                             .attr("y1", j*20+10)
-    //                             .attr("x2", (i-1)*20+10)
-    //                             .attr("y2", k*20+10)
-    //                             .attr("stroke-width", 1)
-    //                             .attr("stroke", "black")
-    //                         break;
-    //                     }
-    //                 }
-    //                 if(k<lineage_data[i-1].length) continue;
-    //                 for(k=0; k<lineage_data[i-1].length; k++){
-    //                     if(parent[`${lineage_data[i][j]}`]==parent[`${lineage_data[i-1][k]}`]){
-    //                         lineage_line.append("line")
-    //                             .attr("x1", i*20+10)
-    //                             .attr("y1", j*20+10)
-    //                             .attr("x2", (i-1)*20+10)
-    //                             .attr("y2", k*20+10)
-    //                             .attr("stroke-width", 1)
-    //                             .attr("stroke", "black")
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+                if(i>0){
+                    let k;
+                    for(k=0; k<lineage_data[i-1].length; k++){
+                        if(lineage_data[i][j]==lineage_data[i-1][k]){
+                            lineage_line.append("line")
+                                .attr("x1", i*20+10)
+                                .attr("y1", j*20+10)
+                                .attr("x2", (i-1)*20+10)
+                                .attr("y2", k*20+10)
+                                .attr("stroke-width", 1)
+                                .attr("stroke", "black")
+                            break;
+                        }
+                    }
+                    if(k<lineage_data[i-1].length) continue;
+                    for(k=0; k<lineage_data[i-1].length; k++){
+                        if(parent[`${lineage_data[i][j]}`]==parent[`${lineage_data[i-1][k]}`]){
+                            lineage_line.append("line")
+                                .attr("x1", i*20+10)
+                                .attr("y1", j*20+10)
+                                .attr("x2", (i-1)*20+10)
+                                .attr("y2", k*20+10)
+                                .attr("stroke-width", 1)
+                                .attr("stroke", "black")
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     let data_sets = [];
 
@@ -1047,37 +1055,37 @@
     {#draw_grid()#}
 
 
-    // function draw_menu() {
+    function draw_menu() {
 
-    //     for (let path in data_paths) {
-    //         let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + path
-    //         console.log(p, data_paths[path])
-    //     }
-    //     let menu_svg = d3.select('#menu_svg')
-    //     let menu_rows = menu_svg.selectAll('g')
-    //         .data(Object.keys(data_paths))
-    //         .enter()
-    //         .append('g')
-    //         .attr('transform', (d, i) => 'translate(0,' + (i * 20 + 20) + ')')
-    //     menu_rows.append('rect')
-    //         .attr('x', 0)
-    //         .attr('y', -10)
-    //         .attr('width', 10)
-    //         .attr('height', 10)
-    //         .attr('stroke', 'black')
-    //         .on('click', function (d) {
-    //             draw_table()
-    //         })
-    //     menu_rows.append('text')
-    //         .text(d => d)
-    //         .attr('x', 20)
-    //     menu_rows.append('text')
-    //         .text(d => data_paths[d])
-    //         .attr('x', 220)
+        for (let path in data_paths) {
+            let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + path
+            console.log(p, data_paths[path])
+        }
+        let menu_svg = d3.select('#menu_svg')
+        let menu_rows = menu_svg.selectAll('g')
+            .data(Object.keys(data_paths))
+            .enter()
+            .append('g')
+            .attr('transform', (d, i) => 'translate(0,' + (i * 20 + 20) + ')')
+        menu_rows.append('rect')
+            .attr('x', 0)
+            .attr('y', -10)
+            .attr('width', 10)
+            .attr('height', 10)
+            .attr('stroke', 'black')
+            .on('click', function (d) {
+                draw_table()
+            })
+        menu_rows.append('text')
+            .text(d => d)
+            .attr('x', 20)
+        menu_rows.append('text')
+            .text(d => data_paths[d])
+            .attr('x', 220)
 
-    //     // TODO : timestep change
-    //     num_timestep = 1763
-    // }
+        // TODO : timestep change
+        num_timestep = 1763
+    }
 
     // timeline
     function draw_timeline() {
@@ -1560,8 +1568,8 @@
     read_datasets(2)
     read_datasets(3)
     draw_grid()
-    // draw_menu()
-    draw_table()
+    draw_menu()
+    draw_selection_table()
     draw_timeline()
     draw_linegraph()
 
