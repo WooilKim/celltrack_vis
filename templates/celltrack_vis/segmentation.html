@@ -169,7 +169,7 @@
 
     #table_div {
         border: 1px dashed gray;
-        height: 2000px;
+        height: 800px;
         background-color: #f0f4f9;
         font-size: 12px;
         padding-left: 0px;
@@ -198,8 +198,9 @@
     }
 
     #lineage_div {
+        height: 800px;
         background-color: #f0f4f9;
-        overflow: auto;
+        overflow: scroll;
     }
 
     .row-content--active {
@@ -398,7 +399,7 @@
                         </div>
                     </div>
                     <div id='lineage_div' class="col-5" height=650 width=650 style="float: left">
-                        <svg height=3200 width=38000 overflow="auto"></svg>
+                        <svg id='lineage_svg' overflow="auto"></svg>
                     </div>
                 </div>
             </div>
@@ -965,21 +966,28 @@
         let data_sets_num = data_sets.length
         console.log(data_sets[0]['lineage'])
         lineage_div = d3.select('#lineage_div')
-        // lineage_div.setAttribute("")
 
         let lineage_data = Array.from(Array(1800), () => new Array())
         let parent = {}
         let node_data = data_sets[0]['lineage']
+        let max_timestep = 0
+        let max_yaxis_node = 0
         node_data.sort(function(a, b){
             return a.birth-b.birth;
         });
         for(let i=0; i<node_data.length; i++){
             let cur_node = node_data[i]
-            parent[cur_node.id]=(cur_node.parent!="0") ? cur_node.parent : cur_node.id            
+            parent[cur_node.id]=(cur_node.parent!="0") ? cur_node.parent : cur_node.id
+            max_timestep = Math.max(max_timestep, cur_node.death)
             for(let j=(+cur_node.birth); j<=(+cur_node.death); j++)
                 lineage_data[j].push(+cur_node.id)
         }
-        console.log(parent)
+        
+        for(let i=0; i<=max_timestep; i++)
+            max_yaxis_node = Math.max(max_yaxis_node, lineage_data[i].length)
+        d3.select('#lineage_svg')
+            .attr("height", (max_yaxis_node+5)*20)
+            .attr("width", (max_timestep+5)*20)
 
         let lineage_svg = lineage_div.select("svg")
         let lineage_line = lineage_svg.append("g")
