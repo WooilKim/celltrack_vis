@@ -945,12 +945,13 @@
             for(let i=0; i<node_data.length; i++){
                 node_data[i]['dataset']=nd;
                 let cur_node = node_data[i]
-                parent[cur_node.id]=(cur_node.parent!="0") ? cur_node.parent : cur_node.id
+                parent[nd][cur_node.id]=(cur_node.parent!="0") ? cur_node.parent : cur_node.id
                 max_timestep = Math.max(max_timestep, cur_node.death)
                 for(let j=(+cur_node.birth); j<=(+cur_node.death); j++)
                     lineage_data[j].push([cur_node.id, nd])
             }
         }
+        console.log(parent)
 
         for(let i=0; i<=max_timestep; i++)
             max_yaxis_node = Math.max(max_yaxis_node, lineage_data[i].length)
@@ -974,6 +975,7 @@
                 .attr("font-size", 10)
                 .attr("text-anchor", "middle")
 
+            console.log(lineage_data);
             console.log(start_timestep, Math.min(lineage_data.length, start_timestep+50))
             for(let i=start_timestep; i<=Math.min(lineage_data.length, start_timestep+50); i++){
                 lineage_data[i].sort(function(a, b){
