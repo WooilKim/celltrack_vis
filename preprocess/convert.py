@@ -11,7 +11,9 @@ def tif2jpg(path):
         if file[-3:] == 'tif':
             outfile = f'{path}/converted/{file[:-3]}jpg'
             im = Image.open(f"{path}/{file}")
-            im.save(outfile, "JPEG", quality=100)
+            im.mode = 'I'
+            im.point(lambda i: i * (1. / 256)).convert('L').save(outfile, "JPEG", quality=100)
+            # im.save(outfile, "JPEG", quality=100)
 
     # yourpath = os.getcwd()
     # for root, dirs, files in os.walk(yourpath, topdown=False):
@@ -30,4 +32,10 @@ def tif2jpg(path):
 
 
 if __name__ == '__main__':
-    tif2jpg("data/celltracking_results/BF-C2DL-HSC/input/images/01")
+    # tif2jpg("data/celltracking_results/BF-C2DL-HSC/input/images/01")
+    algos = ["Fluo-N2DH-SIM+"]
+    # algos = ["DIC-C2DH-HeLa", "Fluo-N2DH-SIM+", "PhC-C2DL-PSC"]
+    path = "data/inputs/"
+    for algo in algos:
+        for i in range(1, 3):
+            tif2jpg(f'{path}{algo}/0{i}')

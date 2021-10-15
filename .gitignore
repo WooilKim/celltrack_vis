@@ -12,3 +12,4 @@ celltrack_vis/static/.DS_Store
 celltrack_vis/static/celltrack_vis/.DS_Store
 celltrack_vis/static/celltrack_vis/data/.DS_Store
 celltrack_vis/static/celltrack_vis/data/celltracking_results/.DS_Store
+preprocess/data/inputs/*

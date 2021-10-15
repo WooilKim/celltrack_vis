@@ -82,21 +82,23 @@ def test_gdal(path):
 
 
 def gdal_test(path):
-    algs = ['KIT-Sch-GE', 'Mu-Lux-CZ']
-    datasets = ['BF-C2DL-HSC']
+    algs = ['BGU-IL', 'KIT-Sch-GE', 'Mu-Lux-CZ']
+    datasets = ['DIC-C2DH-HeLa-01', 'Fluo-N2DH-SIM+-01',
+                'PhC-C2DL-PSC-01']
     dirs = ['01_RES', '02_RES']
-    num_files = 1764
 
     for alg in algs:
         for dataset in datasets:
-            cur = f"{path}{alg}/{dataset}/polygonized"
+            cur = f"{path}{dataset}/{alg}/polygonized"
             Path(cur).mkdir(parents=True, exist_ok=True)
             for dir in dirs:
+                num_files = len(os.listdir(f"{path}{dataset}/{alg}/{dir}/")) - 1
                 Path(f"{cur}/{dir}").mkdir(parents=True, exist_ok=True)
+                print(num_files)
                 for n in range(num_files):
-                    print(n)
-                    file = f'mask{n:04d}.tif'
-                    in_file = f'{path}{alg}/{dataset}/{dir}/{file}'
+                    # print(n)
+                    file = f'mask{n:03d}.tif'
+                    in_file = f'{path}{dataset}/{alg}/{dir}/{file}'
                     raster = gdal.Open(in_file)
                     band = raster.GetRasterBand(1)
                     drv = ogr.GetDriverByName('GeoJSON')
@@ -108,19 +110,21 @@ def gdal_test(path):
 
 
 def track2csv(path):
-    algs = ['KIT-Sch-GE', 'Mu-Lux-CZ']
-    datasets = ['BF-C2DL-HSC']
+    algs = ['BGU-IL', 'KIT-Sch-GE', 'Mu-Lux-CZ']
+    datasets = ['DIC-C2DH-HeLa-01', 'Fluo-N2DH-SIM+-01',
+                'PhC-C2DL-PSC-01']
     dirs = ['01_RES', '02_RES']
     file = 'res_track.txt'
     for alg in algs:
         for dataset in datasets:
             for dir in dirs:
-                with open(f'{path}{alg}/{dataset}/{dir}/{file}', 'r') as f:
+                with open(f'{path}{dataset}/{alg}/{dir}/{file}', 'r') as f:
                     lines = f.readlines()
                     for i, line in enumerate(lines):
                         lines[i] = line.strip().split()
                     lines.insert(0, ['id', 'birth', 'death', 'parent'])
-                    with open(f'{path}{alg}/{dataset}/polygonized/{dir}.csv', 'w') as output:
+                    Path(f'{path}{dataset}/{alg}/polygonized/').mkdir(parents=True, exist_ok=True)
+                    with open(f'{path}{dataset}/{alg}/polygonized/{dir}.csv', 'w') as output:
                         for line in lines:
                             output.write(','.join(line))
                             output.write('\n')
@@ -128,21 +132,25 @@ def track2csv(path):
 
 
 def merge_polygonized(path):
-    algs = ['KIT-Sch-GE', 'Mu-Lux-CZ']
-    datasets = ['BF-C2DL-HSC']
+    algs = ['BGU-IL', 'KIT-Sch-GE', 'Mu-Lux-CZ']
+    datasets = ['DIC-C2DH-HeLa-01', 'Fluo-N2DH-SIM+-01',
+                'PhC-C2DL-PSC-01']
     dirs = ['01_RES', '02_RES']
-    num_timestep = 1764
+    # num_timestep = 1764
     for dataset in datasets:
         for alg in algs:
             for dir in dirs:
+                num_timestep = len(os.listdir(f"{path}{dataset}/{alg}/{dir}/")) - 1
                 res = dict()
                 res['name'] = f'{dataset}/{alg}/{dir}'
                 res['num_timestep'] = num_timestep
+
+                Path(f'{path}{dataset}/{alg}/polygonized/{dir}/').mkdir(parents=True, exist_ok=True)
                 cur_path = f'{path}{dataset}/{alg}/polygonized/{dir}/'
                 segmentation = dict()
                 for n in range(num_timestep):
                     dn_dict = defaultdict(list)
-                    file = f'mask{n:04d}.json'
+                    file = f'mask{n:03d}.json'
                     with open(f'{cur_path}{file}', 'r') as f:
                         data = json.load(f)
                         for feature in data['features']:
@@ -173,11 +181,11 @@ def merge_polygonized(path):
 
 if __name__ == '__main__':
     # path = '../celltrack_vis/static/celltrack_vis/data/celltracking_results/BF-C2DL-HSC/'
-    path = 'data/celltracking_results/'
+    path = '../celltrack_vis/static/celltrack_vis/data/celltracking_results/'
     # read_tiff(path)
     # test_gdal(path)
     # gdal_test(path)
-    # track2csv(path)
+    track2csv(path)
     merge_polygonized(path)
     # track2csv(f'{path}01_RES/')
     # track2csv(f'{path}02_RES/')
