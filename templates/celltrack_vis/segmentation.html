@@ -172,17 +172,29 @@
         height: 800px;
         background-color: #f0f4f9;
         font-size: 12px;
-        padding-left: 0px;
-        padding-right: 0px;
+        padding-left: 10px;
+        padding-right: 10px;
     }
 
     #table_div > table {
-        border-collapse: unset; 
         width: 100%; 
         text-align: center; 
         table-layout: fixed;
-        height: 1000px;
-        overflow-y: auto;
+    }
+
+    #table_div tbody {
+        display: block;
+        min-height: 300px;
+        max-height: 300px;
+        overflow-y: scroll;
+        margin-top: 30px;
+        border: 1px dashed gray;
+    }
+
+    #table_div thead, #table_div tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
     }
 
     #time_div {
@@ -339,7 +351,8 @@
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody id="table_tbody"></tbody>
+                    <tbody id="tbody_unselected"></tbody>
+                    <tbody id="tbody_selected"></tbody>
                     <template id="table_row_template">
                         <tr>
                             <td></td>
@@ -365,11 +378,22 @@
                             </td>
                         </tr>
                     </template>
+                    <template id="table_mock_row_template">
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </template>
                 </table>
-                <svg id="table_svg" height="2000">
+                <!-- <svg id="table_svg">
                     <g class="table-rows"></g>
                     <g class="header"></g>
-                </svg>
+                </svg> -->
             </div>
         </div> 
         <div class="col-9">
@@ -580,11 +604,17 @@
     // table div rendering
 
     document.getElementsByName('threshold')[0].addEventListener('input', filter_table);
-    document.getElementById('table_div').addEventListener('scroll', (e) => {
-        render_table(refresh=false);
+    document.getElementById('tbody_selected').addEventListener('scroll', (e) => {
+        if(table_draw_lock) return;
+        render_table(refresh=false, true);
     })
-
-    let max_start_idx = 0;
+    document.getElementById('tbody_unselected').addEventListener('scroll', (e) => {
+        console.log('scroll')
+        if(table_draw_lock) return;
+        render_table(refresh=false, false);
+    })
+    
+    let table_draw_lock = false;
     let raw_data = [];
     let unselected_rows = [];
     let selected_rows = [];
@@ -610,10 +640,10 @@
             selected_row['column' + (idx+1)] = selected_row['column' + (idx+1)].filter(option => option['target'] == value);
         })
 
-        unselected_rows = unselected_rows.filter(row => row['time'] !== time && row['base'] !== base);
+        unselected_rows = unselected_rows.filter(row => row['time'] !== time || row['base'] !== base);
         selected_rows.push(selected_row);
         
-        render_table();
+        render_table(refresh=false);
     }
 
     function sort_table() {
@@ -723,18 +753,44 @@
         render_table();
     }
 
-    function render_table(refresh=true) {
-        const NUM_OF_MAX_ELEMENTS = 100;
+    function render_table(refresh=true, selected) {
+        table_draw_lock = true;
+        const NUM_OF_MAX_ELEMENTS = 11;
 
         const table_div = document.getElementById("table_div");
-        const tbody = document.getElementById("table_tbody");
+        const selected_tbody = document.getElementById("tbody_selected");
+        const unselected_tbody = document.getElementById("tbody_unselected");
         const template = document.getElementById("table_row_template");
+        const mock_template = document.getElementById("table_mock_row_template");
 
-        if(refresh) tbody.querySelectorAll("tr").forEach(el => el.remove());
+        if(refresh) {
+            selected_tbody.querySelectorAll("tr").forEach(el => el.remove());
+            unselected_tbody.querySelectorAll("tr").forEach(el => el.remove());
+        }
 
         sort_table();
 
-        function add_row(el, selected) {
+        function add_row(el, selected, last) {
+            const tbody = selected ? selected_tbody : unselected_tbody;
+            
+            if(!el) { // mock element
+                const clone = document.importNode(mock_template.content, true);
+                const rows = selected ? selected_rows : unselected_rows;
+                const tr = clone.querySelector('tr');
+                const ROW_HEIGHT = 26;
+
+                if(last) {
+                    tr.classList.add('last-element');
+                    tr.style.height = `${(rows.length - NUM_OF_MAX_ELEMENTS) * ROW_HEIGHT}px`;
+                } else {
+                    tr.classList.add('first-element');
+                    tr.style.height = '0px';
+                    tr.style.display = 'none';
+                }
+                tbody.appendChild(clone);
+                return;
+            }
+
             const clone = document.importNode(template.content, true);
             const td = clone.querySelectorAll("td");
             td[0].textContent = el['time'];
@@ -752,39 +808,73 @@
                 }
             }
             if(selected) {
-                td[td.length - 1].querySelector("button").style.display = "none";
+                td[td.length - 1].querySelector("button").style.visibility = "hidden";
             }
 
-            tbody.appendChild(clone);
+            const tr = tbody.getElementsByTagName('tr');
+            tbody.insertBefore(clone, tr[tr.length-1]);
+            
         }
 
         if(!refresh) {
-            const WINDOW_SIZE = 50;
-            const scrollTop = table_div.scrollTop;
-            let start_idx = parseInt(Math.max(((scrollTop - 57) / 21) - 1, 0));
-
-            if(start_idx <= max_start_idx) return;
-            max_start_idx = start_idx + WINDOW_SIZE;
-
-            for(let idx=start_idx;idx<start_idx+WINDOW_SIZE;idx++) {
-                if(idx >= unselected_rows.length) add_row(selected_rows[idx - unselected_rows.length], true);
-                else add_row(unselected_rows[idx], false);
+            const tbody = selected ? selected_tbody : unselected_tbody;
+            const rows = selected ? selected_rows : unselected_rows;
+            const ROW_HEIGHT = 26;
+            const scrollTop = tbody.scrollTop;
+            let start_idx = parseInt(Math.min(Math.max((scrollTop / ROW_HEIGHT), 0), rows.length + 1 - NUM_OF_MAX_ELEMENTS));
+            
+            if(selected) {
+                $('#tbody_selected tr:not(.first-element):not(.last-element)').remove();
+            } else {
+                $('#tbody_unselected tr:not(.first-element):not(.last-element)').remove();
             }
+
+            for(let idx=start_idx;idx<start_idx+NUM_OF_MAX_ELEMENTS;idx++) {
+                if(!rows[idx]) break;
+                add_row(rows[idx], selected, last=null);
+            }
+
+            const tr = tbody.getElementsByTagName('tr');
+            if(scrollTop >= ROW_HEIGHT) {
+                tr[0].style.display = 'table';
+                tr[0].style.height = `${scrollTop}px`;
+            } else {
+                tr[0].style.display = 'none';
+            }
+            
+            tr[tr.length - 1].style.height = `${(rows.length - (tr.length - 2)) * ROW_HEIGHT - scrollTop}px`;
+            if(start_idx + NUM_OF_MAX_ELEMENTS !== rows.length) {
+                tr[tr.length - 1].style.display = 'table';
+            } else {
+                tr[tr.length - 1].style.display = 'none';
+            }
+
+            table_draw_lock = false;
             return;
         }
 
-        max_start_idx = 0;
+        add_row(null, false, last=false); 
+        add_row(null, true, last=false);
+
+        add_row(null, false, last=true); 
+        add_row(null, true, last=true);
+
 
         unselected_rows.slice(0, NUM_OF_MAX_ELEMENTS).forEach(el => {
-            add_row(el, false);
+            add_row(el, false, last=null);
         });
 
-        selected_rows.slice(0, Math.max(0, NUM_OF_MAX_ELEMENTS - unselected_rows.length)).forEach(el => {
-            add_row(el, true);
+        selected_rows.slice(0, NUM_OF_MAX_ELEMENTS).forEach(el => {
+            add_row(el, true, last=null);
         });
 
-        // add_row(unselected_rows[0], false);
-        // add_row(selected_rows[0], true);
+        table_draw_lock = false;
+        
+        // for(let i=0;i<50;i++) {
+        //     add_row(unselected_rows[i], false);
+        //     add_row(selected_rows[i], true);
+        // }
+        
     }
 
     function draw_table() {
