@@ -643,7 +643,8 @@
         unselected_rows = unselected_rows.filter(row => row['time'] !== time || row['base'] !== base);
         selected_rows.push(selected_row);
         
-        render_table(refresh=false);
+        render_table(refresh=false, true);
+        render_table(refresh=false, false);
     }
 
     function sort_table() {
