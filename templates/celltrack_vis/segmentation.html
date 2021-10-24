@@ -558,13 +558,12 @@
     }
 
     function draw_cells(di, timestep) {
-
-
+        let dataset = checked_list[checked_list.length-1].path.split('/')[0];
         d3.select('#seg_svg')
             .select('defs')
             .select('pattern')
             .select('image')
-            .attr('xlink:href', "{% static 'celltrack_vis/data/celltracking_results/BF-C2DL-HSC-01/input/images/t' %}" + zeroPad(timestep, 1000) + '.jpg')
+            .attr('xlink:href', "{% static 'celltrack_vis/data/celltracking_results/' %}" + dataset + "/input/images/t" + zeroPad(timestep, 100) + '.jpg')
 
         grid_bg.select('rect').attr('fill', 'url(#seg_bg)')
         let p = d3.line()
@@ -575,7 +574,7 @@
                 return seg_scale(d[1]);
             }) // apply the y scale to the y data
 
-
+        console.log(di)
         let cell_g = seg_g.selectAll('.data-' + di)
             .data(Object.values(data_sets[di]['segmentation'][timestep]))
             .enter()
@@ -662,12 +661,14 @@
     }
 
     async function draw_selection_table() {
-        const files = ["0_1.json", "0_2.json", "0_3.json", "0_4.json"];
+        const files = ["0_1.json", "0_2.json", "1_2.json"];
+        if(checked_list.length === 0) return;
+        const base_dir = checked_list[0].path.split('/')[0];
         
         raw_data = [];
         for(const file of files) {
             const column = file.split('.')[0].split('_')[1];
-            const path = "{% static 'celltrack_vis/data/celltracking_results/' %}" + "BF-C2DL-HSC-01/similarity/" + file;
+            const path = "{% static 'celltrack_vis/data/celltracking_results/' %}" + `${base_dir}/similarity/` + file;
             
             await d3.json(path).then((data) => {
                 for(const [ step, row ] of Object.entries(data)) {
@@ -915,7 +916,7 @@
         //     .attr('x', table_padding_left + 300)
         //     .attr('alignment-baseline', 'central')
 
-        let data_idxs = [0, 2]
+        let data_idxs = [0]
 
         let map = new Map();
         data_sets[data_idxs[0]]['lineage'].forEach(item => map.set(+item['id'], [[data_idxs[0], +item['parent'], +item['birth'], +item['death']]]))
@@ -1055,7 +1056,7 @@
         lineage_div = d3.select('#lineage_div')
 
         let lineage_data = Array.from(Array(1800), () => new Array())
-        const num_datasets = 4
+        const num_datasets = checked_list.length;
         let parent = new Array()
         for(i=0; i<num_datasets; i++)
             parent.push({});
@@ -1181,63 +1182,64 @@
 
     let data_sets = [];
 
-    function read_datasets(i) {
+    async function read_datasets(dataset) {
 
-        let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + data_paths[i]
-        d3.json(p).then(function (data) {
+        let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + dataset + "/RES.json"
+        await d3.json(p).then(function (data) {
             data_sets.push(data)
             d3.json(p.replace('RES', 'SEG')).then(function (seg) {
-                data_sets[i]['segmentation'] = seg
+                data_sets[data_sets.length - 1]['segmentation'] = seg
             })
         })
-        {#let dataset = {}#}
-        {#dataset['name'] = path#}
-        {#dataset['num_timestep'] = data_paths[path]#}
-        {#dataset['num_cell'] = 0#}
-        {#dataset['segmentation'] = null#}
-        {#dataset['lineage'] = null#}
+        draw_table();
+        
+        num_timestep = data_sets[data_sets.length-1].num_timestep;
+        draw_timeline()
+        draw_linegraph()
 
     }
 
     {#draw_grid()#}
 
 
-    function draw_menu() {
+    // function draw_menu() {
 
-        for (let path in data_paths) {
-            let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + path
-            console.log(p, data_paths[path])
-        }
-        let menu_svg = d3.select('#menu_svg')
-        let menu_rows = menu_svg.selectAll('g')
-            .data(Object.keys(data_paths))
-            .enter()
-            .append('g')
-            .attr('transform', (d, i) => 'translate(0,' + (i * 20 + 20) + ')')
-        menu_rows.append('rect')
-            .attr('x', 0)
-            .attr('y', -10)
-            .attr('width', 10)
-            .attr('height', 10)
-            .attr('stroke', 'black')
-            .on('click', function (d) {
-                draw_table()
-            })
-        menu_rows.append('text')
-            .text(d => d)
-            .attr('x', 20)
-        menu_rows.append('text')
-            .text(d => data_paths[d])
-            .attr('x', 220)
+    //     for (let path in data_paths) {
+    //         let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + path
+    //         console.log(p, data_paths[path])
+    //     }
+    //     let menu_svg = d3.select('#menu_svg')
+    //     let menu_rows = menu_svg.selectAll('g')
+    //         .data(Object.keys(data_paths))
+    //         .enter()
+    //         .append('g')
+    //         .attr('transform', (d, i) => 'translate(0,' + (i * 20 + 20) + ')')
+    //     menu_rows.append('rect')
+    //         .attr('x', 0)
+    //         .attr('y', -10)
+    //         .attr('width', 10)
+    //         .attr('height', 10)
+    //         .attr('stroke', 'black')
+    //         .on('click', function (d) {
+    //             draw_table()
+    //         })
+    //     menu_rows.append('text')
+    //         .text(d => d)
+    //         .attr('x', 20)
+    //     menu_rows.append('text')
+    //         .text(d => data_paths[d])
+    //         .attr('x', 220)
 
-        // TODO : timestep change
-        num_timestep = 1763
-    }
+    //     // TODO : timestep change
+    //     num_timestep = 1763
+    // }
 
     // timeline
     function draw_timeline() {
         let time_svg = d3.select('#time_svg')
         let time_scale = d3.scaleLinear().domain([0, num_timestep]).range([0, 1000])
+        time_svg.selectAll('g').remove();
+        
         let slider = time_svg.append('g')
             .attr('class', 'slider')
             .attr('transform', 'translate(20, 50)')
@@ -1305,8 +1307,7 @@
                 .text(h);
             seg_g.selectAll('.cell').remove()
             {#seg_svg.select('dfs').selectAll('.cell').remove()#}
-            draw_cells(0, h)
-            draw_cells(2, h)
+            draw_cells(checked_list.length-1, h);
             // filter data set and redraw plot
 
         }
@@ -1349,12 +1350,26 @@
     }
 
     {# structure #}
-    let paths = [
-        'BF-C2DL-HSC-01/KIT-Sch-GE/RES.json',
-        'BF-C2DL-HSC-02/KIT-Sch-GE/RES.json',
-        'BF-C2DL-HSC-01/MU-Lux-CZ/RES.json',
-        'BF-C2DL-HSC-02/MU-Lux-CZ/RES.json'
+    let datasets = [
+        'DIC-C2DH-HeLa-01', 
+        'DIC-C2DH-HeLa-02', 
+        'Fluo-N2DH-SIM+-01', 
+        'Fluo-N2DH-SIM+-02', 
+        'PhC-C2DL-PSC-01', 
+        'PhC-C2DL-PSC-02'
     ];
+    let algorithms = [
+        'BGU-IL', 
+        'KIT-Sch-GE', 
+        'MU-Lux-CZ'
+    ];
+    let paths = [];
+    for(let dataset of datasets) {
+        for(let algorithm of algorithms) {
+            paths.push(dataset + '/' + algorithm);
+        }
+    }
+
     let grouped = []; // key state for rendering
     let last_clicked = -1;
     let active = {};
@@ -1374,12 +1389,12 @@
             let current_group = group;
 
             for (let [index, part] of splitted.entries()) {
-                if (index === Object.keys(splitted).length - 1 && part.includes('.')) { // check if node is leaf node
+                if (index === Object.keys(splitted).length - 1) { // check if node is leaf node
                     active[idx] = false;
                     checked[idx] = false;
                     current_group.push({
                         name: part,
-                        type: part.split('.').pop(),
+                        type: 'leaf',
                         fullPath: path,
                         idx: idx++,
                     });
@@ -1638,12 +1653,12 @@
             }
 
             switch (type) {
-                case 'json':
+                case 'leaf':
                     return `<div class='file-row depth-${depth}'>
-                                        <div class='row-content ${last_clicked === idx ? 'row-content--active' : ''}' idx='${idx}'>
-                                            <span class="mdi mdi-file json"></span>${name}
-                                            <input type='checkbox' class='row-checkbox' ${isChecked ? 'checked' : ''}>
-                                        </div>`;
+                                <div class='row-content ${last_clicked === idx ? 'row-content--active' : ''}' idx='${idx}'>
+                                    <span class="mdi mdi-folder-outline dir"></span>${name}
+                                    <input type='checkbox' class='row-checkbox' ${isChecked ? 'checked' : ''}>
+                                </div>`;
                 case 'dir':
                     let html = `<div class='file-row depth-${depth}'><div class='row-content ${last_clicked === idx ? 'row-content--active' : ''}' idx='${idx}'>`;
                     if (isActive) {
@@ -1680,6 +1695,11 @@
         set_event_listener(add = true);
 
         set_dialog();
+
+        draw_selection_table(); // other part dependency
+        if(checked_list.length > 0) {
+            read_datasets(checked_list[checked_list.length - 1].path);
+        }
     }
 
     grouped = group_by_dir(paths);
@@ -1692,6 +1712,9 @@
             valueline = d3.line().x((d, i) => i)
                 .y((d) => d)
         let svg = d3.select('#linegraph_svg')
+        svg.selectAll('path').remove();
+        svg.selectAll('g').remove();
+    
         let line_data = [];
         for (let i = 0; i < num_timestep; i++) {
             line_data.push(Math.floor(Math.random() * 100))
@@ -1710,15 +1733,15 @@
 
     }
 
-    read_datasets(0)
-    read_datasets(1)
-    read_datasets(2)
-    read_datasets(3)
+    // read_datasets(0)
+    // read_datasets(1)
+    // read_datasets(2)
+    // read_datasets(3)
     draw_grid()
-    draw_menu()
-    draw_selection_table()
-    draw_timeline()
-    draw_linegraph()
+    // draw_menu()
+    // draw_selection_table()
+    // draw_timeline()
+    // draw_linegraph()
 
 </script>
 </body>
