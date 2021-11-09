@@ -411,8 +411,8 @@
                 <div class=row>
                     <div id='seg_div' class="col-7" style="float: left">
                         <div class="row" style="display:inline-block; flex: 0 0 auto; padding-left:0; padding-right:0">
-                            <div id="grid_div" width="800" height="800" style="padding-left:0; padding-right:0">
-                                <svg id="seg_svg" width="800" height="800">
+                            <div id="grid_div" width="769" height="769" style="padding-left:0; padding-right:0">
+                                <svg id="seg_svg" width="769" height="769">
                                     <defs></defs>
                                 </svg>
                             </div>
@@ -1195,17 +1195,32 @@
 
         let summary = "{% static 'celltrack_vis/data/celltracking_results/' %}" + dataset.split('/')[0] + "/input/summary.json";
         await d3.json(summary).then(function (data) {
+            let space = 0;
+            if(data['height'] < data['width']) {
+                space = (seg_width-(data['height'] / data['width'] * seg_width)) / 2 + 21;
+            } else if(data['height'] > data['width']){
+                space = (seg_width-(data['width'] / data['height'] * seg_width)) / 2 + 21;
+            }
+            console.log(data['width'], data['height'], space)
             for(let i of Object.keys(data_sets[data_sets.length - 1]['segmentation'])) {
                 for(let j of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i])) {
                     for(let k of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i][j])) {
                         for(let l of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i][j][k])) {
-                            data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][0] = data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][0] / data['width'] * img_width;
-                            data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][1] = data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][1] / data['width'] * img_width + (seg_width-data['height']) / 2;
+                            data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][0] = data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][0] / Math.max(data['height'], data['width']) * img_width;
+                            data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][1] = data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][1] / Math.max(data['height'], data['width']) * img_width;
+
+                            if(data['height'] < data['width']) {
+                                data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][1] += space;
+                            } else {
+                                data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][0] += space;
+                            }
                         }
                     }
                 }
             }
         })
+
+        console.log(data_sets)
         
         num_timestep = data_sets[data_sets.length-1].num_timestep;
         draw_timeline()
