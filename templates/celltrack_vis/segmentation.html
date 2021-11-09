@@ -1187,11 +1187,25 @@
         let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + dataset + "/RES.json"
         await d3.json(p).then(function (data) {
             data_sets.push(data)
-            d3.json(p.replace('RES', 'SEG')).then(function (seg) {
-                data_sets[data_sets.length - 1]['segmentation'] = seg
-            })
+        })
+        await d3.json(p.replace('RES', 'SEG')).then(function (seg) {
+            data_sets[data_sets.length - 1]['segmentation'] = seg
         })
         draw_table();
+
+        let summary = "{% static 'celltrack_vis/data/celltracking_results/' %}" + dataset.split('/')[0] + "/input/summary.json";
+        await d3.json(summary).then(function (data) {
+            for(let i of Object.keys(data_sets[data_sets.length - 1]['segmentation'])) {
+                for(let j of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i])) {
+                    for(let k of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i][j])) {
+                        for(let l of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i][j][k])) {
+                            data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][0] = data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][0] / data['width'] * img_width;
+                            data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][1] = data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][1] / data['width'] * img_width + (seg_width-data['height']) / 2;
+                        }
+                    }
+                }
+            }
+        })
         
         num_timestep = data_sets[data_sets.length-1].num_timestep;
         draw_timeline()
