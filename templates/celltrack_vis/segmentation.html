@@ -449,7 +449,7 @@
         grid_vg = seg_main_container.append("g"),
         grid_hg = seg_main_container.append("g"),
         seg_g = seg_main_container.append("g").attr('id', 'seg_g'),
-        seg_width = Math.min(seg_div.clientWidth, 800) // seg height
+        seg_width = Math.min(seg_div.clientWidth, 800)
     seg_svg.attr('width', seg_width)
     let num_timestep = 0
     let num_cells = 1000
@@ -584,7 +584,6 @@
 
         cell_g.selectAll('path')
             .data(function (d) {
-                {#console.log('data', d);#}
                 return d
             })
             .enter()
@@ -1197,9 +1196,11 @@
         await d3.json(summary).then(function (data) {
             let space = 0;
             if(data['height'] < data['width']) {
-                space = (seg_width-(data['height'] / data['width'] * seg_width)) / 2 + 21;
+                space = (seg_width-(data['height'] / data['width'] * seg_width)) / 2;
+                space = space / seg_width * img_width;
             } else if(data['height'] > data['width']){
-                space = (seg_width-(data['width'] / data['height'] * seg_width)) / 2 + 21;
+                space = (seg_width-(data['width'] / data['height'] * seg_width)) / 2;
+                space = space / seg_width * img_width;
             }
             console.log(data['width'], data['height'], space)
             for(let i of Object.keys(data_sets[data_sets.length - 1]['segmentation'])) {
@@ -1300,7 +1301,6 @@
                 })
             );
 
-
         slider.insert("g", ".track-overlay")
             .attr("class", "ticks")
             .attr("transform", "translate(0," + 18 + ")")
@@ -1376,6 +1376,8 @@
             {#    .attr('fill', 'none')#}
             {#    .attr('transform', `translate(${-dx},${-dy})`);#}
         }
+
+        update(0);
     }
 
     {# structure #}
@@ -1456,7 +1458,7 @@
         let checked_area = document.getElementById('checked_div'); // place to draw checked
         let overlay = document.getElementsByClassName('overlay')[0];
 
-        document.getElementsByClassName('data-load-button')[0].addEventListener('click', () => {
+        document.getElementsByClassName('data-load-button')[0].addEventListener('click', function () {
             dialog_opened = true;
             dialog_idx = 0;
             set_dialog();
