@@ -343,11 +343,11 @@
                         </tr>
                         <tr>
                             <th>Time</th>
-                            <th style="background-color: red;">Base</th>
-                            <th style="background-color: plum;">1</th>
-                            <th style="background-color: skyblue;">2</th>
-                            <th style="background-color: orange;">3</th>
-                            <th style="background-color: greenyellow;">4</th>
+                            <th class="color-1">Base</th>
+                            <th class="color-2">1</th>
+                            <th class="color-3">2</th>
+                            <th class="color-4">3</th>
+                            <th class="color-5">4</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -465,7 +465,11 @@
 
     let color_tableau = d3.scaleOrdinal(d3.schemeTableau10);
 
-    let color_cell = d3.scaleOrdinal(d3.interpolateTurbo)
+    let color_cell = d3.scaleOrdinal(d3.interpolateTurbo);
+
+    for(let i=1;i<=5;i++) {
+        document.getElementsByClassName("color-" + i)[0].style.backgroundColor = color_tableau(i-1);
+    }
 
     function zeroPad(nr, base) {
         let len = (String(base).length - String(nr).length) + 1;
@@ -1130,7 +1134,7 @@
                         .attr("r", 5)
                         .attr("cx", i*20+10)
                         .attr("cy", j*20+30)
-                        .attr("fill", () => d3.interpolateRainbow((lineage_data[i][j][1] * 728513 % 320) / 320))
+                        .attr("fill", () => color_tableau(lineage_data[i][j][1]))
                         
                     if(i>0){
                         let k;
@@ -1678,7 +1682,8 @@
 
             if(isChecked) {
                 const item = checked_list.find(el => el['idx'] === idx);
-                if(!item) checked_list.push({'idx': idx, 'path': fullPath, color: '#FFFFFF', opacity: 1.0}); // push only if item is not exists
+                console.log(checked_list.length)
+                if(!item) checked_list.push({'idx': idx, 'path': fullPath, color: color_tableau(checked_list.length), opacity: 1.0}); // push only if item is not exists
             } else {
                 checked_list = checked_list.filter(el => el['idx'] !== idx);
             }
