@@ -578,11 +578,11 @@
                 return seg_scale(d[1]);
             }) // apply the y scale to the y data
 
-        console.log(di)
         let cell_g = seg_g.selectAll('.data-' + di)
             .data(Object.values(data_sets[di]['segmentation'][timestep]))
             .enter()
             .append('g')
+            .attr('id', (d, i) => 'c' + di + '-' + i)
             .attr('class', (d, i) => 'cell cell-' + Object.keys(data_sets[di]['segmentation'][timestep])[i] + ' data-' + di)
 
 
@@ -599,8 +599,39 @@
             .style('fill', color_tableau(di))
             .style("stroke-width", 0.2)
             .style('stroke-opacity', 0.5)
-            .style('fill-opacity', 0.3)
+    }
 
+    function draw_intersection(di, timestep) {
+        let p = d3.line()
+            .x(function (d) {
+                return seg_scale(d[0]);
+            }) // apply the x scale to the x data
+            .y(function (d) {
+                return seg_scale(d[1]);
+            }) // apply the y scale to the y data
+        
+        console.log('.clip-data-' + di,  seg_g.selectAll('.clip-data-' + di))
+        let clip_g = seg_g.selectAll('.clip-data-' + di)
+            .data(Object.values(data_sets[di]['segmentation'][timestep]))
+            .enter()
+            .append('g')
+            .attr('class', (d, i) => 'clip clip-' + Object.keys(data_sets[di]['segmentation'][timestep])[i] + ' clip-data-' + di)
+
+        clip_g.selectAll('path')
+            .data(function (d) {
+                return d
+            })
+            .enter()
+            .append('path')
+            .attr('d', function (d) {
+                return p(d)
+            })
+            .attr('clip-path', (d, i) => `url("#c0-${i}")`)
+            .style('fill', 'white')
+            .style('fill-opacity', 0.0)
+            .style('stroke', color_tableau(di))
+            .style("stroke-width", 1.0)
+            .style("stroke-dasharray", "1,1")
     }
 
     // table div rendering
@@ -1339,8 +1370,16 @@
             label.attr("x", time_scale(h))
                 .text(h);
             seg_g.selectAll('.cell').remove()
+            seg_g.selectAll('.clip').remove()
             {#seg_svg.select('dfs').selectAll('.cell').remove()#}
-            draw_cells(checked_list.length-1, h);
+
+            for(let di=checked_list.length-1;di >= 0;di--) {
+                draw_cells(di, h);
+            }
+            for(let di=1;di < checked_list.length;di++) {
+                draw_intersection(di, h);
+            }
+           
             // filter data set and redraw plot
 
         }
