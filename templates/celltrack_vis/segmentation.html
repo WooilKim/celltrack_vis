@@ -1084,44 +1084,213 @@
         //     table_header.node().setAttribute('transform', 'translate(0,' + this.scrollTop + ')');
         // }, false)
 
-        // console.log(data_sets)
-
-        let data_sets_num = data_sets.length
         lineage_div = d3.select('#lineage_div')
 
         let lineage_data = Array.from(Array(1800), () => new Array())
         const num_datasets = checked_list.length;
-        let parent = new Array()
-        for(i=0; i<num_datasets; i++)
-            parent.push({});
+        let parent = Array.from(Array(1800), () => new Array())
+        let clone = Array.from(Array(1800), () => new Array())
+        // let parent = new Array()
+        // for(i=0; i<num_datasets; i++)
+        //     parent.push({});
 
         let max_timestep = 0
         let max_yaxis_node = 0
 
         let lineage_svg = lineage_div.select("svg")
+        lineage_svg.selectChildren().remove()
+
         let lineage_line = lineage_svg.append("g")
         let lineage_node = lineage_svg.append("g")
         let lineage_txt = lineage_svg.append("text")
             .attr("font-size", 10)
             .attr("text-anchor", "middle")
-        function super_ances(sib, nb){
-            if(+parent[nb][sib]==sib) return sib;
-            return super_ances(+parent[nb][sib], nb)
+        let lineage_time = lineage_svg.append("text")
+            .attr("font-size", 10)
+            .attr("text-anchor", "middle")
+
+        let max_alg_num = 5, max_dataset_num = 10
+        let datalist = Array.from(Array(max_dataset_num), () => new Array())
+        let checked_data_num = Array(max_dataset_num).fill(0)
+        for(let nd=0; nd<num_datasets; nd++){
+            full_name = data_sets[nd]['name']
+            dname = full_name.split('/')[0].toUpperCase()
+            aname = full_name.split('/')[1].toUpperCase()
+            data_sets[nd]['dataset_num'] = datasets_num[dname]
+            data_sets[nd]['alg_num'] = alg_num[aname]
+
+            datalist[datasets_num[dname]].push(alg_num[aname])
+            checked_data_num[datasets_num[dname]]++;
+        }
+        // console.log(data_sets)
+        // console.log(datalist)
+        // console.log(checked_data_num)
+
+        let identic = Array.from(Array(max_dataset_num), () => Array.from(Array(max_alg_num), () => new Array(max_alg_num)))
+        async function read_similarity(ds, l, r){
+            let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + datasets[ds] + "/similarity/"+l+"_"+r+".json"
+            
+            await d3.json(p).then((data) => {
+                identic[ds][l][r]=[]
+                for(let i in data){
+                    identic[ds][l][r][+i]=[]
+                    for(let j in data[i]){
+                        identic[ds][l][r][+i][+j]=[]
+                        for(let k in data[i][j]){
+                            identic[ds][l][r][+i][+j].push(+data[i][j][k][0])
+                        }
+                    }
+                }
+                // console.log(identic)
+            })
         }
 
+        for(let i=0; i<max_dataset_num; i++){
+            if(checked_data_num[i]>=2){
+                for(let ll=0; ll<datalist[i].length-1; ll++){
+                    for(let rr=ll+1; rr<datalist[i].length; rr++){
+                        read_similarity(i, ll, rr);
+                    }
+                }
+            }
+        }
+
+        // function find_nd_from_info(datanum, algnum)
+        // {
+        //     for(let nd=0; nd<num_datasets; nd++){
+        //         let dataset_data = data_sets[nd]
+        //         if(dataset_data['dataset_num'] == datanum && dataset_data['alg_num'] == algnum)
+        //             return nd
+        //     }
+        //     return -1
+        // }
+
+        console.log(identic)
+        function have(obj, list){
+            for(let i=0; i<list.length; i++){
+                if(obj==list[i]) return 1
+            }
+            return 0
+        }
+        setTimeout(() => { //set timeout start
         for(let nd=0; nd<num_datasets; nd++){
-            let node_data = data_sets[nd]['lineage']
+            let dataset_data = data_sets[nd]
+            let node_data = dataset_data['lineage']
+            // console.log(dataset_data)
             
             for(let i=0; i<node_data.length; i++){
                 node_data[i]['dataset']=nd;
                 let cur_node = node_data[i]
-                parent[nd][cur_node.id]=(cur_node.parent!="0") ? cur_node.parent : cur_node.id
+                // console.log(cur_node)
+
                 max_timestep = Math.max(max_timestep, cur_node.death)
-                for(let j=(+cur_node.birth); j<=(+cur_node.death); j++)
+
+                for(let j=(+cur_node.birth); j<=(+cur_node.death); j++){
+                    if(checked_data_num[dataset_data['dataset_num']]>=2){
+                        let k
+                        for(k=0; k<max_alg_num; k++){
+                            if(identic[dataset_data['dataset_num']][k][dataset_data['alg_num']] != undefined){
+                                let l
+                                let cur_identic = identic[dataset_data['dataset_num']][k][dataset_data['alg_num']][j] // j time에 k->현데이터셋 identic관계
+                                // console.log(cur_identic)
+                                let getin = false
+                                for(l=0; l<cur_identic.length; l++){ // l이 base, cur_identic[l]이 합치려는것
+                                    if(cur_identic[l]!=undefined && have(cur_node.id, cur_identic[l])){
+                                        getin=true
+                                //         if(j>0){
+                                //             let last_identic = identic[dataset_data.dataset_num][k][dataset_data.alg_num][j-1]
+                                //             for(let p=0; p<last_identic.length; p++){
+                                //                 if(last_identic[p]!=undefined && have(cur_node.id, last_identic[p])){
+                                //                     if(parent[j][l]==undefined) parent[j][l]=[]
+                                //                     parent[j][l].push(p)
+                                //                 }
+                                //             }
+                                //         }
+                                    }
+                                }
+                                if(getin) break
+                                // break
+                            }
+                        }
+                        if(k<max_alg_num) continue
+                    }
                     lineage_data[j].push([cur_node.id, nd])
+                    // if(parent[j][lineage_data[j].length-1]==undefined) parent[j][lineage_data[j].length-1]=[]
+
+                    // if(j>0){
+                    //     if(j==cur_node.birth){
+                    //         if(cur_node.parent=='0') continue
+                            
+                    //         // 이번타임에 분해되어 첫 시작점인 노드
+                    //         for(let k=0; k<lineage_data[j-1].length; k++){
+                    //             if(lineage_data[j-1][k][0]==cur_node.parent && lineage_data[j-1][k][1]==cur_node.dataset){
+                    //                 parent[j][lineage_data[j].length-1].push(k);
+                    //                 break
+                    //             }
+                    //         }
+                    //         continue
+                    //     }
+                    //     for(let k=0; k<lineage_data[j-1].length; k++){
+                    //         if(lineage_data[j-1][k][0]==cur_node.id && lineage_data[j-1][k][1]==cur_node.dataset){
+                    //             parent[j][lineage_data[j].length-1].push(k);
+                    //             break
+                    //         }
+                    //     }
+                    // }
+                }
             }
         }
-        console.log(parent)
+        for(let nd=0; nd<num_datasets; nd++){
+            let dataset_data = data_sets[nd]
+            let node_data = dataset_data['lineage']
+            
+            for(let i=0; i<node_data.length; i++){
+                node_data[i]['dataset']=nd;
+                let cur_node = node_data[i]
+
+                for(let j=(+cur_node.birth); j<=(+cur_node.death); j++){
+                    if(j>0){
+                        for(let k=0; k<lineage_data[j].length; k++){
+                            if(lineage_data[j][k][0]==cur_node.id && lineage_data[j][k][1]==cur_node.dataset){
+                                for(let l=0; l<lineage_data[j-1].length; l++){
+                                    if((cur_node.parent==lineage_data[j-1][l][0] && cur_node.dataset==lineage_data[j-1][l][1]) ||
+                                        (lineage_data[j][k][0]==lineage_data[j-1][l][0] && lineage_data[j][k][1]==lineage_data[j-1][l][1])){
+                                        if(parent[j][k]==undefined) parent[j][k]=[]
+                                        parent[j][k].push(l)
+                                    }
+                                }
+
+                            for(let l=dataset_data.alg_num+1; l<max_alg_num; l++){
+                                if(identic[dataset_data.dataset_num][dataset_data.alg_num][l] != undefined){
+                                    let cur_identic = identic[dataset_data.dataset_num][dataset_data.alg_num][l][j][cur_node.id]
+                                    // console.log(cur_identic)
+                                    if(cur_identic!=undefined){
+                                        for(let p=0; p<cur_identic.length; p++){
+                                            // 초록색 10이 직전타임에서도 어딘가에 합쳐져있을수도 있고 독립노드일수도 있음
+                                            for(let q=0; q<lineage_data[j-1].length; q++){
+                                                if(lineage_data[j-1][q][1]==l && lineage_data[j-1][q][0]==cur_identic[p]){ //독립노드
+                                                    if(parent[j][k]==undefined) parent[j][k]=[]
+                                                    parent[j][k].push(q)
+                                                }
+                                                else if(identic[dataset_data.dataset_num][dataset_data.alg_num][l][j-1][lineage_data[j-1][q][0]] != undefined){ //1,2번째인덱스 => lineage_data[j-1][q][1]
+                                                    if(have(cur_identic[p], identic[dataset_data.dataset_num][dataset_data.alg_num][l][j-1][lineage_data[j-1][q][0]])){
+                                                        // console.log(p, q)
+                                                        // console.log(cur_identic[p], identic[dataset_data.dataset_num][dataset_data.alg_num][l][j-1][lineage_data[j-1][q][0]])
+                                                        if(parent[j][k]==undefined) parent[j][k]=[]
+                                                        parent[j][k].push(q)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         for(let i=0; i<=max_timestep; i++)
             max_yaxis_node = Math.max(max_yaxis_node, lineage_data[i].length)
@@ -1129,13 +1298,18 @@
         d3.select('#lineage_svg')
             .attr("height", (max_yaxis_node+5)*20)
             .attr("width", (max_timestep+5)*20)
-        console.log(data_sets)
+        
+        function super_ances(sib, nb){
+            if(+parent[nb][sib][0]==sib) return sib;
+            return super_ances(+parent[nb][sib][0], nb)
+        }
 
         function draw_lineage(start_timestep)
         {
             lineage_line.remove()
             lineage_node.remove()
             lineage_txt.remove()
+            lineage_time.remove()
             lineage_line = lineage_svg.append("g")
             lineage_node = lineage_svg.append("g")
             lineage_time = lineage_svg.append("text")
@@ -1145,17 +1319,18 @@
                 .attr("font-size", 10)
                 .attr("text-anchor", "middle")
 
-            console.log(lineage_data);
-            console.log(start_timestep, Math.min(lineage_data.length, start_timestep+50))
+            // console.log(lineage_data)
+            // console.log(parent)
             for(let i=start_timestep; i<=Math.min(lineage_data.length, start_timestep+50); i++){
-                lineage_data[i].sort(function(a, b){
-                    if(a[1]==b[1]) return super_ances(a[0], a[1])-super_ances(b[0], b[1]);
-                    return a[1]-b[1];
-                })
+                // lineage_data[i].sort(function(a, b){
+                //     if(a[1]==b[1]) return super_ances(a[0], a[1])-super_ances(b[0], b[1]);
+                //     return a[1]-b[1];
+                // })
                 lineage_time.append("tspan")
                     .attr("x", i*20+10)
                     .attr("y", 13)
                     .text(i)
+
                 for(let j=0; j<lineage_data[i].length; j++){
                     lineage_txt.append("tspan")
                         .attr("x", i*20+10)
@@ -1168,35 +1343,46 @@
                         .attr("fill", () => color_tableau(lineage_data[i][j][1]))
                         
                     if(i>0){
-                        let k;
-                        for(k=0; k<lineage_data[i-1].length; k++){
-                            if(lineage_data[i][j][0]==lineage_data[i-1][k][0] && lineage_data[i][j][1]==lineage_data[i-1][k][1]){
-                                lineage_line.append("line")
-                                    .attr("class", "solid")
-                                    .attr("x1", i*20+10)
-                                    .attr("y1", j*20+30)
-                                    .attr("x2", (i-1)*20+10)
-                                    .attr("y2", k*20+30)
-                                    .attr("stroke-width", 1)
-                                    .attr("stroke", "black")
-                                break;
-                            }
+                        if(parent[i][j]==undefined) continue
+                        for(let k=0; k<parent[i][j].length; k++){
+                            lineage_line.append("line")
+                                .attr("class", "solid")
+                                .attr("x1", i*20+10)
+                                .attr("y1", j*20+30)
+                                .attr("x2", (i-1)*20+10)
+                                .attr("y2", parent[i][j][k]*20+30)
+                                .attr("stroke-width", 1)
+                                .attr("stroke", "black")
                         }
-                        if(k<lineage_data[i-1].length) continue;
-                        for(k=0; k<lineage_data[i-1].length; k++){
-                            if(parent[`${lineage_data[i][j][1]}`][`${lineage_data[i][j][0]}`]==parent[`${lineage_data[i-1][k][1]}`][`${lineage_data[i-1][k][0]}`]
-                            && lineage_data[i][j][1]==lineage_data[i-1][k][1]){
-                                    lineage_line.append("line")
-                                        .attr("class", "dashed")
-                                        .attr("x1", i*20+10)
-                                        .attr("y1", j*20+30)
-                                        .attr("x2", (i-1)*20+10)
-                                        .attr("y2", k*20+30)
-                                        .attr("stroke-width", 1)
-                                        .attr("stroke", "black")
-                                    break;
-                                }
-                            }
+                        // let k;
+                        // for(k=0; k<lineage_data[i-1].length; k++){
+                        //     if(lineage_data[i][j][0]==lineage_data[i-1][k][0] && lineage_data[i][j][1]==lineage_data[i-1][k][1]){
+                        //         lineage_line.append("line")
+                        //             .attr("class", "solid")
+                        //             .attr("x1", i*20+10)
+                        //             .attr("y1", j*20+30)
+                        //             .attr("x2", (i-1)*20+10)
+                        //             .attr("y2", k*20+30)
+                        //             .attr("stroke-width", 1)
+                        //             .attr("stroke", "black")
+                        //         break;
+                        //     }
+                        // }
+                        // if(k<lineage_data[i-1].length) continue;
+                        // for(k=0; k<lineage_data[i-1].length; k++){
+                        //     if(parent[`${lineage_data[i][j][1]}`][`${lineage_data[i][j][0]}`]==parent[`${lineage_data[i-1][k][1]}`][`${lineage_data[i-1][k][0]}`]
+                        //     && lineage_data[i][j][1]==lineage_data[i-1][k][1]){
+                        //         lineage_line.append("line")
+                        //             .attr("class", "dashed")
+                        //             .attr("x1", i*20+10)
+                        //             .attr("y1", j*20+30)
+                        //             .attr("x2", (i-1)*20+10)
+                        //             .attr("y2", k*20+30)
+                        //             .attr("stroke-width", 1)
+                        //             .attr("stroke", "black")
+                        //         break;
+                        //     }
+                        // }
                     }
                 }
             }
@@ -1212,6 +1398,7 @@
 
             draw_lineage(cur_scroll);
         })
+    }, 100); // set timeout close
     }
 
     let data_sets = [];
@@ -1237,7 +1424,7 @@
                 space = (seg_width-(data['width'] / data['height'] * seg_width)) / 2;
                 space = space / seg_width * img_width;
             }
-            console.log(data['width'], data['height'], space)
+            // console.log(data['width'], data['height'], space)
             for(let i of Object.keys(data_sets[data_sets.length - 1]['segmentation'])) {
                 for(let j of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i])) {
                     for(let k of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i][j])) {
@@ -1256,7 +1443,7 @@
             }
         })
 
-        console.log(data_sets)
+        // console.log(data_sets)
         
         num_timestep = data_sets[data_sets.length-1].num_timestep;
         draw_timeline()
@@ -1362,7 +1549,7 @@
 
         function update(h) {
             // update position and text of label according to slider scale
-            console.log('update', h)
+            // console.log('update', h)
             h = Math.floor(h)
             h = Math.max(0, h)
             h = Math.min(num_timestep, h)
@@ -1433,9 +1620,9 @@
         'PhC-C2DL-PSC-02'
     ];
     let algorithms = [
-        'BGU-IL', 
         'KIT-Sch-GE', 
-        'MU-Lux-CZ'
+        'MU-Lux-CZ' ,
+        'BGU-IL'
     ];
     let paths = [];
     for(let dataset of datasets) {
@@ -1443,6 +1630,30 @@
             paths.push(dataset + '/' + algorithm);
         }
     }
+    let datasets_num = {}
+    for(let i=0; i<datasets.length; i++)
+        datasets_num[datasets[i].toUpperCase()]=i
+    let alg_num = {}
+    for(let i=0; i<algorithms.length; i++)
+        alg_num[algorithms[i].toUpperCase()]=i
+
+    let summ=new Array(datasets.length)
+    async function read_summary(index){
+        path = "{% static 'celltrack_vis/data/celltracking_results/' %}" + `${datasets[index]}/summary.csv`;
+        let dataset_summ=[]
+        await d3.csv(path).then((data) => {
+            for(let i=0; i<data.length; i++){
+                dataset_summ.push({
+                    id: i,
+                    name: data[i]['name']
+                })
+            }
+            summ[index]=dataset_summ
+            // console.log(summ)
+        })
+    }
+    for(let i=0; i<datasets.length; i++)
+        read_summary(i)
 
     let grouped = []; // key state for rendering
     let last_clicked = -1;
@@ -1721,7 +1932,7 @@
 
             if(isChecked) {
                 const item = checked_list.find(el => el['idx'] === idx);
-                console.log(checked_list.length)
+                // console.log(checked_list.length)
                 if(!item) checked_list.push({'idx': idx, 'path': fullPath, color: color_tableau(checked_list.length), opacity: 1.0}); // push only if item is not exists
             } else {
                 checked_list = checked_list.filter(el => el['idx'] !== idx);
