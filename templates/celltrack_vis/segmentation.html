@@ -319,6 +319,7 @@
     <div class="row">
         <div class="buttons">
             <button type="button" class="btn btn-primary data-load-button">Data load</button>
+            <button type="button" class="btn btn-primary data-export-button">Data export</button>
             <button type="button" class="btn btn-primary">Request data upload</button>
             <button type="button" class="btn btn-info">Tutorial</button>
             <button type="button" class="btn btn-success">Quick trip</button>
@@ -494,6 +495,23 @@
         paper.setup('seg_svg');
     }
 
+    document.getElementsByClassName('data-export-button')[0].addEventListener('click', function () {
+        data_sets.forEach(el => {
+            const f_name = el.name.split('/')[1] + '.json';
+            var file = new Blob([JSON.stringify(el['segmentation'])], {type: 'json'});
+            var a = document.createElement("a"),
+                    url = URL.createObjectURL(file);
+            a.href = url;
+            a.download = f_name;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);  
+            }, 0); 
+        })
+    });
+
     function zeroPad(nr, base) {
         let len = (String(base).length - String(nr).length) + 1;
         return len > 0 ? new Array(len).join('0') + nr : nr;
@@ -606,7 +624,7 @@
             .data(obj.map(([k, v]) => v))
             .enter()
             .append('g')
-            .attr('id', (d, i) => 'c' + di + '-' + i)
+            .attr('id', (d, i) => 'c' + di + '-' + obj.map(([k, v]) => k)[i])
             .attr('class', (d, i) => 'cell cell-' + obj.map(([k, v]) => k)[i] + ' cell-data-' + di)
 
 
@@ -693,6 +711,10 @@
                         const svgPathElement = p1.exportSVG();
                         el.setAttribute('d', svgPathElement.getAttribute('d'));
 
+                        let datum = p1.segments.map(d => [seg_scale.invert(d._point._x), seg_scale.invert(d._point._y)]);
+                        let idx = el.parentNode.getAttribute('id').split('-')[1];
+                        data_sets[0]['segmentation'][timestep][idx][0] = datum;
+                        
                         break;
                     }
                 }
