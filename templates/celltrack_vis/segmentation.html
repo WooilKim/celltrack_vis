@@ -1260,9 +1260,6 @@
             return 0
         }
         setTimeout(() => { //set timeout start
-            // dataset_data.sort(function(a, b){
-
-            // })
             for(let nd=0; nd<num_datasets; nd++){
                 let dataset_data = data_sets[nd]
                 let node_data = dataset_data['lineage']
@@ -1295,31 +1292,10 @@
                             if(k<max_alg_num) continue
                         }
                         lineage_data[j].push([cur_node.id, nd])
-                        // if(parent[j][lineage_data[j].length-1]==undefined) parent[j][lineage_data[j].length-1]=[]
-
-                        // if(j>0){
-                        //     if(j==cur_node.birth){
-                        //         if(cur_node.parent=='0') continue
-                                
-                        //         // 이번타임에 분해되어 첫 시작점인 노드
-                        //         for(let k=0; k<lineage_data[j-1].length; k++){
-                        //             if(lineage_data[j-1][k][0]==cur_node.parent && lineage_data[j-1][k][1]==cur_node.dataset){
-                        //                 parent[j][lineage_data[j].length-1].push(k);
-                        //                 break
-                        //             }
-                        //         }
-                        //         continue
-                        //     }
-                        //     for(let k=0; k<lineage_data[j-1].length; k++){
-                        //         if(lineage_data[j-1][k][0]==cur_node.id && lineage_data[j-1][k][1]==cur_node.dataset){
-                        //             parent[j][lineage_data[j].length-1].push(k);
-                        //             break
-                        //         }
-                        //     }
-                        // }
                     }
                 }
             }
+            console.log(lineage_data)
             for(let nd=0; nd<num_datasets; nd++){
                 let dataset_data = data_sets[nd]
                 let node_data = dataset_data['lineage']
@@ -1336,26 +1312,27 @@
                                         if((cur_node.parent==lineage_data[j-1][l][0] && cur_node.dataset==lineage_data[j-1][l][1]) ||
                                             (lineage_data[j][k][0]==lineage_data[j-1][l][0] && lineage_data[j][k][1]==lineage_data[j-1][l][1])){
                                             if(parent[j][k]==undefined) parent[j][k]=[]
-                                            parent[j][k].push(l)
+                                            parent[j][k].push([l, nd])
                                         }
                                     }
 
-                                for(let l=dataset_data.alg_num+1; l<max_alg_num; l++){
-                                    if(identic[dataset_data.dataset_num][dataset_data.alg_num][l] != undefined){
-                                        let cur_identic = identic[dataset_data.dataset_num][dataset_data.alg_num][l][j][cur_node.id]
-                                        // console.log(cur_identic)
-                                        if(cur_identic!=undefined){
-                                            for(let p=0; p<cur_identic.length; p++){
-                                                // 초록색 10이 직전타임에서도 어딘가에 합쳐져있을수도 있고 독립노드일수도 있음
-                                                for(let q=0; q<lineage_data[j-1].length; q++){
-                                                    if(lineage_data[j-1][q][1]==l && lineage_data[j-1][q][0]==cur_identic[p]){ //독립노드
-                                                        if(parent[j][k]==undefined) parent[j][k]=[]
-                                                        parent[j][k].push(q)
-                                                    }
-                                                    else if(identic[dataset_data.dataset_num][dataset_data.alg_num][l][j-1][lineage_data[j-1][q][0]] != undefined){ //1,2번째인덱스 => lineage_data[j-1][q][1]
-                                                        if(have(cur_identic[p], identic[dataset_data.dataset_num][dataset_data.alg_num][l][j-1][lineage_data[j-1][q][0]])){
+                                    for(let l=dataset_data.alg_num+1; l<max_alg_num; l++){
+                                        if(identic[dataset_data.dataset_num][dataset_data.alg_num][l] != undefined){
+                                            let cur_identic = identic[dataset_data.dataset_num][dataset_data.alg_num][l][j][cur_node.id]
+                                            // console.log(cur_identic)
+                                            if(cur_identic!=undefined){
+                                                for(let p=0; p<cur_identic.length; p++){
+                                                    // 초록색 10이 직전타임에서도 어딘가에 합쳐져있을수도 있고 독립노드일수도 있음
+                                                    for(let q=0; q<lineage_data[j-1].length; q++){
+                                                        if(lineage_data[j-1][q][1]==l && lineage_data[j-1][q][0]==cur_identic[p]){ //독립노드
                                                             if(parent[j][k]==undefined) parent[j][k]=[]
-                                                            parent[j][k].push(q)
+                                                            parent[j][k].push([q, l])
+                                                        }
+                                                        else if(identic[dataset_data.dataset_num][dataset_data.alg_num][l][j-1][lineage_data[j-1][q][0]] != undefined){ //1,2번째인덱스 => lineage_data[j-1][q][1]
+                                                            if(have(cur_identic[p], identic[dataset_data.dataset_num][dataset_data.alg_num][l][j-1][lineage_data[j-1][q][0]])){
+                                                                if(parent[j][k]==undefined) parent[j][k]=[]
+                                                                parent[j][k].push([q, l])
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -1363,12 +1340,12 @@
                                         }
                                     }
                                 }
-                                }
                             }
                         }
                     }
                 }
             }
+            console.log(parent)
 
             for(let i=0; i<=max_timestep; i++)
                 max_yaxis_node = Math.max(max_yaxis_node, lineage_data[i].length)
@@ -1397,8 +1374,8 @@
                     .attr("font-size", 10)
                     .attr("text-anchor", "middle")
 
-                console.log(lineage_data)
-                console.log(parent)
+                // console.log(lineage_data)
+                // console.log(parent)
                 for(let i=start_timestep; i<=Math.min(lineage_data.length, start_timestep+50); i++){
                     // lineage_data[i].sort(function(a, b){
                     //     if(a[1]==b[1]) return super_ances(a[0], a[1])-super_ances(b[0], b[1]);
@@ -1435,57 +1412,31 @@
                             
                         if(i>0){
                             if(parent[i][j]==undefined) continue
-                            for(let k=0; k<parent[i][j].length; k++){
-                                if(lineage_data[i][j][0]==lineage_data[i-1][parent[i][j][k]][0]){
-                                    lineage_line.append("line")
-                                        .attr("class", "solid")
-                                        .attr("x1", i*20+10)
-                                        .attr("y1", j*20+30)
-                                        .attr("x2", (i-1)*20+10)
-                                        .attr("y2", parent[i][j][k]*20+30)
-                                        .attr("stroke-width", 1)
-                                        .attr("stroke", () => color_tableau(lineage_data[i][j][1]))
-                                        // .attr("stroke", "black")
-                                }
-                                else{
-                                    lineage_line.append("line")
-                                        .attr("class", "dashed")
-                                        .attr("x1", i*20+10)
-                                        .attr("y1", j*20+30)
-                                        .attr("x2", (i-1)*20+10)
-                                        .attr("y2", parent[i][j][k]*20+30)
-                                        .attr("stroke-width", 1)
-                                        .attr("stroke", () => color_tableau(lineage_data[i][j][1]))
-                                        // .attr("stroke", "black")
-                                }
-                            }
-                            // let k;
-                            // for(k=0; k<lineage_data[i-1].length; k++){
-                            //     if(lineage_data[i][j][0]==lineage_data[i-1][k][0] && lineage_data[i][j][1]==lineage_data[i-1][k][1]){
+                            ////////////////////////////////////////////////////////////
+                            ///////////             임시 주석               /////////////
+                            ////////////////////////////////////////////////////////////
+                            // for(let k=0; k<parent[i][j].length; k++){
+                            //     if(lineage_data[i][j][0]==lineage_data[i-1][parent[i][j][k]][0]){
                             //         lineage_line.append("line")
                             //             .attr("class", "solid")
                             //             .attr("x1", i*20+10)
                             //             .attr("y1", j*20+30)
                             //             .attr("x2", (i-1)*20+10)
-                            //             .attr("y2", k*20+30)
+                            //             .attr("y2", parent[i][j][k]*20+30)
                             //             .attr("stroke-width", 1)
-                            //             .attr("stroke", "black")
-                            //         break;
+                            //             .attr("stroke", () => color_tableau(lineage_data[i][j][1]))
+                            //             // .attr("stroke", "black")
                             //     }
-                            // }
-                            // if(k<lineage_data[i-1].length) continue;
-                            // for(k=0; k<lineage_data[i-1].length; k++){
-                            //     if(parent[`${lineage_data[i][j][1]}`][`${lineage_data[i][j][0]}`]==parent[`${lineage_data[i-1][k][1]}`][`${lineage_data[i-1][k][0]}`]
-                            //     && lineage_data[i][j][1]==lineage_data[i-1][k][1]){
+                            //     else{
                             //         lineage_line.append("line")
                             //             .attr("class", "dashed")
                             //             .attr("x1", i*20+10)
                             //             .attr("y1", j*20+30)
                             //             .attr("x2", (i-1)*20+10)
-                            //             .attr("y2", k*20+30)
+                            //             .attr("y2", parent[i][j][k]*20+30)
                             //             .attr("stroke-width", 1)
-                            //             .attr("stroke", "black")
-                            //         break;
+                            //             .attr("stroke", () => color_tableau(lineage_data[i][j][1]))
+                            //             // .attr("stroke", "black")
                             //     }
                             // }
                         }
