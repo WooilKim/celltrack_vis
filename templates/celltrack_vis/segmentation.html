@@ -1286,7 +1286,6 @@
                                         }
                                     }
                                     if(getin) break
-                                    // break
                                 }
                             }
                             if(k<max_alg_num) continue
@@ -1412,33 +1411,28 @@
                             
                         if(i>0){
                             if(parent[i][j]==undefined) continue
-                            ////////////////////////////////////////////////////////////
-                            ///////////             임시 주석               /////////////
-                            ////////////////////////////////////////////////////////////
-                            // for(let k=0; k<parent[i][j].length; k++){
-                            //     if(lineage_data[i][j][0]==lineage_data[i-1][parent[i][j][k]][0]){
-                            //         lineage_line.append("line")
-                            //             .attr("class", "solid")
-                            //             .attr("x1", i*20+10)
-                            //             .attr("y1", j*20+30)
-                            //             .attr("x2", (i-1)*20+10)
-                            //             .attr("y2", parent[i][j][k]*20+30)
-                            //             .attr("stroke-width", 1)
-                            //             .attr("stroke", () => color_tableau(lineage_data[i][j][1]))
-                            //             // .attr("stroke", "black")
-                            //     }
-                            //     else{
-                            //         lineage_line.append("line")
-                            //             .attr("class", "dashed")
-                            //             .attr("x1", i*20+10)
-                            //             .attr("y1", j*20+30)
-                            //             .attr("x2", (i-1)*20+10)
-                            //             .attr("y2", parent[i][j][k]*20+30)
-                            //             .attr("stroke-width", 1)
-                            //             .attr("stroke", () => color_tableau(lineage_data[i][j][1]))
-                            //             // .attr("stroke", "black")
-                            //     }
-                            // }
+                            for(let k=0; k<parent[i][j].length; k++){
+                                if(lineage_data[i][j][0]==lineage_data[i-1][parent[i][j][k][0]][0]){
+                                    lineage_line.append("line")
+                                        .attr("class", "solid")
+                                        .attr("x1", i*20+10)
+                                        .attr("y1", j*20+30)
+                                        .attr("x2", (i-1)*20+10)
+                                        .attr("y2", parent[i][j][k][0]*20+30)
+                                        .attr("stroke-width", 1)
+                                        .attr("stroke", () => color_tableau(parent[i][j][k][1]))
+                                }
+                                else{
+                                    lineage_line.append("line")
+                                        .attr("class", "dashed")
+                                        .attr("x1", i*20+10)
+                                        .attr("y1", j*20+30)
+                                        .attr("x2", (i-1)*20+10)
+                                        .attr("y2", parent[i][j][k][0]*20+30)
+                                        .attr("stroke-width", 1)
+                                        .attr("stroke", () => color_tableau(parent[i][j][k][1]))
+                                }
+                            }
                         }
                     }
                 }
