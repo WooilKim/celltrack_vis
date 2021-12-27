@@ -1280,6 +1280,7 @@
                                     let l
                                     let cur_identic = identic[dataset_data['dataset_num']][k][dataset_data['alg_num']][j] // j time에 k->현데이터셋 identic관계
                                     let getin = false
+                                    if(cur_identic==undefined) continue
                                     for(l=0; l<cur_identic.length; l++){ // l이 base, cur_identic[l]이 합치려는것
                                         if(cur_identic[l]!=undefined && have(cur_node.id, cur_identic[l])){
                                             getin=true
@@ -1317,6 +1318,7 @@
 
                                     for(let l=dataset_data.alg_num+1; l<max_alg_num; l++){
                                         if(identic[dataset_data.dataset_num][dataset_data.alg_num][l] != undefined){
+                                            if(identic[dataset_data.dataset_num][dataset_data.alg_num][l][j]==undefined) continue
                                             let cur_identic = identic[dataset_data.dataset_num][dataset_data.alg_num][l][j][cur_node.id]
                                             // console.log(cur_identic)
                                             if(cur_identic!=undefined){
@@ -1411,26 +1413,63 @@
                             
                         if(i>0){
                             if(parent[i][j]==undefined) continue
+                            console.log(i, j, parent[i][j])
                             for(let k=0; k<parent[i][j].length; k++){
-                                if(lineage_data[i][j][0]==lineage_data[i-1][parent[i][j][k][0]][0]){
-                                    lineage_line.append("line")
-                                        .attr("class", "solid")
-                                        .attr("x1", i*20+10)
-                                        .attr("y1", j*20+30)
-                                        .attr("x2", (i-1)*20+10)
-                                        .attr("y2", parent[i][j][k][0]*20+30)
-                                        .attr("stroke-width", 1)
-                                        .attr("stroke", () => color_tableau(parent[i][j][k][1]))
+                                let p = parent[i][j][k], s=0;
+                                while(p==parent[i][j][k] && k<parent[i][j].length) s++, k++;
+                                k--;
+
+                                if(lineage_data[i][j][0]==lineage_data[i-1][p[0]][0]){
+                                    if(s>1){
+                                        lineage_line.append("line")
+                                            .attr("class", "solid")
+                                            .attr("x1", i*20+10)
+                                            .attr("y1", j*20+30)
+                                            .attr("x2", (i-1)*20+10)
+                                            .attr("y2", p[0]*20+30)
+                                            .attr("stroke-width", 1)
+                                            .attr("stroke", () => color_tableau(p[1]))
+                                            .on('mouseover', function () {
+                                                console.log(i, j)
+                                                // TODO
+                                            })
+                                    }
+                                    else{
+                                        lineage_line.append("line")
+                                            .attr("class", "solid")
+                                            .attr("x1", i*20+10)
+                                            .attr("y1", j*20+30)
+                                            .attr("x2", (i-1)*20+10)
+                                            .attr("y2", p[0]*20+30)
+                                            .attr("stroke-width", 1)
+                                            .attr("stroke", () => color_tableau(p[1]))
+                                    }
                                 }
                                 else{
-                                    lineage_line.append("line")
-                                        .attr("class", "dashed")
-                                        .attr("x1", i*20+10)
-                                        .attr("y1", j*20+30)
-                                        .attr("x2", (i-1)*20+10)
-                                        .attr("y2", parent[i][j][k][0]*20+30)
-                                        .attr("stroke-width", 1)
-                                        .attr("stroke", () => color_tableau(parent[i][j][k][1]))
+                                    if(s>1){
+                                        lineage_line.append("line")
+                                            .attr("class", "dashed")
+                                            .attr("x1", i*20+10)
+                                            .attr("y1", j*20+30)
+                                            .attr("x2", (i-1)*20+10)
+                                            .attr("y2", parent[i][j][k][0]*20+30)
+                                            .attr("stroke-width", 1)
+                                            .attr("stroke", () => color_tableau(parent[i][j][k][1]))
+                                            .on('mouseover', function () {
+                                                console.log(i, j)
+                                                // TODO
+                                            })
+                                    }
+                                    else{
+                                        lineage_line.append("line")
+                                            .attr("class", "dashed")
+                                            .attr("x1", i*20+10)
+                                            .attr("y1", j*20+30)
+                                            .attr("x2", (i-1)*20+10)
+                                            .attr("y2", parent[i][j][k][0]*20+30)
+                                            .attr("stroke-width", 1)
+                                            .attr("stroke", () => color_tableau(parent[i][j][k][1]))
+                                    }
                                 }
                             }
                         }
