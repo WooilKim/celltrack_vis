@@ -1187,6 +1187,15 @@
         let lineage_svg = lineage_div.select("svg")
         lineage_svg.selectChildren().remove()
 
+        lineage_svg.append("g").append("line")
+            .attr("x1", 100)
+            .attr("y1", 400)
+            .attr("x2", 200)
+            .attr("y2", 400)
+            .attr("stroke-width", 1)
+            .attr("stroke", "black")
+            .on("mouseover", function(){console.log("mouseover")})
+
         let lineage_line = lineage_svg.append("g")
         let lineage_node = lineage_svg.append("g")
         let lineage_txt = lineage_svg.append("text")
@@ -1413,14 +1422,15 @@
                             
                         if(i>0){
                             if(parent[i][j]==undefined) continue
-                            console.log(i, j, parent[i][j])
+                            // console.log(i, j, parent[i][j])
                             for(let k=0; k<parent[i][j].length; k++){
                                 let p = parent[i][j][k], s=0;
-                                while(p==parent[i][j][k] && k<parent[i][j].length) s++, k++;
+                                while(k<parent[i][j].length && p[0]==parent[i][j][k][0]) s++, k++;
                                 k--;
 
                                 if(lineage_data[i][j][0]==lineage_data[i-1][p[0]][0]){
                                     if(s>1){
+                                        console.log("in")
                                         lineage_line.append("line")
                                             .attr("class", "solid")
                                             .attr("x1", i*20+10)
@@ -1428,10 +1438,11 @@
                                             .attr("x2", (i-1)*20+10)
                                             .attr("y2", p[0]*20+30)
                                             .attr("stroke-width", 1)
-                                            .attr("stroke", () => color_tableau(p[1]))
-                                            .on('mouseover', function () {
-                                                console.log(i, j)
-                                                // TODO
+                                            // .attr("stroke", () => color_tableau(p[1]))
+                                            .attr("stroke", "red")
+                                            .on("mouseover", function () {
+                                                d3.select(this).attr("stroke", "yellow")
+                                                // console.log("over")
                                             })
                                     }
                                     else{
@@ -1455,10 +1466,6 @@
                                             .attr("y2", parent[i][j][k][0]*20+30)
                                             .attr("stroke-width", 1)
                                             .attr("stroke", () => color_tableau(parent[i][j][k][1]))
-                                            .on('mouseover', function () {
-                                                console.log(i, j)
-                                                // TODO
-                                            })
                                     }
                                     else{
                                         lineage_line.append("line")
