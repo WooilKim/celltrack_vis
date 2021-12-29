@@ -1417,69 +1417,47 @@
                             
                         if(i>0){
                             if(parent[i][j]==undefined) continue
-                            // console.log(i, j, parent[i][j])
                             for(let k=0; k<parent[i][j].length; k++){
                                 let p = parent[i][j][k], s=0;
                                 while(k<parent[i][j].length && p[0]==parent[i][j][k][0]) s++, k++;
                                 k--;
 
-                                if(lineage_data[i][j][0]==lineage_data[i-1][p[0]][0]){
-                                    if(s>1){
-                                        lineage_line.append("line")
-                                            .attr("class", "solid")
-                                            .attr("x1", i*20+10)
-                                            .attr("y1", j*20+30)
-                                            .attr("x2", (i-1)*20+10)
-                                            .attr("y2", p[0]*20+30)
-                                            .attr("stroke-width", 1)
-                                            .attr("stroke", () => color_tableau(p[1]))
-                                            .on("mouseover", function () {
-                                                let button_g = lineage_line.append("g")
-                                                                        .attr("id", "button_g")
-                                                                        .on("mouseout", function () {d3.select(this).remove()})
-                                                for(let numb=0; numb<s; numb++){
-                                                    const rectsize = 20
-                                                    button_g.append("rect")
-                                                        .attr("x", i*20-s/2*rectsize+rectsize*numb)
-                                                        .attr("y", (j*20+30+p[0]*20+30)/2-rectsize/2+5)
-                                                        .attr("width", rectsize)
-                                                        .attr("height", rectsize)
-                                                        .attr("fill", () => color_tableau(parent[i][j][k-s+numb+1][1]))
-                                                }
-                                            })
-                                    }
-                                    else{
-                                        lineage_line.append("line")
-                                            .attr("class", "solid")
-                                            .attr("x1", i*20+10)
-                                            .attr("y1", j*20+30)
-                                            .attr("x2", (i-1)*20+10)
-                                            .attr("y2", p[0]*20+30)
-                                            .attr("stroke-width", 1)
-                                            .attr("stroke", () => color_tableau(p[1]))
-                                    }
+                                if(s>1){
+                                    lineage_line.append("line")
+                                        .attr("class", (lineage_data[i][j][0]==lineage_data[i-1][p[0]][0]) ? "solid" : "dashed")
+                                        .attr("x1", i*20+10)
+                                        .attr("y1", j*20+30)
+                                        .attr("x2", (i-1)*20+10)
+                                        .attr("y2", p[0]*20+30)
+                                        .attr("stroke-width", 1)
+                                        .attr("stroke", () => color_tableau(p[1]))
+                                        .on("mouseover", function (event) {
+                                            let button_g = lineage_line.append("g")
+                                                                    .attr("id", "button_g")
+                                                                    .on("mouseout", function () {d3.select(this).remove()})
+                                            for(let numb=0; numb<s; numb++){
+                                                const rectsize = 20
+                                                button_g.append("rect")
+                                                    .attr("x", i*20-s/2*rectsize+rectsize*numb)
+                                                    .attr("y", (j*20+30+p[0]*20+30)/2-rectsize/2+5)
+                                                    .attr("width", rectsize)
+                                                    .attr("height", rectsize)
+                                                    .attr("fill", () => color_tableau(parent[i][j][k-s+numb+1][1]))
+                                                    .on("click", function () {
+                                                        d3.select(event.target).attr("stroke", () => color_tableau(parent[i][j][k-s+numb+1][1]))
+                                                    })
+                                            }
+                                        })
                                 }
                                 else{
-                                    if(s>1){
-                                        lineage_line.append("line")
-                                            .attr("class", "dashed")
-                                            .attr("x1", i*20+10)
-                                            .attr("y1", j*20+30)
-                                            .attr("x2", (i-1)*20+10)
-                                            .attr("y2", parent[i][j][k][0]*20+30)
-                                            .attr("stroke-width", 1)
-                                            .attr("stroke", () => color_tableau(parent[i][j][k][1]))
-                                    }
-                                    else{
-                                        lineage_line.append("line")
-                                            .attr("class", "dashed")
-                                            .attr("x1", i*20+10)
-                                            .attr("y1", j*20+30)
-                                            .attr("x2", (i-1)*20+10)
-                                            .attr("y2", parent[i][j][k][0]*20+30)
-                                            .attr("stroke-width", 1)
-                                            .attr("stroke", () => color_tableau(parent[i][j][k][1]))
-                                    }
+                                    lineage_line.append("line")
+                                        .attr("class", (lineage_data[i][j][0]==lineage_data[i-1][p[0]][0]) ? "solid" : "dashed")
+                                        .attr("x1", i*20+10)
+                                        .attr("y1", j*20+30)
+                                        .attr("x2", (i-1)*20+10)
+                                        .attr("y2", p[0]*20+30)
+                                        .attr("stroke-width", 1)
+                                        .attr("stroke", () => color_tableau(p[1]))
                                 }
                             }
                         }
