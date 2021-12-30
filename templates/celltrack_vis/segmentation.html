@@ -321,6 +321,7 @@
         <div class="buttons">
             <button type="button" class="btn btn-primary data-load-button">Data load</button>
             <button type="button" class="btn btn-primary data-export-button">Data export</button>
+            <button type="button" class="btn btn-primary lineage-export-button">Lineage export</button>
             <button type="button" class="btn btn-primary">Request data upload</button>
             <button type="button" class="btn btn-info">Tutorial</button>
             <button type="button" class="btn btn-success">Quick trip</button>
@@ -500,6 +501,23 @@
         data_sets.forEach(el => {
             const f_name = el.name.split('/')[1] + '.json';
             var file = new Blob([JSON.stringify(el['segmentation'])], {type: 'json'});
+            var a = document.createElement("a"),
+                    url = URL.createObjectURL(file);
+            a.href = url;
+            a.download = f_name;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);  
+            }, 0); 
+        })
+    });
+
+    document.getElementsByClassName('lineage-export-button')[0].addEventListener('click', function () {
+        data_sets.forEach(el => {
+            const f_name = el.name.split('/')[1] + '-lineage.json';
+            var file = new Blob([JSON.stringify(el['lineage'])], {type: 'json'});
             var a = document.createElement("a"),
                     url = URL.createObjectURL(file);
             a.href = url;
@@ -1210,9 +1228,6 @@
             datalist[datasets_num[dname]].push(alg_num[aname])
             checked_data_num[datasets_num[dname]]++;
         }
-        // console.log(data_sets)
-        // console.log(datalist)
-        // console.log(checked_data_num)
 
         let identic = Array.from(Array(max_dataset_num), () => Array.from(Array(max_alg_num), () => new Array(max_alg_num)))
         async function read_similarity(ds, l, r){
@@ -1376,8 +1391,6 @@
                 lineage_txt = lineage_svg.append("text")
                     .attr("font-size", 10)
                     .attr("text-anchor", "middle")
-                // console.log(d3.select(document.getElementsByClassName('overlay'))[0])
-                // d3.select(document.getElementsByClassName('overlay')[0]).remove()
 
                 // console.log(lineage_data)
                 // console.log(parent)
@@ -1414,6 +1427,7 @@
                             .attr("cx", i*20+10)
                             .attr("cy", j*20+30)
                             .attr("fill", () => color_tableau(lineage_data[i][j][1]))
+                            .lower()
                             
                         if(i>0){
                             if(parent[i][j]==undefined) continue
@@ -1431,10 +1445,10 @@
                                         .attr("y2", p[0]*20+30)
                                         .attr("stroke-width", 1)
                                         .attr("stroke", () => color_tableau(p[1]))
+                                        // .attr("stroke", "yellow")
                                         .on("mouseover", function (event) {
                                             let button_g = lineage_line.append("g")
                                                                     .attr("id", "button_g")
-                                                                    .on("mouseout", function () {d3.select(this).remove()})
                                             for(let numb=0; numb<s; numb++){
                                                 const rectsize = 20
                                                 button_g.append("rect")
@@ -1445,8 +1459,34 @@
                                                     .attr("fill", () => color_tableau(parent[i][j][k-s+numb+1][1]))
                                                     .on("click", function () {
                                                         d3.select(event.target).attr("stroke", () => color_tableau(parent[i][j][k-s+numb+1][1]))
+
+                                                        if(numb==0) return;
+                                                        let base_lineage = data_sets[0]['lineage']
+                                                        // console.log(base_lineage)
+                                                        for(let lng=0; lng<base_lineage.length; lng++){
+                                                            if(lineage_data[i][j][0]==base_lineage[lng].id){
+                                                                new_id = 1
+                                                                for(let ii=0; ii<base_lineage.length; ii++){
+                                                                    if(base_lineage[ii].id==String(new_id))
+                                                                        new_id = new_id + 1
+                                                                    else break;
+                                                                }
+                                                                base_lineage.splice(lng+1, 0, {
+                                                                    id: String(new_id),
+                                                                    birth: String(i),
+                                                                    death: base_lineage[lng].death,
+                                                                    parent: base_lineage[lng].parent,
+                                                                    dataset : base_lineage[lng].dataset
+                                                                })
+                                                                base_lineage[lng].death=String(i-1)
+                                                                break
+                                                            }
+                                                        }
+                                                        console.log(base_lineage)
                                                     })
+                                                    .raise()
                                             }
+                                            button_g.on("mouseout", function () {d3.select(this).remove()})
                                         })
                                 }
                                 else{
