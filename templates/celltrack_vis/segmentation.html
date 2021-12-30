@@ -431,6 +431,7 @@
                         </div>
                     </div>
                     <div id='lineage_div' class="col-5" height=650 width=650 style="float: left">
+                        <svg id='button_svg' overflow="auto"></svg>
                         <svg id='lineage_svg' overflow="auto"></svg>
                     </div>
                 </div>
@@ -1203,7 +1204,9 @@
         let max_timestep = 0
         let max_yaxis_node = 0
 
-        let lineage_svg = lineage_div.select("svg")
+        let button_svg = d3.select('#button_svg').attr("height", 20)
+        let lineage_svg = d3.select('#lineage_svg')
+        // let lineage_svg = lineage_div.select("svg")
         lineage_svg.selectChildren().remove()
 
         let lineage_line = lineage_svg.append("g")
@@ -1312,7 +1315,7 @@
                     }
                 }
             }
-            console.log(lineage_data)
+            // console.log(lineage_data)
             for(let nd=0; nd<num_datasets; nd++){
                 let dataset_data = data_sets[nd]
                 let node_data = dataset_data['lineage']
@@ -1363,7 +1366,7 @@
                     }
                 }
             }
-            console.log(parent)
+            // console.log(parent)
 
             for(let i=0; i<=max_timestep; i++)
                 max_yaxis_node = Math.max(max_yaxis_node, lineage_data[i].length)
@@ -1446,19 +1449,28 @@
                                         .attr("stroke-width", 1)
                                         .attr("stroke", () => color_tableau(p[1]))
                                         // .attr("stroke", "yellow")
-                                        .on("mouseover", function (event) {
-                                            let button_g = lineage_line.append("g")
-                                                                    .attr("id", "button_g")
+                                        .on("mouseover", function (event) {d3.select(event.target).attr("stroke-width", 5)})
+                                        .on("click", function (event) {
+                                            if(event.target.getAttribute("stroke")=="red"){
+                                                d3.select(event.target).attr("stroke", () => color_tableau(p[1]))
+                                                button_svg.select("g").remove()
+                                                return;
+                                            }
+
+                                            d3.select(event.target).attr("stroke", "red")
+                                            let button_g = button_svg.append("g")
+                                                                    // .attr("id", "button_g")
                                             for(let numb=0; numb<s; numb++){
                                                 const rectsize = 20
                                                 button_g.append("rect")
-                                                    .attr("x", i*20-s/2*rectsize+rectsize*numb)
-                                                    .attr("y", (j*20+30+p[0]*20+30)/2-rectsize/2+5)
+                                                    .attr("x", numb*rectsize)
+                                                    .attr("y", 0)
                                                     .attr("width", rectsize)
                                                     .attr("height", rectsize)
                                                     .attr("fill", () => color_tableau(parent[i][j][k-s+numb+1][1]))
                                                     .on("click", function () {
                                                         d3.select(event.target).attr("stroke", () => color_tableau(parent[i][j][k-s+numb+1][1]))
+                                                        button_g.remove()
 
                                                         if(numb==0) return;
                                                         let base_lineage = data_sets[0]['lineage']
@@ -1482,12 +1494,56 @@
                                                                 break
                                                             }
                                                         }
-                                                        console.log(base_lineage)
+                                                        // console.log(base_lineage)
                                                     })
                                                     .raise()
                                             }
-                                            button_g.on("mouseout", function () {d3.select(this).remove()})
                                         })
+                                        .on("mouseout", function(event) {d3.select(event.target).attr("stroke-width", 1)})
+                                        // .on("mouseover", function (event) {
+                                        //     d3.select(event.target).attr("stroke-width", 5)
+                                        //     let button_g = lineage_line.append("g")
+                                        //                             .attr("id", "button_g")
+                                        //     for(let numb=0; numb<s; numb++){
+                                        //         const rectsize = 20
+                                        //         button_g.append("rect")
+                                        //             .attr("x", i*20-s/2*rectsize+rectsize*numb)
+                                        //             .attr("y", (j*20+30+p[0]*20+30)/2-rectsize/2+5)
+                                        //             .attr("width", rectsize)
+                                        //             .attr("height", rectsize)
+                                        //             .attr("fill", () => color_tableau(parent[i][j][k-s+numb+1][1]))
+                                        //             .on("click", function () {
+                                        //                 d3.select(event.target).attr("stroke", () => color_tableau(parent[i][j][k-s+numb+1][1]))
+
+                                        //                 if(numb==0) return;
+                                        //                 let base_lineage = data_sets[0]['lineage']
+                                        //                 // console.log(base_lineage)
+                                        //                 for(let lng=0; lng<base_lineage.length; lng++){
+                                        //                     if(lineage_data[i][j][0]==base_lineage[lng].id){
+                                        //                         new_id = 1
+                                        //                         for(let ii=0; ii<base_lineage.length; ii++){
+                                        //                             if(base_lineage[ii].id==String(new_id))
+                                        //                                 new_id = new_id + 1
+                                        //                             else break;
+                                        //                         }
+                                        //                         base_lineage.splice(lng+1, 0, {
+                                        //                             id: String(new_id),
+                                        //                             birth: String(i),
+                                        //                             death: base_lineage[lng].death,
+                                        //                             parent: base_lineage[lng].parent,
+                                        //                             dataset : base_lineage[lng].dataset
+                                        //                         })
+                                        //                         base_lineage[lng].death=String(i-1)
+                                        //                         break
+                                        //                     }
+                                        //                 }
+                                        //                 console.log(base_lineage)
+                                        //             })
+                                        //             .raise()
+                                        //     }
+                                        //     button_g.on("mouseout", function () {d3.select(this).remove()})
+                                        // })
+                                        // .on("mouseout", function(event) {d3.select(event.target).attr("stroke-width", 1)})
                                 }
                                 else{
                                     lineage_line.append("line")
