@@ -1395,7 +1395,7 @@
                     .attr("font-size", 10)
                     .attr("text-anchor", "middle")
 
-                // console.log(lineage_data)
+                console.log(lineage_data)
                 // console.log(parent)
                 for(let i=start_timestep; i<=Math.min(lineage_data.length, start_timestep+50); i++){
                     // lineage_data[i].sort(function(a, b){
@@ -1571,7 +1571,7 @@
 
                 draw_lineage(cur_scroll);
             })
-        }, 100); // set timeout close
+        }, 500); // set timeout close
     }
 
     let data_sets = [];
