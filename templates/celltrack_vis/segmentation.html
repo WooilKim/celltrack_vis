@@ -1194,7 +1194,7 @@
         lineage_div = d3.select('#lineage_div')
 
         let lineage_data = Array.from(Array(1800), () => new Array())
-        const num_datasets = checked_list.length;
+        let num_datasets = checked_list.length;
         let parent = Array.from(Array(1800), () => new Array())
         let clone = Array.from(Array(1800), () => new Array())
         // let parent = new Array()
@@ -1528,7 +1528,7 @@
 
                 draw_lineage(cur_scroll);
             })
-        }, 1000); // set timeout close
+        }, 2000); // set timeout close
     }
 
     let data_sets = [];
