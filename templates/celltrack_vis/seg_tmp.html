@@ -1,0 +1,2191 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+
+    .grid {
+        opacity: 0.5;
+        color: silver;
+    }
+
+    #table_div {
+        overflow: auto;
+    }
+
+    .ticks {
+        font-size: 10px;
+    }
+
+    .track,
+    .track-inset,
+    .track-overlay {
+        stroke-linecap: round;
+    }
+
+    .track {
+        stroke: #000;
+        stroke-opacity: 0.3;
+        stroke-width: 10px;
+    }
+
+    .track-inset {
+        stroke: #dcdcdc;
+        stroke-width: 8px;
+    }
+
+    .track-overlay {
+        pointer-events: stroke;
+        stroke-width: 50px;
+        stroke: transparent;
+        cursor: crosshair;
+    }
+
+    .sidebar {
+        padding-left: 0px !important;
+        padding-right: 0px !important;
+    }
+
+    .overlay {
+        display: none;
+        /* width: 100%; */
+        width: 1250px;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    #structure-outer {
+        position: relative;
+        top: 300px;
+        left: 100px;
+        width: 20%;
+        height: 400px;
+        padding: 20px;
+        background-color: lightgray;
+    }
+
+    #structure {
+        margin-top: 10px;
+    }
+
+    #dialog-button {
+        text-align: center;
+    }
+
+    #dialog-close-button, #structure-close-button {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 24px;
+    }
+
+    .dialog-row {
+        margin-bottom: 10px;
+    }
+
+    .dialog-row:last-of-type {
+        display: flex;
+        justify-content: center;
+    }
+
+    .row-content {
+        padding: 5px;
+    }
+
+    .file-content, .checked-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .checked-row {
+        cursor: row-resize;
+    }
+
+    .close {
+        cursor: pointer;
+    }
+
+    .dialog {
+        top: 25%;
+        left: 40%;
+        width: 20%;
+        height: 200px;
+        padding: 20px;
+        background-color: lightgray;
+        position: relative;
+    }
+
+    .checked-row-content {
+        display: flex;
+        align-items: center;
+    }
+
+    .checked-color {
+        cursor: default;
+        border: 1px solid black;
+        width: 22px;
+        height: 22px;
+        margin-right: 5px;
+    }
+
+    .checked-color-inner {
+        width: 20px;
+        height: 20px;
+    }
+
+    .checked-content {
+        font-size: 12px;
+    }
+
+    #grid_div {
+        border-width: 1px;
+        border-style: solid;
+        border-color: black;
+    }
+
+    #title_div {
+        padding-top: 50px;
+        font-size: 50px;
+        font-weight: bold;
+        text-align: center;
+
+    }
+
+
+    #author_div {
+        font-size: 20px;
+        text-align: center;
+        color: gray;
+    }
+
+    #checked_div {
+        background-color: #f0f4f9;
+        height: 200px;
+    }
+
+    #table_div {
+        border: 1px dashed gray;
+        height: 800px;
+        background-color: #f0f4f9;
+        font-size: 12px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    #table_div > table {
+        width: 100%;
+        text-align: center;
+        table-layout: fixed;
+    }
+
+    #table_div tbody {
+        display: block;
+        min-height: 300px;
+        max-height: 300px;
+        overflow-y: scroll;
+        margin-top: 30px;
+        border: 1px dashed gray;
+    }
+
+    #table_div thead, #table_div tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    #time_div {
+        background-color: #f0f4f9;
+    }
+
+    #seg_div {
+        background-color: #f0f4f9;
+    }
+
+    #linegraph_div {
+        background-color: #f0f4f9;
+    }
+
+    #lineage_div {
+        height: 800px;
+        background-color: #f0f4f9;
+        overflow: scroll;
+    }
+
+    .row-content--active {
+        background-color: rgba(0, 125, 193, 0.4);
+    }
+
+    .mdi {
+        margin-right: 5px;
+    }
+
+    .json {
+        color: gray;
+    }
+
+    .dir {
+        color: orange;
+    }
+
+    .depth-1 {
+        margin-left: 10px;
+    }
+
+    .depth-2 {
+        margin-left: 20px;
+    }
+
+    .depth-3 {
+        margin-left: 30px;
+    }
+
+    .depth-4 {
+        margin-left: 40px;
+    }
+
+    .depth-5 {
+        margin-left: 50px;
+    }
+
+    .solid {
+        stroke: solid;
+    }
+
+    .dashed {
+        stroke-dasharray: 3, 3;
+    }
+
+</style>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.15/paper-full.min.js"
+        integrity="sha512-ovjLI1ZcZe6bw+ImQ21r+sv8q/Vwob2kq7tFidK6E1LWfi0T4uobbmpfEU1//a9h9o5Kkt+MnMWf6rWlg0EiMw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@5.9.55/css/materialdesignicons.min.css"></link>
+{#<form>#}
+{#    <label><input type="radio" name="mode" value="cluster" checked> Dendrogram</label>#}
+{#    <label><input type="radio" name="mode" value="tree"> Tree</label>#}
+{#</form>#}
+<body style="background-color: #98A3DF; height:100%">
+<div class="container-fluid">
+    <div class="overlay">
+        <div class="dialog">
+            <span class="mdi mdi-close" id="dialog-close-button"></span>
+            <div class="dialog-row">
+                <label for="opacity">opacity</label>
+                <input type="range" id="opacity" name="opacity" min="0.0" max="1.0" step="0.01" style="width: 200px;">
+            </div>
+            <div class="dialog-row">
+                <label for="color">color</label>
+                <input type="color" id="color" name="color" value="#FFFFFF">
+            </div>
+            <div class="dialog-row">
+                <button id="dialog-button">Submit</button>
+            </div>
+        </div>
+        <div id="structure-outer">
+            <span class="mdi mdi-close" id="structure-close-button"></span>
+            <div id="structure"></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-2">
+            <img class="fit-picture"
+                 src="{% static 'celltrack_vis/image/KUDL_logo_EN_transparent.png' %}"
+                 alt="Korea University Database Lab"
+                 style="width:100%">
+        </div>
+        <div id="title_div" class="col-8">
+            VCSS: Visual Comparison System for Semi-supervised Cell Tracking
+        </div>
+        <div class="col-2"></div>
+
+        <div id="author_div" class="col-12">
+            Wooil Kim et al.
+            <br/>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="buttons">
+            <button type="button" class="btn btn-primary data-load-button">Data load</button>
+            <button type="button" class="btn btn-primary data-export-button">Data export</button>
+            <button type="button" class="btn btn-primary lineage-export-button">Lineage export</button>
+            <button type="button" class="btn btn-primary">Request data upload</button>
+            <button type="button" class="btn btn-info">Tutorial</button>
+            <button type="button" class="btn btn-success">Quick trip</button>
+            {#            <button type="button" class="btn btn-danger">Danger</button>#}
+            {#            <button type="button" class="btn btn-warning">Warning</button>#}
+            {#            <button type="button" class="btn btn-info">Info</button>#}
+            {#            <button type="button" class="btn btn-success">Quick trip</button>#}
+            {#            <button type="button" class="btn btn-light">Light</button>#}
+            {#            <button type="button" class="btn btn-dark">Dark</button>#}
+        </div>
+    </div>
+
+    <div class="row" style="height: 30px;">
+        <div class="status" style="text-align: center;">Current Mode: None</div>
+    </div>
+
+    <div class="row" style="height:1200px">
+        <div class="sidebar col-3">
+            <div id="checked_div"></div>
+            <div id='table_div'>
+                <table cellspacing="5">
+                    <thead>
+                    <tr>
+                        <th colspan="5">Cell ID</th>
+                        <th>Threshold</th>
+                        <th><input type="number" style="width: 40px;" name="threshold" value="70" min="0" max="100">
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Time</th>
+                        <th class="color-1">Base</th>
+                        <th class="color-2">1</th>
+                        <th class="color-3">2</th>
+                        <th class="color-4">3</th>
+                        <th class="color-5">4</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="tbody_unselected"></tbody>
+                    <tbody id="tbody_selected"></tbody>
+                    <template id="table_row_template">
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <select>
+                                </select>
+                            </td>
+                            <td>
+                                <select>
+                                </select>
+                            </td>
+                            <td>
+                                <select>
+                                </select>
+                            </td>
+                            <td>
+                                <select>
+                                </select>
+                            </td>
+                            <td>
+                                <button onclick="select_row(this)">Ok</button>
+                            </td>
+                        </tr>
+                    </template>
+                    <template id="table_mock_row_template">
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </template>
+                </table>
+                <!-- <svg id="table_svg">
+                    <g class="table-rows"></g>
+                    <g class="header"></g>
+                </svg> -->
+            </div>
+        </div>
+        <div class="col-9">
+            <div class="row" style="border: 1px dashed gray;">
+                <div id="linegraph_div" class="col-12">
+                    <svg id="linegraph_svg" width="100%" height="100px">
+
+                    </svg>
+                </div>
+                <div id="time_div" class="col-12">
+                    <svg id="time_svg" width="100%" height="100px">
+
+                    </svg>
+                </div>
+                <div class=row>
+                    <div id='seg_div' class="col-7" style="float: left">
+                        <div class="row" style="display:inline-block; flex: 0 0 auto; padding-left:0; padding-right:0">
+                            <div id="grid_div" width="769" height="769" style="padding-left:0; padding-right:0">
+                                <svg id="seg_svg" width="769" height="769">
+                                    <defs></defs>
+                                </svg>
+                            </div>
+                            <div id="seg_minimap_div">
+                                <svg id="seg_minimap_svg">
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div id='lineage_div' class="col-5" height=650 width=650 style="float: left">
+                        <svg id='button_svg' overflow="auto"></svg>
+                        <svg id='lineage_svg' overflow="auto"></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div id="menu_div" class="col-12">
+            <svg id="menu_svg" width="100%">
+            </svg>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    let mode = null;
+    let clicked = '';
+    let data_paths = {{ paths }};
+    let seg_div = document.getElementById("seg_div"),
+        table_div = document.getElementById("table_div");
+    let seg_svg = d3.select("#seg_svg"),
+        seg_main_container = seg_svg.append('g').attr('id', 'seg_main_container'),
+        grid_bg = seg_main_container.append("g").attr('class', 'grid-bg'),
+        grid_vg = seg_main_container.append("g"),
+        grid_hg = seg_main_container.append("g"),
+        seg_g = seg_main_container.append("g").attr('id', 'seg_g'),
+        seg_width = Math.min(seg_div.clientWidth, 800)
+    seg_svg.attr('width', seg_width)
+    let num_timestep = 0
+    let num_cells = 1000
+    let img_width = 1010,
+        img_height = 1010;
+    let seg_scale = d3.scaleLinear()
+        .domain([0, img_width])
+        .range([0, seg_width]);
+
+    let main_dataset = {},
+        comparative_datasets = [],
+        candidate_datasets = [];
+
+    let color_tableau = d3.scaleOrdinal(d3.schemeTableau10);
+
+    let color_cell = d3.scaleOrdinal(d3.interpolateTurbo);
+
+    for (let i = 1; i <= 5; i++) {
+        document.getElementsByClassName("color-" + i)[0].style.backgroundColor = color_tableau(i - 1);
+    }
+
+    window.addEventListener("keydown", (e) => {
+        if (e.code === 'KeyU') {
+            mode = 'Union';
+        } else if (e.code === 'KeyS') {
+            mode = 'Subtract';
+        } else if (e.code === 'KeyI') {
+            mode = 'Intersect';
+        }
+        document.getElementsByClassName('status')[0].innerText = `Current Mode: ${mode}`;
+    })
+
+    paper.install(window);
+    window.onload = function () {
+        paper.setup('seg_svg');
+    }
+
+    document.getElementsByClassName('data-export-button')[0].addEventListener('click', function () {
+        data_sets.forEach(el => {
+            const f_name = el.name.split('/')[1] + '.json';
+            var file = new Blob([JSON.stringify(el['segmentation'])], {type: 'json'});
+            var a = document.createElement("a"),
+                url = URL.createObjectURL(file);
+            a.href = url;
+            a.download = f_name;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function () {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 0);
+        })
+    });
+
+    document.getElementsByClassName('lineage-export-button')[0].addEventListener('click', function () {
+        data_sets.forEach(el => {
+            const f_name = el.name.split('/')[1] + '-lineage.json';
+            var file = new Blob([JSON.stringify(el['lineage'])], {type: 'json'});
+            var a = document.createElement("a"),
+                url = URL.createObjectURL(file);
+            a.href = url;
+            a.download = f_name;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function () {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 0);
+        })
+    });
+
+    function zeroPad(nr, base) {
+        let len = (String(base).length - String(nr).length) + 1;
+        return len > 0 ? new Array(len).join('0') + nr : nr;
+    }
+
+    {#zeroPad(1, 10);   //=> 01#}
+    {#zeroPad(1, 100);  //=> 001#}
+    {#zeroPad(1, 1000); //=> 0001#}
+
+    function draw_grid() {
+
+        seg_svg.attr('viewBox')
+        let gridverticallines = d3.axisTop()
+            .tickFormat("")
+            .ticks(img_width / 10)
+            .tickSize(-seg_width)
+            .scale(seg_scale);
+
+        let gridhorizontallines = d3.axisLeft()
+            .tickFormat("")
+            .ticks(img_height / 10)
+            .tickSize(-seg_width)
+            .scale(seg_scale);
+
+
+        grid_bg
+            .append('rect')
+            .attr('width', seg_width)
+            .attr('height', seg_width)
+            .attr('x', 0)
+            .attr('y', 0)
+
+        grid_vg
+            .attr("class", "grid")
+            .call(gridverticallines);
+        grid_hg
+            .attr("class", "grid")
+            .call(gridhorizontallines);
+
+        let t = 0
+        {##}
+        d3.select('#seg_svg')
+            .select('defs')
+            .append('pattern')
+            .attr('id', 'seg_bg')
+            .attr('patternUnits', 'userSpaceOnUse')
+            .attr('width', seg_width)
+            .attr('height', seg_width)
+            .append('image')
+            .attr("width", seg_width)
+            .attr("height", seg_width)
+            .attr("x", 0)
+            .attr("y", 0);
+        {##}
+        {#let mask = d3.select('#seg_svg')#}
+        {#    .select('defs')#}
+        {#    .append('filter')#}
+        {#    .attr('id', 'minus')#}
+        {##}
+        {#mask.append('feComposite')#}
+        {#    .attr('in2', 'SourceGraphic')#}
+        {#    .attr('operator', 'in')#}
+        {#            {% comment %}.attr('type', 'linear')#}
+        {#            .attr('intercept', '-.05')#}
+        {#        mask.append('feComponentTransfer')#}
+        {#            .append('feFuncA')#}
+        {#            .attr('type', 'gamma')#}
+        {#            .attr('amplitude', '4')#}
+        {#            .attr('exponent', '.4'){% endcomment %}#}
+
+        {##}
+        {#mask.append('rect')#}
+        {#    .attr('class', 'cell')#}
+        {#    .attr('x', 0)#}
+        {#    .attr('y', 0)#}
+        {#    .attr('width', 1000)#}
+        {#    .attr('height', 1000)#}
+        {#mask.append('use')#}
+        {#    .attr('xlink:href', '.data-0')#}
+        {#    .attr('fill', 'white')#}
+        {#mask.append('use')#}
+        {#    .attr('xlink:href', '.data-1')#}
+        {#    .attr('fill', 'black')#}
+        {#d3.select('#seg_svg')#}
+        {#    .append('use')#}
+        {#    .attr('xlink:href', '.cell')#}
+        {#    .attr('mask', 'url(#minus)')#}
+
+    }
+
+    function draw_cells(di, timestep) {
+        let dataset = checked_list[checked_list.length - 1].path.split('/')[0];
+        d3.select('#seg_svg')
+            .select('defs')
+            .select('pattern')
+            .select('image')
+            .attr('xlink:href', "{% static 'celltrack_vis/data/celltracking_results/' %}" + dataset + "/input/images/t" + zeroPad(timestep, 100) + '.jpg')
+
+        grid_bg.select('rect').attr('fill', 'url(#seg_bg)')
+        let p = d3.line()
+            .x(function (d) {
+                return seg_scale(d[0]);
+            }) // apply the x scale to the x data
+            .y(function (d) {
+                return seg_scale(d[1]);
+            }) // apply the y scale to the y data
+
+        let obj = Object.entries(data_sets[di]['segmentation'][timestep]).sort(([, a], [, b]) => a - b);
+        let cell_g = seg_g.selectAll('.data-' + di)
+            .data(obj.map(([k, v]) => v))
+            .enter()
+            .append('g')
+            .attr('id', (d, i) => 'c' + di + '-' + obj.map(([k, v]) => k)[i])
+            .attr('class', (d, i) => 'cell cell-' + obj.map(([k, v]) => k)[i] + ' cell-data-' + di)
+
+
+        cell_g.selectAll('path')
+            .data(function (d) {
+                return d
+            })
+            .enter()
+            .append('path')
+            .attr('stroke', color_tableau(di))
+            .attr('d', function (d) {
+                return p(d)
+            })
+            .style('fill', color_tableau(di))
+            .style("stroke-width", 0.2)
+            .style('stroke-opacity', 0.5)
+    }
+
+    function draw_intersection(di, timestep) {
+        let p = d3.line()
+            .x(function (d) {
+                return seg_scale(d[0]);
+            }) // apply the x scale to the x data
+            .y(function (d) {
+                return seg_scale(d[1]);
+            }) // apply the y scale to the y data
+
+        let obj = Object.entries(data_sets[di]['segmentation'][timestep]).sort(([, a], [, b]) => a - b);
+        let clip_g = seg_g.selectAll('.clip-data-' + di)
+            .data(obj.map(([k, v]) => v))
+            .enter()
+            .append('g')
+            .attr('class', (d, i) => 'clip clip-' + obj.map(([k, v]) => k)[i] + ' clip-data-' + di)
+
+        clip_g.selectAll('path')
+            .data(function (d) {
+                return d
+            })
+            .enter()
+            .append('path')
+            .attr('d', function (d) {
+                return p(d)
+            })
+            .style('fill', 'white')
+            .style('fill-opacity', 0.0)
+            .style('stroke', color_tableau(di))
+            .style("stroke-width", 1.0)
+            .style("stroke-dasharray", "1,1")
+            .on("click", (e) => {
+                const clientX = e.clientX, clientY = e.clientY;
+                const targets = document.elementsFromPoint(clientX, clientY);
+                console.log(targets);
+
+                for (let el of targets) {
+                    if (el.parentNode && el.parentNode.classList && el.parentNode.classList.contains('cell')) {
+                        if (mode === 'Union' && !el.parentNode.classList.contains('cell-data-0')) { // search nearliest data-0 element
+                            let dx = [-1, -1, -1, 0, 0, 1, 1, 1];
+                            let dy = [-1, 0, 1, -1, 1, -1, 0, 1];
+                            for (let offset = 5; offset <= 20; offset += 5) {
+                                for (let d_idx = 0; d_idx < dx.length; d_idx++) {
+                                    const target_lists = document.elementsFromPoint(clientX + dx[d_idx] * offset, clientY + dy[d_idx] * offset);
+                                    el = target_lists.find(t => t.parentNode && t.parentNode.classList && t.parentNode.classList.contains('cell-data-0'));
+                                    if (el) break;
+                                }
+                                if (el) break;
+                            }
+
+                        }
+                        let p1 = new Path(el.getAttribute('d'));
+                        let p2 = new Path(e.target.getAttribute('d'));
+
+                        switch (mode) {
+                            case 'Intersect':
+                                p1 = p1.intersect(p2);
+                                break;
+                            case 'Union':
+                                p1 = p1.unite(p2);
+                                break;
+                            case 'Subtract':
+                                p1 = p1.subtract(p2);
+                                break;
+                        }
+
+                        const svgPathElement = p1.exportSVG();
+                        el.setAttribute('d', svgPathElement.getAttribute('d'));
+
+                        let datum = p1.segments.map(d => [seg_scale.invert(d._point._x), seg_scale.invert(d._point._y)]);
+                        let idx = el.parentNode.getAttribute('id').split('-')[1];
+                        data_sets[0]['segmentation'][timestep][idx][0] = datum;
+
+                        break;
+                    }
+                }
+            })
+    }
+
+    // table div rendering
+
+    document.getElementsByName('threshold')[0].addEventListener('input', filter_table);
+    document.getElementById('tbody_selected').addEventListener('scroll', (e) => {
+        if (table_draw_lock) return;
+        render_table(refresh = false, true);
+    })
+    document.getElementById('tbody_unselected').addEventListener('scroll', (e) => {
+        console.log('scroll')
+        if (table_draw_lock) return;
+        render_table(refresh = false, false);
+    })
+
+    let table_draw_lock = false;
+    let raw_data = [];
+    let unselected_rows = [];
+    let selected_rows = [];
+
+    function select_row(el) {
+        const tr = el.parentNode.parentNode;
+        const td = tr.querySelectorAll('td');
+        const time = td[0].innerText;
+        const base = td[1].innerText;
+        let selected = [];
+        for (let idx = 1; idx < td.length - 2; idx++) {
+            const target = td[1 + idx].querySelector('select').value.split('(')[0].trim();
+            selected.push(target);
+        }
+
+        let selected_row = unselected_rows.filter(row => row['time'] === time && row['base'] === base);
+        if (selected_row.length === 0) {
+            alert('row 선택 실패!');
+            return;
+        }
+        selected_row = selected_row[0];
+        selected.forEach((value, idx) => {
+            selected_row['column' + (idx + 1)] = selected_row['column' + (idx + 1)].filter(option => option['target'] == value);
+        })
+
+        unselected_rows = unselected_rows.filter(row => row['time'] !== time || row['base'] !== base);
+        selected_rows.push(selected_row);
+
+        render_table(refresh = false, true);
+        render_table(refresh = false, false);
+    }
+
+    function sort_table() {
+        function compare_func(a, b) {
+            if (Number(a['time']) > Number(b['time'])) return 1;
+            if (Number(a['time']) < Number(b['time'])) return -1;
+
+            if (Number(a['base']) > Number(b['base'])) return 1;
+            if (Number(a['base']) < Number(b['base'])) return -1;
+
+            return 0;
+        }
+
+        unselected_rows.sort(compare_func);
+        selected_rows.sort(compare_func);
+    }
+
+    async function draw_selection_table() {
+        const files = ["0_1.json", "0_2.json", "1_2.json"];
+        if (checked_list.length === 0) return;
+        const base_dir = checked_list[0].path.split('/')[0];
+
+        raw_data = [];
+        for (const file of files) {
+            const column = file.split('.')[0].split('_')[1];
+            const path = "{% static 'celltrack_vis/data/celltracking_results/' %}" + `${base_dir}/similarity/` + file;
+
+            await d3.json(path).then((data) => {
+                for (const [step, row] of Object.entries(data)) {
+                    for (const [base_cell_id, element] of Object.entries(row)) {
+                        if (element.length === 0) continue;
+                        raw_data.push({
+                            column: column,
+                            time: step,
+                            base: base_cell_id,
+                            target: element.map(el => el[0]),
+                            acc: element.map(el => el[1] / el[2] * 100.0)
+                        })
+                    }
+                }
+            })
+        }
+
+        raw_data = raw_data.reduce((acc, cur) => {
+            const key = [cur['time'], cur['base']];
+            if (!acc[key]) {
+                acc[key] = {
+                    [cur['column']]: {
+                        target: cur['target'],
+                        acc: cur['acc']
+                    }
+                }
+            } else {
+                acc[key][cur['column']] = {
+                    target: cur['target'],
+                    acc: cur['acc']
+                }
+            }
+            return acc;
+        }, {});
+
+        filter_table();
+    }
+
+    function filter_table() {
+        const threshold = Number(document.getElementsByName("threshold")[0].value);
+        const filtered_rows = [];
+        for (const [key, row] of Object.entries(raw_data)) {
+            filtered_rows[key] = {};
+            for (const [column, obj] of Object.entries(row)) {
+                const options = [];
+                for (const [idx, acc] of Object.entries(obj['acc'])) {
+                    if (obj['acc'][idx] >= threshold) {
+                        options.push({
+                            target: obj['target'][idx],
+                            acc: obj['acc'][idx]
+                        })
+                    }
+                }
+                filtered_rows[key][column] = options;
+            }
+        }
+
+        selected_rows = [];
+        unselected_rows = [];
+
+        for (const [key, row] of Object.entries(filtered_rows)) {
+            const row_values = Object.values(row);
+            const number_of_nonempty_options = row_values.filter(el => el.length > 0).length;
+            if (number_of_nonempty_options < row_values.length) continue;
+
+            const number_of_options = row_values.reduce((acc, cur) => {
+                return acc + cur.length;
+            }, 0);
+            let result_row = {
+                time: key.split(',')[0],
+                base: key.split(',')[1]
+            };
+            for (const [column, obj] of Object.entries(row)) {
+                result_row['column' + column] = obj;
+            }
+            if (number_of_options === row_values.length) { // option이 각각 1개씩만 있는 경우
+                selected_rows.push(result_row);
+            } else {
+                unselected_rows.push(result_row);
+            }
+        }
+
+        render_table();
+    }
+
+    function render_table(refresh = true, selected) {
+        table_draw_lock = true;
+        const NUM_OF_MAX_ELEMENTS = 11;
+
+        const table_div = document.getElementById("table_div");
+        const selected_tbody = document.getElementById("tbody_selected");
+        const unselected_tbody = document.getElementById("tbody_unselected");
+        const template = document.getElementById("table_row_template");
+        const mock_template = document.getElementById("table_mock_row_template");
+
+        if (refresh) {
+            selected_tbody.querySelectorAll("tr").forEach(el => el.remove());
+            unselected_tbody.querySelectorAll("tr").forEach(el => el.remove());
+        }
+
+        sort_table();
+
+        function add_row(el, selected, last) {
+            const tbody = selected ? selected_tbody : unselected_tbody;
+
+            if (!el) { // mock element
+                const clone = document.importNode(mock_template.content, true);
+                const rows = selected ? selected_rows : unselected_rows;
+                const tr = clone.querySelector('tr');
+                const ROW_HEIGHT = 26;
+
+                if (last) {
+                    tr.classList.add('last-element');
+                    tr.style.height = `${(rows.length - NUM_OF_MAX_ELEMENTS) * ROW_HEIGHT}px`;
+                } else {
+                    tr.classList.add('first-element');
+                    tr.style.height = '0px';
+                    tr.style.display = 'none';
+                }
+                tbody.appendChild(clone);
+                return;
+            }
+
+            const clone = document.importNode(template.content, true);
+            const td = clone.querySelectorAll("td");
+            td[0].textContent = el['time'];
+            td[1].textContent = el['base'];
+
+            for (let idx = 1; ; idx++) {
+                const column = el['column' + idx];
+                if (!column) break; // column이 없을 때까지 가져옴
+
+                const select = td[1 + idx].querySelector("select");
+                for (let acc of column) {
+                    const option = document.createElement("option");
+                    option.textContent = `${acc['target']} (${acc['acc'].toFixed(0)}%)`
+                    select.appendChild(option);
+                }
+            }
+            if (selected) {
+                td[td.length - 1].querySelector("button").style.visibility = "hidden";
+            }
+
+            const tr = tbody.getElementsByTagName('tr');
+            tbody.insertBefore(clone, tr[tr.length - 1]);
+
+        }
+
+        if (!refresh) {
+            const tbody = selected ? selected_tbody : unselected_tbody;
+            const rows = selected ? selected_rows : unselected_rows;
+            const ROW_HEIGHT = 26;
+            const scrollTop = tbody.scrollTop;
+            let start_idx = parseInt(Math.min(Math.max((scrollTop / ROW_HEIGHT), 0), rows.length + 1 - NUM_OF_MAX_ELEMENTS));
+
+            if (selected) {
+                $('#tbody_selected tr:not(.first-element):not(.last-element)').remove();
+            } else {
+                $('#tbody_unselected tr:not(.first-element):not(.last-element)').remove();
+            }
+
+            for (let idx = start_idx; idx < start_idx + NUM_OF_MAX_ELEMENTS; idx++) {
+                if (!rows[idx]) break;
+                add_row(rows[idx], selected, last = null);
+            }
+
+            const tr = tbody.getElementsByTagName('tr');
+            if (scrollTop >= ROW_HEIGHT) {
+                tr[0].style.display = 'table';
+                tr[0].style.height = `${scrollTop}px`;
+            } else {
+                tr[0].style.display = 'none';
+            }
+
+            tr[tr.length - 1].style.height = `${(rows.length - (tr.length - 2)) * ROW_HEIGHT - scrollTop}px`;
+            if (start_idx + NUM_OF_MAX_ELEMENTS !== rows.length) {
+                tr[tr.length - 1].style.display = 'table';
+            } else {
+                tr[tr.length - 1].style.display = 'none';
+            }
+
+            table_draw_lock = false;
+            return;
+        }
+
+        add_row(null, false, last = false);
+        add_row(null, true, last = false);
+
+        add_row(null, false, last = true);
+        add_row(null, true, last = true);
+
+
+        unselected_rows.slice(0, NUM_OF_MAX_ELEMENTS).forEach(el => {
+            add_row(el, false, last = null);
+        });
+
+        selected_rows.slice(0, NUM_OF_MAX_ELEMENTS).forEach(el => {
+            add_row(el, true, last = null);
+        });
+
+        table_draw_lock = false;
+
+        // for(let i=0;i<50;i++) {
+        //     add_row(unselected_rows[i], false);
+        //     add_row(selected_rows[i], true);
+        // }
+
+    }
+
+    function draw_table() {
+
+        let table_svg = d3.select('#table_svg'),
+            table_width = table_div.clientWidth,
+            table_row_height = 25,
+            table_padding_left = 10
+
+        // table_svg.attr('width', table_width)
+        //     .attr('overflow', 'auto')
+
+        // let table_header = table_svg.select('.header')
+
+
+        // table_header.append('rect')
+        //     .attr('y', 0)
+        //     .attr('width', table_width)
+        //     .attr('height', table_row_height)
+        //     .attr('fill', '#f0f4f9')
+        // table_header.append('text')
+        //     .text('ID')
+        //     .attr('y', table_row_height / 2)
+        //     .attr('x', table_padding_left)
+        //     .attr('alignment-baseline', 'central')
+
+
+        // table_header.append('text')
+        //     .text('BIRTH')
+        //     .attr('y', table_row_height / 2)
+        //     .attr('x', table_padding_left + 100)
+        //     .attr('alignment-baseline', 'central')
+
+        // table_header.append('text')
+        //     .text('DEATH')
+        //     .attr('y', table_row_height / 2)
+        //     .attr('x', table_padding_left + 300)
+        //     .attr('alignment-baseline', 'central')
+
+        let data_idxs = [0]
+
+        let map = new Map();
+        data_sets[data_idxs[0]]['lineage'].forEach(item => map.set(+item['id'], [[data_idxs[0], +item['parent'], +item['birth'], +item['death']]]))
+        for (let i = 1; i < data_idxs.length; i++) {
+            let draw_data = data_sets[data_idxs[i]]['lineage'];
+            draw_data.forEach(function (item) {
+                if (map.has(+item['id'])) {
+                    let arr = map.get(+item['id'])
+                    arr.push([data_idxs[i], +item['parent'], +item['birth'], +item['death']])
+                    map.set(+item['id'], arr)
+                } else {
+                    map.set(+item['id'], [[data_idxs[i], +item['parent'], +item['birth'], +item['death']]])
+                }
+            })
+        }
+
+        // let keys = Array.from(map.keys())
+        // keys.sort(function (a, b) {
+        //     return a - b
+        // })
+        // let mergedArr = Array.from(keys, key => [key, map.get(key)]);
+        // table_svg.attr('height', mergedArr.length * table_row_height)
+        // let rows = table_svg.select('.table-rows').selectAll('.table_row')
+        //     .data(mergedArr)
+        //     .enter()
+        //     .append('g')
+        //     .attr('class', 'table_row')
+        //     .attr('transform', (d, i) => 'translate(0,' + ((i + 2) * table_row_height) + ')')
+        // rows.append('text')
+        //     .text(d => d[0])
+        //     .attr('alignment-baseline', 'central')
+        //     .attr('x', table_padding_left)
+        //     .attr('y', -table_row_height / 2)
+
+        // rows.append('rect')
+        //     .attr('fill', 'none')
+        //     .attr('stroke-width', '0.5px')
+        //     .attr('stroke', 'silver')
+        //     .attr('stroke-dasharray', '4')
+        //     .attr('stroke-linecap', 'butt')
+        //     .attr('x', 0)
+        //     .attr('y', -table_row_height)
+        //     .attr('height', table_row_height)
+        //     .attr('width', table_width)
+
+        // {#rows.append('text')#}
+        // {#    .text(d => d[0])#}
+        // {#    .attr('x', 50)#}
+
+
+        // let table_cell_life_scale = d3.scaleLinear()
+        //     .domain([0, num_timestep - 1])
+        //     .range([0, table_width - 100])
+
+        // rows.selectAll('.life-rect')
+        //     .data(function (d) {
+        //         return d[1]
+        //     })
+        //     .enter()
+        //     .append('rect')
+        //     .attr('class', 'life-rect')
+        //     .attr('x', d => 100 + table_cell_life_scale(d[2]))
+        //     .attr('y', function (d) {
+        //         switch (d[0]) {
+        //             case 0:
+        //                 return -table_row_height
+        //             default :
+        //                 return -table_row_height + (data_idxs.indexOf(d[0]) - 1) * (0.25) * table_row_height
+        //         }
+        //     })
+        //     .attr('width', d => table_cell_life_scale(d[3] - d[2]))
+        //     .attr('fill', d => color_tableau(d[0]))
+        //     .attr('height', function (d) {
+        //         switch (d[0]) {
+        //             case 0 :
+        //                 return table_row_height
+        //             default:
+        //                 return table_row_height / 4
+        //         }
+        //     })
+
+
+        // rows.selectAll('.cell-exist')
+        //     .data(function (d) {
+        //         return d[1]
+        //     })
+        //     .enter()
+        //     .append('circle')
+        //     .attr('class', 'cell-exist')
+        //     .attr('cx', function (d) {
+        //         switch (d[0]) {
+        //             case 0:
+        //                 return 50
+        //             default:
+        //                 return 80
+        //         }
+        //     })
+        //     .attr('cy', function (d) {
+        //         switch (d[0]) {
+        //             case 0:
+        //                 return -table_row_height/2
+        //             default :
+        //                 return -table_row_height/2 + (data_idxs.indexOf(d[0]) - 1) * (0.25) * table_row_height
+        //         }
+        //     })
+        //     .attr('fill', d => color_tableau(d[0]))
+        //     .attr('r', function (d) {
+        //         switch (d[0]) {
+        //             case 0 :
+        //                 return table_row_height/2
+        //             default:
+        //                 return table_row_height / 8
+        //         }
+        //     })
+        // {#rows.append('rect')#}
+        // {#    .attr('x', d => 100 + table_cell_life_scale(d['birth']))#}
+        // {#    .attr('y', -table_row_height / 2)#}
+        // {#    .attr('width', d => table_cell_life_scale(d['death'] - d['birth']))#}
+        // {#    .attr('fill', 'red')#}
+        // {#    .attr('height', table_row_height / 2)#}
+        // {##}
+        // {##}
+        // {#rows.append('rect')#}
+        // {#    .attr('x', (d, i) => 100 + table_cell_life_scale(curr_data2[i]['birth']))#}
+        // {#    .attr('y', -table_row_height / 2)#}
+        // {#    .attr('width', (d, i) => table_cell_life_scale(curr_data2[i]['death'] - curr_data2[i]['birth']))#}
+        // {#    .attr('fill', 'blue')#}
+        // {#    .attr('height', table_row_height / 4)#}
+
+        // table_div.addEventListener('scroll', function () {
+        //     table_header.node().setAttribute('transform', 'translate(0,' + this.scrollTop + ')');
+        // }, false)
+
+        lineage_div = d3.select('#lineage_div')
+
+        let lineage_data = Array.from(Array(1800), () => new Array())
+        const num_datasets = checked_list.length;
+        let parent = Array.from(Array(1800), () => new Array())
+        let clone = Array.from(Array(1800), () => new Array())
+        // let parent = new Array()
+        // for(i=0; i<num_datasets; i++)
+        //     parent.push({});
+
+        let max_timestep = 0
+        let max_yaxis_node = 0
+
+        let button_svg = d3.select('#button_svg').attr("height", 20)
+        let lineage_svg = d3.select('#lineage_svg')
+        // let lineage_svg = lineage_div.select("svg")
+        lineage_svg.selectChildren().remove()
+
+        let lineage_line = lineage_svg.append("g")
+        let lineage_node = lineage_svg.append("g")
+        let lineage_txt = lineage_svg.append("text")
+            .attr("font-size", 10)
+            .attr("text-anchor", "middle")
+        let lineage_time = lineage_svg.append("text")
+            .attr("font-size", 10)
+            .attr("text-anchor", "middle")
+
+        let max_alg_num = 5, max_dataset_num = 10
+        let datalist = Array.from(Array(max_dataset_num), () => new Array())
+        let checked_data_num = Array(max_dataset_num).fill(0)
+        for (let nd = 0; nd < num_datasets; nd++) {
+            full_name = data_sets[nd]['name']
+            dname = full_name.split('/')[0].toUpperCase()
+            aname = full_name.split('/')[1].toUpperCase()
+            data_sets[nd]['dataset_num'] = datasets_num[dname]
+            data_sets[nd]['alg_num'] = alg_num[aname]
+
+            datalist[datasets_num[dname]].push(alg_num[aname])
+            checked_data_num[datasets_num[dname]]++;
+        }
+
+        let identic = Array.from(Array(max_dataset_num), () => Array.from(Array(max_alg_num), () => new Array(max_alg_num)))
+
+        async function read_similarity(ds, l, r) {
+            let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + datasets[ds] + "/similarity/" + l + "_" + r + ".json"
+
+            await d3.json(p).then((data) => {
+                identic[ds][l][r] = []
+                for (let i in data) {
+                    identic[ds][l][r][+i] = []
+                    for (let j in data[i]) {
+                        identic[ds][l][r][+i][+j] = []
+                        for (let k in data[i][j]) {
+                            identic[ds][l][r][+i][+j].push(+data[i][j][k][0])
+                        }
+                    }
+                }
+                // console.log(identic)
+            })
+        }
+
+        for (let i = 0; i < max_dataset_num; i++) {
+            if (checked_data_num[i] >= 2) {
+                for (let ll = 0; ll < datalist[i].length - 1; ll++) {
+                    for (let rr = ll + 1; rr < datalist[i].length; rr++) {
+                        read_similarity(i, ll, rr);
+                    }
+                }
+            }
+        }
+
+        // function find_nd_from_info(datanum, algnum)
+        // {
+        //     for(let nd=0; nd<num_datasets; nd++){
+        //         let dataset_data = data_sets[nd]
+        //         if(dataset_data['dataset_num'] == datanum && dataset_data['alg_num'] == algnum)
+        //             return nd
+        //     }
+        //     return -1
+        // }
+
+        // console.log(identic)
+        function have(obj, list) {
+            for (let i = 0; i < list.length; i++) {
+                if (obj == list[i]) return 1
+            }
+            return 0
+        }
+
+        setTimeout(() => { //set timeout start
+            for (let nd = 0; nd < num_datasets; nd++) {
+                let dataset_data = data_sets[nd]
+                let node_data = dataset_data['lineage']
+                // console.log(dataset_data)
+                d3.select(document.getElementsByClassName('overlay')[0]).lower()
+
+                for (let i = 0; i < node_data.length; i++) {
+                    node_data[i]['dataset'] = nd;
+                    let cur_node = node_data[i]
+                    // console.log(cur_node)
+
+                    max_timestep = Math.max(max_timestep, cur_node.death)
+
+                    for (let j = (+cur_node.birth); j <= (+cur_node.death); j++) {
+                        if (checked_data_num[dataset_data['dataset_num']] >= 2) {
+                            let k
+                            for (k = 0; k < max_alg_num; k++) {
+                                if (identic[dataset_data['dataset_num']][k][dataset_data['alg_num']] != undefined) {
+                                    let l
+                                    let cur_identic = identic[dataset_data['dataset_num']][k][dataset_data['alg_num']][j] // j time에 k->현데이터셋 identic관계
+                                    let getin = false
+                                    if (cur_identic == undefined) continue
+                                    for (l = 0; l < cur_identic.length; l++) { // l이 base, cur_identic[l]이 합치려는것
+                                        if (cur_identic[l] != undefined && have(cur_node.id, cur_identic[l])) {
+                                            getin = true
+                                        }
+                                    }
+                                    if (getin) break
+                                }
+                            }
+                            if (k < max_alg_num) continue
+                        }
+                        lineage_data[j].push([cur_node.id, nd])
+                    }
+                }
+            }
+            // console.log(lineage_data)
+            for (let nd = 0; nd < num_datasets; nd++) {
+                let dataset_data = data_sets[nd]
+                let node_data = dataset_data['lineage']
+
+                for (let i = 0; i < node_data.length; i++) {
+                    node_data[i]['dataset'] = nd;
+                    let cur_node = node_data[i]
+
+                    for (let j = (+cur_node.birth); j <= (+cur_node.death); j++) {
+                        if (j > 0) {
+                            for (let k = 0; k < lineage_data[j].length; k++) {
+                                if (lineage_data[j][k][0] == cur_node.id && lineage_data[j][k][1] == cur_node.dataset) {
+                                    for (let l = 0; l < lineage_data[j - 1].length; l++) {
+                                        if ((cur_node.parent == lineage_data[j - 1][l][0] && cur_node.dataset == lineage_data[j - 1][l][1]) ||
+                                            (lineage_data[j][k][0] == lineage_data[j - 1][l][0] && lineage_data[j][k][1] == lineage_data[j - 1][l][1])) {
+                                            if (parent[j][k] == undefined) parent[j][k] = []
+                                            parent[j][k].push([l, nd])
+                                        }
+                                    }
+
+                                    for (let l = dataset_data.alg_num + 1; l < max_alg_num; l++) {
+                                        if (identic[dataset_data.dataset_num][dataset_data.alg_num][l] != undefined) {
+                                            if (identic[dataset_data.dataset_num][dataset_data.alg_num][l][j] == undefined) continue
+                                            let cur_identic = identic[dataset_data.dataset_num][dataset_data.alg_num][l][j][cur_node.id]
+                                            // console.log(cur_identic)
+                                            if (cur_identic != undefined) {
+                                                for (let p = 0; p < cur_identic.length; p++) {
+                                                    // 초록색 10이 직전타임에서도 어딘가에 합쳐져있을수도 있고 독립노드일수도 있음
+                                                    for (let q = 0; q < lineage_data[j - 1].length; q++) {
+                                                        if (lineage_data[j - 1][q][1] == l && lineage_data[j - 1][q][0] == cur_identic[p]) { //독립노드
+                                                            if (parent[j][k] == undefined) parent[j][k] = []
+                                                            parent[j][k].push([q, l])
+                                                        } else if (identic[dataset_data.dataset_num][dataset_data.alg_num][l][j - 1][lineage_data[j - 1][q][0]] != undefined) { //1,2번째인덱스 => lineage_data[j-1][q][1]
+                                                            if (have(cur_identic[p], identic[dataset_data.dataset_num][dataset_data.alg_num][l][j - 1][lineage_data[j - 1][q][0]])) {
+                                                                if (parent[j][k] == undefined) parent[j][k] = []
+                                                                parent[j][k].push([q, l])
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // console.log(parent)
+
+            for (let i = 0; i <= max_timestep; i++)
+                max_yaxis_node = Math.max(max_yaxis_node, lineage_data[i].length)
+
+            d3.select('#lineage_svg')
+                .attr("height", (max_yaxis_node + 5) * 20)
+                .attr("width", (max_timestep + 5) * 20)
+
+            function super_ances(sib, nb) {
+                if (+parent[nb][sib][0] == sib) return sib;
+                return super_ances(+parent[nb][sib][0], nb)
+            }
+
+            function draw_lineage(start_timestep) {
+                lineage_line.remove()
+                lineage_node.remove()
+                lineage_txt.remove()
+                lineage_time.remove()
+                lineage_line = lineage_svg.append("g")
+                lineage_node = lineage_svg.append("g")
+                lineage_time = lineage_svg.append("text")
+                    .attr("font-size", 10)
+                    .attr("text-anchor", "middle")
+                lineage_txt = lineage_svg.append("text")
+                    .attr("font-size", 10)
+                    .attr("text-anchor", "middle")
+
+                // console.log(lineage_data)
+                // console.log(parent)
+                for (let i = start_timestep; i <= Math.min(lineage_data.length, start_timestep + 50); i++) {
+                    // lineage_data[i].sort(function(a, b){
+                    //     if(a[1]==b[1]) return super_ances(a[0], a[1])-super_ances(b[0], b[1]);
+                    //     // 추가 : 노드 정렬하면서 parent 값도 바꿔야함
+                    //     // if(a[1]==b[1]){
+                    //     //     let idxa=-1, idxb=-1;
+                    //     //     for(let j=0; j<lineage_data[i].length; j++){
+                    //     //         if(idxa>=0 && idxb>=0) break
+                    //     //         if(a==lineage_data[i][j]) idxa=j;
+                    //     //         if(b==lineage_data[i][j]) idxb=j;
+                    //     //     }
+                    //     //     if(parent[i][idxb]==undefined) return 1;
+                    //     //     if(parent[i][idxa]==undefined) return -1;
+                    //     //     // parent[i][idx]내부를 정렬해야할수도
+                    //     //     return parent[i][idxa][0]-parent[i][idxb][0];
+                    //     // }
+                    //     return a[1]-b[1];
+                    // })
+                    lineage_time.append("tspan")
+                        .attr("x", i * 20 + 10)
+                        .attr("y", 13)
+                        .text(i)
+
+                    for (let j = 0; j < lineage_data[i].length; j++) {
+                        lineage_txt.append("tspan")
+                            .attr("x", i * 20 + 10)
+                            .attr("y", j * 20 + 33)
+                            .text(lineage_data[i][j][0])
+                        lineage_node.append("circle")
+                            .attr("r", 5)
+                            .attr("cx", i * 20 + 10)
+                            .attr("cy", j * 20 + 30)
+                            .attr("fill", () => color_tableau(lineage_data[i][j][1]))
+                            .lower()
+
+                        if (i > 0) {
+                            if (parent[i][j] == undefined) continue
+                            {#console.log(i, j, parent[i][j])#}
+                            parent[i][j].sort(function (a, b) {
+                                return a[0] - b[0];
+                            })
+                            for (let k = 0; k < parent[i][j].length; k++) {
+                                let p = parent[i][j][k], s = 0;
+                                while (k < parent[i][j].length && p[0] == parent[i][j][k][0]) s++, k++;
+                                k--;
+
+                                if (s > 1) {
+                                    lineage_line.append("line")
+                                        .attr("class", (lineage_data[i][j][0] == lineage_data[i - 1][p[0]][0]) ? "solid" : "dashed")
+                                        .attr("x1", i * 20 + 10)
+                                        .attr("y1", j * 20 + 30)
+                                        .attr("x2", (i - 1) * 20 + 10)
+                                        .attr("y2", p[0] * 20 + 30)
+                                        .attr("stroke-width", 1)
+                                        .attr("stroke", () => color_tableau(p[1]))
+                                        // .attr("stroke", "yellow")
+                                        .on("mouseover", function (event) {
+                                            d3.select(event.target).attr("stroke-width", 5)
+                                        })
+                                        .on("click", function (event) {
+                                            if (event.target.getAttribute("stroke") == "red") {
+                                                d3.select(event.target).attr("stroke", () => color_tableau(p[1]))
+                                                button_svg.select("g").remove()
+                                                return;
+                                            }
+
+                                            d3.select(event.target).attr("stroke", "red")
+                                            let button_g = button_svg.append("g")
+                                            for (let numb = 0; numb < s; numb++) {
+                                                const rectsize = 20
+                                                button_g.append("rect")
+                                                    .attr("x", numb * rectsize)
+                                                    .attr("y", 0)
+                                                    .attr("width", rectsize)
+                                                    .attr("height", rectsize)
+                                                    .attr("fill", () => color_tableau(parent[i][j][k - s + numb + 1][1]))
+                                                    .on("click", function () {
+                                                        d3.select(event.target).attr("stroke", () => color_tableau(parent[i][j][k - s + numb + 1][1]))
+                                                        button_g.remove()
+
+                                                        if (numb == 0) return;
+                                                        let base_lineage = data_sets[0]['lineage']
+                                                        for (let lng = 0; lng < base_lineage.length; lng++) {
+                                                            if (lineage_data[i][j][0] == base_lineage[lng].id) {
+                                                                new_id = 1
+                                                                for (let ii = 0; ii < base_lineage.length; ii++) {
+                                                                    if (base_lineage[ii].id == String(new_id))
+                                                                        new_id = new_id + 1
+                                                                    else break;
+                                                                }
+                                                                base_lineage.splice(lng + 1, 0, {
+                                                                    id: String(new_id),
+                                                                    birth: String(i),
+                                                                    death: base_lineage[lng].death,
+                                                                    parent: base_lineage[lng].parent,
+                                                                    dataset: base_lineage[lng].dataset
+                                                                })
+                                                                base_lineage[lng].death = String(i - 1)
+                                                                break
+                                                            }
+                                                        }
+                                                    })
+                                                    .raise()
+                                            }
+                                        })
+                                        .on("mouseout", function (event) {
+                                            d3.select(event.target).attr("stroke-width", 1)
+                                        })
+                                } else {
+                                    lineage_line.append("line")
+                                        .attr("class", (lineage_data[i][j][0] == lineage_data[i - 1][p[0]][0]) ? "solid" : "dashed")
+                                        .attr("x1", i * 20 + 10)
+                                        .attr("y1", j * 20 + 30)
+                                        .attr("x2", (i - 1) * 20 + 10)
+                                        .attr("y2", p[0] * 20 + 30)
+                                        .attr("stroke-width", 1)
+                                        .attr("stroke", () => color_tableau(p[1]))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            draw_lineage(0);
+
+            document.getElementById('lineage_div').addEventListener('scroll', () => {
+                let cur_scroll = $('#lineage_div').scrollLeft()
+                cur_scroll -= cur_scroll % 20;
+                cur_scroll /= 20
+                cur_scroll = Math.max(0, cur_scroll - 10);
+
+                draw_lineage(cur_scroll);
+            })
+        }, 1000); // set timeout close
+    }
+
+    let data_sets = [];
+
+    async function read_datasets(dataset) {
+
+        let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + dataset + "/RES.json"
+        await d3.json(p).then(function (data) {
+            data_sets.push(data)
+        })
+        await d3.json(p.replace('RES', 'SEG')).then(function (seg) {
+            data_sets[data_sets.length - 1]['segmentation'] = seg
+        })
+        draw_table();
+
+        let summary = "{% static 'celltrack_vis/data/celltracking_results/' %}" + dataset.split('/')[0] + "/input/summary.json";
+        await d3.json(summary).then(function (data) {
+            let space = 0;
+            if (data['height'] < data['width']) {
+                space = (seg_width - (data['height'] / data['width'] * seg_width)) / 2;
+                space = space / seg_width * img_width;
+            } else if (data['height'] > data['width']) {
+                space = (seg_width - (data['width'] / data['height'] * seg_width)) / 2;
+                space = space / seg_width * img_width;
+            }
+            // console.log(data['width'], data['height'], space)
+            for (let i of Object.keys(data_sets[data_sets.length - 1]['segmentation'])) {
+                for (let j of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i])) {
+                    for (let k of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i][j])) {
+                        for (let l of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i][j][k])) {
+                            data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][0] = data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][0] / Math.max(data['height'], data['width']) * img_width;
+                            data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][1] = data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][1] / Math.max(data['height'], data['width']) * img_width;
+
+                            if (data['height'] < data['width']) {
+                                data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][1] += space;
+                            } else {
+                                data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][0] += space;
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        // console.log(data_sets)
+
+        num_timestep = data_sets[data_sets.length - 1].num_timestep;
+        draw_timeline()
+        draw_linegraph()
+
+    }
+
+    {#draw_grid()#}
+
+
+    // function draw_menu() {
+
+    //     for (let path in data_paths) {
+    //         let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + path
+    //         console.log(p, data_paths[path])
+    //     }
+    //     let menu_svg = d3.select('#menu_svg')
+    //     let menu_rows = menu_svg.selectAll('g')
+    //         .data(Object.keys(data_paths))
+    //         .enter()
+    //         .append('g')
+    //         .attr('transform', (d, i) => 'translate(0,' + (i * 20 + 20) + ')')
+    //     menu_rows.append('rect')
+    //         .attr('x', 0)
+    //         .attr('y', -10)
+    //         .attr('width', 10)
+    //         .attr('height', 10)
+    //         .attr('stroke', 'black')
+    //         .on('click', function (d) {
+    //             draw_table()
+    //         })
+    //     menu_rows.append('text')
+    //         .text(d => d)
+    //         .attr('x', 20)
+    //     menu_rows.append('text')
+    //         .text(d => data_paths[d])
+    //         .attr('x', 220)
+
+    //     // TODO : timestep change
+    //     num_timestep = 1763
+    // }
+
+    // timeline
+    function draw_timeline() {
+        let time_svg = d3.select('#time_svg')
+        let time_scale = d3.scaleLinear().domain([0, num_timestep]).range([0, 1000])
+        time_svg.selectAll('g').remove();
+
+        let slider = time_svg.append('g')
+            .attr('class', 'slider')
+            .attr('transform', 'translate(20, 50)')
+
+        let currentValue = 0
+        slider.append("line")
+            .attr("class", "track")
+            .attr("x1", time_scale.range()[0])
+            .attr("x2", time_scale.range()[1])
+            .select(function () {
+                return this.parentNode.appendChild(this.cloneNode(true));
+            })
+            .attr("class", "track-inset")
+            .select(function () {
+                return this.parentNode.appendChild(this.cloneNode(true));
+            })
+            .attr("class", "track-overlay")
+            .call(d3.drag()
+                .on("start", function () {
+                    console.log('start')
+                    slider.interrupt();
+                })
+                .on("drag", function (event) {
+
+                    {#d3.select(this).attr('cx',event.x)#}
+                    currentValue = Math.ceil(event.x);
+                    update(time_scale.invert(currentValue));
+
+                })
+            );
+
+        slider.insert("g", ".track-overlay")
+            .attr("class", "ticks")
+            .attr("transform", "translate(0," + 18 + ")")
+            .selectAll("text")
+            .data(time_scale.ticks(10))
+            .enter()
+            .append("text")
+            .attr("x", time_scale)
+            .attr("y", 10)
+            .attr("text-anchor", "middle")
+            .text(function (d) {
+                return (d);
+            });
+
+        let handle = slider.insert("circle", ".track-overlay")
+            .attr("class", "handle")
+            .attr("r", 9);
+
+        let label = slider.append("text")
+            .attr("class", "label")
+            .attr("text-anchor", "middle")
+            .text(0)
+            .attr("transform", "translate(0," + (-25) + ")")
+
+        function update(h) {
+            // update position and text of label according to slider scale
+            // console.log('update', h)
+            h = Math.floor(h)
+            h = Math.max(0, h)
+            h = Math.min(num_timestep, h)
+            handle.attr("cx", time_scale(h));
+            label.attr("x", time_scale(h))
+                .text(h);
+            seg_g.selectAll('.cell').remove()
+            seg_g.selectAll('.clip').remove()
+            {#seg_svg.select('dfs').selectAll('.cell').remove()#}
+
+            for (let di = checked_list.length - 1; di >= 0; di--) {
+                draw_cells(di, h);
+            }
+            for (let di = 1; di < checked_list.length; di++) {
+                draw_intersection(di, h);
+            }
+
+            // filter data set and redraw plot
+
+        }
+
+        let zoom = d3.zoom()
+            .scaleExtent([1, 3])
+            .on('zoom', function (event) {
+
+                d3.select('#seg_main_container')
+                    .attr('transform', event.transform)
+            })
+        seg_svg.call(zoom)
+            .call(zoom.transform, d3.zoomIdentity.translate(0, 0).scale(1))
+
+        function zoomed() {
+            console.log('zoomed')
+            {#let mapMainContainer = d3.select('#seg_main_container')#}
+            {#    .attr('transform', function (event) {#}
+            {#        return event.transform#}
+            {#    })#}
+            {##}
+            {#minimap.select('#minimapRect').remove();#}
+            {##}
+            {#let mapWidth = parseFloat(d3.select('#map').style('width'));#}
+            {#let mapHeight = parseFloat(d3.select('#map').style('height'));#}
+            {#let factor = mapWidth / d3.select('#map svg').attr('viewBox').split(' ')[2]#}
+            {##}
+            {#let dx = d3.event.transform.x / d3.event.transform.k;#}
+            {#let dy = d3.event.transform.y / d3.event.transform.k;#}
+            {##}
+            {#let minimapRect = minimap.append('rect')#}
+            {#    .attr('id', 'minimapRect')#}
+            {#    .attr('width', mapWidth / factor / d3.event.transform.k)#}
+            {#    .attr('height', mapHeight / factor / d3.event.transform.k)#}
+            {#    .attr('stroke', 'red')#}
+            {#    .attr('stroke-width', 10)#}
+            {#    .attr('fill', 'none')#}
+            {#    .attr('transform', `translate(${-dx},${-dy})`);#}
+        }
+
+        update(0);
+    }
+
+    {# structure #}
+    let datasets = [
+        'DIC-C2DH-HeLa-01',
+        'DIC-C2DH-HeLa-02',
+        'Fluo-N2DH-SIM+-01',
+        'Fluo-N2DH-SIM+-02',
+        'PhC-C2DL-PSC-01',
+        'PhC-C2DL-PSC-02'
+    ];
+    let algorithms = [
+        'KIT-Sch-GE',
+        'MU-Lux-CZ',
+        'BGU-IL'
+    ];
+    let paths = [];
+    for (let dataset of datasets) {
+        for (let algorithm of algorithms) {
+            paths.push(dataset + '/' + algorithm);
+        }
+    }
+    let datasets_num = {}
+    for (let i = 0; i < datasets.length; i++)
+        datasets_num[datasets[i].toUpperCase()] = i
+    let alg_num = {}
+    for (let i = 0; i < algorithms.length; i++)
+        alg_num[algorithms[i].toUpperCase()] = i
+
+    let summ = new Array(datasets.length)
+
+    async function read_summary(index) {
+        path = "{% static 'celltrack_vis/data/celltracking_results/' %}" + `${datasets[index]}/summary.csv`;
+        let dataset_summ = []
+        await d3.csv(path).then((data) => {
+            for (let i = 0; i < data.length; i++) {
+                dataset_summ.push({
+                    id: i,
+                    name: data[i]['name']
+                })
+            }
+            summ[index] = dataset_summ
+            // console.log(summ)
+        })
+    }
+
+    for (let i = 0; i < datasets.length; i++)
+        read_summary(i)
+
+    let grouped = []; // key state for rendering
+    let last_clicked = -1;
+    let active = {};
+    let checked = {};
+    let dialog_opened = false;
+    let dialog_idx = -1; // 0 for data load, 1 for select color
+    let dialog = {'idx': -1, 'opacity': 1.0, 'color': '#FFFFFF'};
+    let checked_list = []; // array which file is checked
+    let k = [{'a': 1}, {'a': 2}, {'a': 3}];
+
+    function group_by_dir(paths) {
+        let group = [];
+        let idx = 0;
+
+        for (let path of paths) {
+            const splitted = path.split('/');
+            let current_group = group;
+
+            for (let [index, part] of splitted.entries()) {
+                if (index === Object.keys(splitted).length - 1) { // check if node is leaf node
+                    active[idx] = false;
+                    checked[idx] = false;
+                    current_group.push({
+                        name: part,
+                        type: 'leaf',
+                        fullPath: path,
+                        idx: idx++,
+                    });
+                    continue;
+                }
+
+                let next = current_group.find(el => el.name === part);
+                if (next) {
+                    current_group = next.children;
+                } else {
+                    active[idx] = false;
+                    checked[idx] = false;
+                    current_group.push({
+                        name: part,
+                        type: 'dir',
+                        children: [],
+                        idx: idx++,
+                    });
+                    current_group = current_group[current_group.length - 1].children;
+                }
+
+
+            }
+        }
+        return group;
+    }
+
+    function render_paths(grouped) {
+        let structure = document.getElementById('structure'); // place to draw
+        let checked_area = document.getElementById('checked_div'); // place to draw checked
+        let overlay = document.getElementsByClassName('overlay')[0];
+
+        document.getElementsByClassName('data-load-button')[0].addEventListener('click', function () {
+            dialog_opened = true;
+            dialog_idx = 0;
+            set_dialog();
+            render_paths(grouped);
+        });
+
+        function render_checked() {
+            let html = '';
+            checked_list.forEach(element => {
+                html += `<div class='checked-row row-content' idx=${element['idx']}>
+                            <div class='checked-row-content'>
+                                <div class='checked-color'>
+                                    <div class='checked-color-inner' style='background-color: ${element['color']}; opacity: ${element['opacity']}'></div>
+                                </div>
+                                <div class='checked-content'>${element['path']}</div>
+                            </div>
+                            <span class='mdi mdi-close close'></span>
+                        </div>`;
+            });
+
+            checked_area.innerHTML = html;
+
+            function update_checked_row() {
+                let new_checked_list = [];
+                let checked_row = Array.from(document.getElementsByClassName('checked-row'));
+                checked_row.forEach(element => {
+                    let idx = Number(element.getAttribute('idx'));
+                    let item = checked_list.find(inner => inner['idx'] === idx);
+                    new_checked_list.push(item);
+                });
+                checked_list = new_checked_list; // deep copy
+            }
+
+            $('#checked_div').sortable({
+                cursor: "row-resize",
+                items: $('.checked-row'),
+                stop: update_checked_row
+            }).disableSelection();
+        }
+
+        function on_clicked(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            let idx = e.target.getAttribute('idx');
+            last_clicked = Number(idx);
+            active[idx] = !active[idx];
+            render_paths(grouped);
+        }
+
+        function on_checked(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            let idx = e.target.parentNode.getAttribute('idx');
+            if (e.target.getAttribute('type') === 'checkbox') {
+                last_clicked = Number(idx);
+            } else {
+                last_clicked = -1;
+            }
+            checked[idx] = !checked[idx];
+            render_paths(grouped);
+        }
+
+        function on_color_clicked(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            let idx = Number(e.target.parentNode.parentNode.parentNode.getAttribute('idx'));
+            const selected_item = checked_list.find(element => element['idx'] === idx);
+
+            dialog['idx'] = Number(selected_item['idx']);
+            dialog['color'] = selected_item['color'];
+            dialog['opacity'] = selected_item['opacity'];
+            dialog_opened = true;
+            dialog_idx = 1;
+
+            set_dialog();
+        }
+
+        function on_dialog_changed(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            if (e.target.getAttribute('type') === 'range') {
+                dialog['opacity'] = e.target.value;
+            } else if (e.target.getAttribute('type') === 'color') {
+                dialog['color'] = e.target.value;
+            }
+        }
+
+        function on_dialog_close_clicked(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            dialog_opened = false;
+            dialog_idx = -1;
+            set_dialog();
+        }
+
+        function on_dialog_submit_clicked(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            dialog_opened = false;
+            let idx = dialog['idx'];
+            checked_list = checked_list.map(element => (element['idx'] === idx ?
+                {...element, opacity: dialog['opacity'], color: dialog['color']} : element)
+            );
+            set_dialog();
+            render_paths(grouped);
+        }
+
+        function set_event_listener(add = true) {
+            let rows = document.getElementsByClassName('file-row');
+            for (let row of rows) {
+                if (add) {
+                    row.addEventListener('click', on_clicked);
+                } else {
+                    row.removeEventListener('click', on_clicked);
+                }
+            }
+
+            let checkboxes = document.getElementsByClassName('row-checkbox');
+            for (let checkbox of checkboxes) {
+                if (add) {
+                    checkbox.addEventListener('click', on_checked);
+                } else {
+                    checkbox.removeEventListener('click', on_checked);
+                }
+            }
+
+            let delete_buttons = document.getElementsByClassName('close');
+            for (let delete_button of delete_buttons) {
+                if (add) {
+                    delete_button.addEventListener('click', on_checked);
+                } else {
+                    delete_button.removeEventListener('click', on_checked);
+                }
+            }
+
+            let color_pickers = document.getElementsByClassName('checked-color');
+            for (let color_picker of color_pickers) {
+                if (add) {
+                    color_picker.addEventListener('click', on_color_clicked);
+                } else {
+                    color_picker.removeEventListener('click', on_color_clicked);
+                }
+            }
+            let dialog_close_button = document.getElementById('dialog-close-button');
+            if (!dialog_close_button) { // if overlay not exists
+                return;
+            }
+
+            if (add) {
+                dialog_close_button.addEventListener('click', on_dialog_close_clicked);
+            } else {
+                dialog_close_button.removeEventListener('click', on_dialog_close_clicked);
+            }
+
+            let dialog_button = document.getElementById('dialog-button');
+            if (add) {
+                dialog_button.addEventListener('click', on_dialog_submit_clicked);
+            } else {
+                dialog_button.removeEventListener('click', on_dialog_submit_clicked);
+            }
+
+            let opacity = document.getElementById('opacity');
+            if (add) {
+                opacity.addEventListener('change', on_dialog_changed);
+            } else {
+                opacity.removeEventListener('change', on_dialog_changed);
+            }
+
+            let color = document.getElementById('color');
+            if (add) {
+                color.addEventListener('change', on_dialog_changed);
+            } else {
+                color.removeEventListener('change', on_dialog_changed);
+            }
+
+            let structure_close_button = document.getElementById('structure-close-button');
+            if (!structure_close_button) { // if overlay not exists
+                return;
+            }
+
+            if (add) {
+                structure_close_button.addEventListener('click', on_dialog_close_clicked);
+            } else {
+                structure_close_button.removeEventListener('click', on_dialog_close_clicked);
+            }
+        }
+
+        function set_dialog() {
+            if (dialog_opened) {
+                overlay.style.display = 'flex';
+            } else {
+                overlay.style.display = 'none';
+            }
+
+            if (dialog_idx === 0) {
+                document.getElementById('structure-outer').style.display = 'block';
+                document.getElementsByClassName('dialog')[0].style.display = 'none';
+            } else {
+                document.getElementById('structure-outer').style.display = 'none';
+                document.getElementsByClassName('dialog')[0].style.display = 'block';
+            }
+
+            document.getElementById('opacity').value = dialog['opacity'];
+            document.getElementById('color').value = dialog['color'];
+        }
+
+        function add_row(element, depth) {
+            let {name, type, fullPath, idx} = element;
+            const isChecked = checked[idx];
+            const isActive = active[idx];
+
+            if (isChecked) {
+                const item = checked_list.find(el => el['idx'] === idx);
+                // console.log(checked_list.length)
+                if (!item) checked_list.push({
+                    'idx': idx,
+                    'path': fullPath,
+                    color: color_tableau(checked_list.length),
+                    opacity: 1.0
+                }); // push only if item is not exists
+            } else {
+                checked_list = checked_list.filter(el => el['idx'] !== idx);
+            }
+
+            switch (type) {
+                case 'leaf':
+                    return `<div class='file-row depth-${depth}'>
+                                <div class='row-content ${last_clicked === idx ? 'row-content--active' : ''}' idx='${idx}'>
+                                    <span class="mdi mdi-folder-outline dir"></span>${name}
+                                    <input type='checkbox' class='row-checkbox' ${isChecked ? 'checked' : ''}>
+                                </div>`;
+                case 'dir':
+                    let html = `<div class='file-row depth-${depth}'><div class='row-content ${last_clicked === idx ? 'row-content--active' : ''}' idx='${idx}'>`;
+                    if (isActive) {
+                        html += `<span class="mdi mdi-folder-open dir"></span>${name}</div>`;
+                    } else {
+                        html += `<span class="mdi mdi-folder-outline dir"></span>${name}</div>`;
+                    }
+                    return html;
+            }
+        }
+
+        function add_rows(current, depth) {
+            let html = '';
+            for (let element of current) {
+                let {idx} = element;
+                html += add_row(element, depth);
+                if (!('children' in element)) { // leaf node
+                    html += '</div>';
+                    continue;
+                } else if (active[idx]) {
+                    html += add_rows(element.children, depth + 1);
+                }
+                html += '</div>';
+            }
+            return html;
+        }
+
+        set_event_listener(add = false);
+
+        let html = add_rows(grouped, 1);
+        structure.innerHTML = html;
+        render_checked(checked_list);
+
+        set_event_listener(add = true);
+
+        set_dialog();
+
+        draw_selection_table(); // other part dependency
+        if (checked_list.length > 0) {
+            read_datasets(checked_list[checked_list.length - 1].path);
+        }
+    }
+
+    grouped = group_by_dir(paths);
+    render_paths(grouped);
+
+
+    function draw_linegraph() {
+
+        let line_data = [];
+        data_sets.forEach(function (data) {
+            let tmp = Object.keys(data['segmentation']).map(key => {
+                {#console.log(key, data['segmentation'][key], data['segmentation'][key].length)#}
+                return Object.keys(data['segmentation'][key]).length
+            })
+            console.log('tmp', tmp)
+            line_data.push(tmp);
+            console.log(line_data)
+        })
+        let x = d3.scaleLinear().range([0, num_timestep]),
+            y = d3.scaleLinear().range([100, 0]),
+            valueline = d3.line().x((d, i) => i * 5)
+                .y((d) => d3.max(line_data, function (d) {
+                    return d3.max(d);
+                }) - d)
+        let svg = d3.select('#linegraph_svg')
+        svg.selectAll('path').remove();
+        svg.selectAll('g').remove();
+
+        let lines = svg.selectAll(".lines")
+            .data(line_data)
+            .enter().append("g")
+            .attr("class", "lines");
+
+        lines.append("path")
+            .attr('class', 'line')
+            .attr('d', valueline)
+            .attr('fill', 'none')
+            .attr('stroke', (d, i) => color_tableau(i))
+            .attr('stroke-width', '0.5px')
+
+        svg.append("g")
+            .attr("transform", "translate(0," + 100 + ")")
+            .call(d3.axisBottom(x));
+
+    }
+
+    // read_datasets(0)
+    // read_datasets(1)
+    // read_datasets(2)
+    // read_datasets(3)
+    draw_grid()
+    // draw_menu()
+    // draw_selection_table()
+    // draw_timeline()
+    // draw_linegraph()
+
+</script>
+</body>
+</html>
