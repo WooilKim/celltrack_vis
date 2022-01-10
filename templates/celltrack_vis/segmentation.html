@@ -1310,6 +1310,12 @@
                                 }
                             }
                             if(k<max_alg_num) continue
+
+                            for(k=0; k<lineage_data[j].length; k++){
+                                if(lineage_data[j][k][0]==cur_node.id)
+                                    break
+                            }
+                            if(k<lineage_data[j].length) continue
                         }
                         lineage_data[j].push([cur_node.id, nd])
                     }
@@ -1382,10 +1388,7 @@
 
             function draw_lineage(start_timestep)
             {
-                lineage_line.remove()
-                lineage_node.remove()
-                lineage_txt.remove()
-                lineage_time.remove()
+                lineage_svg.selectChildren().remove()
                 lineage_line = lineage_svg.append("g")
                 lineage_node = lineage_svg.append("g")
                 lineage_time = lineage_svg.append("text")
@@ -1434,7 +1437,7 @@
                             
                         if(i>0){
                             if(parent[i][j]==undefined) continue
-                            console.log(i, j, parent[i][j])
+                            // console.log(i, j, parent[i][j])
                             parent[i][j].sort(function (a, b) {
                                 return a[0]-b[0];
                             })
@@ -1450,7 +1453,7 @@
                                         .attr("y1", j*20+30)
                                         .attr("x2", (i-1)*20+10)
                                         .attr("y2", p[0]*20+30)
-                                        .attr("stroke-width", 1)
+                                        .attr("stroke-width", 3)
                                         .attr("stroke", () => color_tableau(p[1]))
                                         // .attr("stroke", "yellow")
                                         .on("mouseover", function (event) {d3.select(event.target).attr("stroke-width", 5)})
@@ -1472,7 +1475,8 @@
                                                     .attr("height", rectsize)
                                                     .attr("fill", () => color_tableau(parent[i][j][k-s+numb+1][1]))
                                                     .on("click", function () {
-                                                        d3.select(event.target).attr("stroke", () => color_tableau(parent[i][j][k-s+numb+1][1]))
+                                                        d3.select(event.target)
+                                                            .attr("stroke", () => color_tableau(parent[i][j][k-s+numb+1][1]))
                                                         button_g.remove()
 
                                                         if(numb==0) return;
@@ -1500,7 +1504,7 @@
                                                     .raise()
                                             }
                                         })
-                                        .on("mouseout", function(event) {d3.select(event.target).attr("stroke-width", 1)})
+                                        .on("mouseout", function(event) {d3.select(event.target).attr("stroke-width", 3)})
                                 }
                                 else{
                                     lineage_line.append("line")
