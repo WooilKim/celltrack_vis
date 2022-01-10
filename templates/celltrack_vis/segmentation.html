@@ -1651,9 +1651,11 @@
                 .on("drag", function (event) {
 
                     {#d3.select(this).attr('cx',event.x)#}
-                    currentValue = Math.ceil(event.x);
-                    update(time_scale.invert(currentValue));
-
+                    currentValue = time_scale.invert(Math.ceil(event.x))
+                    update(currentValue);
+                    
+                    $('#lineage_div').scrollTop(0);
+                    $('#lineage_div').scrollLeft(currentValue*20)
                 })
             );
 
