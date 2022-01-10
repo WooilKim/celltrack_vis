@@ -1321,6 +1321,7 @@
                     }
                 }
             }
+            lineage_data.length=max_timestep+1
             // console.log(lineage_data)
             for(let nd=0; nd<num_datasets; nd++){
                 let dataset_data = data_sets[nd]
@@ -1400,7 +1401,7 @@
 
                 // console.log(lineage_data)
                 // console.log(parent)
-                for(let i=start_timestep; i<=Math.min(lineage_data.length, start_timestep+50); i++){
+                for(let i=start_timestep; i<=Math.min(lineage_data.length-1, start_timestep+50); i++){
                     // lineage_data[i].sort(function(a, b){
                     //     if(a[1]==b[1]) return super_ances(a[0], a[1])-super_ances(b[0], b[1]);
                     //     // 추가 : 노드 정렬하면서 parent 값도 바꿔야함
