@@ -102,7 +102,7 @@
         justify-content: space-between;
         align-items: center;
     }
-    
+
     .checked-row {
         cursor: row-resize;
     }
@@ -133,6 +133,7 @@
         height: 22px;
         margin-right: 5px;
     }
+
     .checked-color-inner {
         width: 20px;
         height: 20px;
@@ -178,8 +179,8 @@
     }
 
     #table_div > table {
-        width: 100%; 
-        text-align: center; 
+        width: 100%;
+        text-align: center;
         table-layout: fixed;
     }
 
@@ -252,11 +253,11 @@
         margin-left: 50px;
     }
 
-    .solid{
+    .solid {
         stroke: solid;
     }
 
-    .dashed{
+    .dashed {
         stroke-dasharray: 3, 3;
     }
 
@@ -267,7 +268,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
         crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.15/paper-full.min.js" integrity="sha512-ovjLI1ZcZe6bw+ImQ21r+sv8q/Vwob2kq7tFidK6E1LWfi0T4uobbmpfEU1//a9h9o5Kkt+MnMWf6rWlg0EiMw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.15/paper-full.min.js"
+        integrity="sha512-ovjLI1ZcZe6bw+ImQ21r+sv8q/Vwob2kq7tFidK6E1LWfi0T4uobbmpfEU1//a9h9o5Kkt+MnMWf6rWlg0EiMw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -307,7 +310,7 @@
                  style="width:100%">
         </div>
         <div id="title_div" class="col-8">
-            XXXXX : A comparative visual analytic system for celltracking algorithms
+            VCSS: Visual Comparison System for Semi-supervised Cell Tracking
         </div>
         <div class="col-2"></div>
 
@@ -322,9 +325,9 @@
             <button type="button" class="btn btn-primary data-load-button">Data load</button>
             <button type="button" class="btn btn-primary data-export-button">Data export</button>
             <button type="button" class="btn btn-primary lineage-export-button">Lineage export</button>
-            <button type="button" class="btn btn-primary">Request data upload</button>
-            <button type="button" class="btn btn-info">Tutorial</button>
-            <button type="button" class="btn btn-success">Quick trip</button>
+            {#            <button type="button" class="btn btn-primary">Request data upload</button>#}
+            {#            <button type="button" class="btn btn-info">Tutorial</button>#}
+            {#            <button type="button" class="btn btn-success">Quick trip</button>#}
             {#            <button type="button" class="btn btn-danger">Danger</button>#}
             {#            <button type="button" class="btn btn-warning">Warning</button>#}
             {#            <button type="button" class="btn btn-info">Info</button>#}
@@ -333,10 +336,7 @@
             {#            <button type="button" class="btn btn-dark">Dark</button>#}
         </div>
     </div>
-    
-    <div class="row" style="height: 30px;">
-        <div class="status" style="text-align: center;">Current Mode: None</div>
-    </div>
+
 
     <div class="row" style="height:1200px">
         <div class="sidebar col-3">
@@ -344,20 +344,21 @@
             <div id='table_div'>
                 <table cellspacing="5">
                     <thead>
-                        <tr>
-                            <th colspan="5">Cell ID</th>
-                            <th>Threshold</th>
-                            <th><input type="number" style="width: 40px;" name="threshold" value="70" min="0" max="100"></th>
-                        </tr>
-                        <tr>
-                            <th>Time</th>
-                            <th class="color-1">Base</th>
-                            <th class="color-2">1</th>
-                            <th class="color-3">2</th>
-                            <th class="color-4">3</th>
-                            <th class="color-5">4</th>
-                            <th></th>
-                        </tr>
+                    <tr>
+                        <th colspan="5">Cell ID</th>
+                        <th>Threshold</th>
+                        <th><input type="number" style="width: 40px;" name="threshold" value="70" min="0" max="100">
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Time</th>
+                        <th class="color-1">Base</th>
+                        <th class="color-2">1</th>
+                        <th class="color-3">2</th>
+                        <th class="color-4">3</th>
+                        <th class="color-5">4</th>
+                        <th></th>
+                    </tr>
                     </thead>
                     <tbody id="tbody_unselected"></tbody>
                     <tbody id="tbody_selected"></tbody>
@@ -403,7 +404,7 @@
                     <g class="header"></g>
                 </svg> -->
             </div>
-        </div> 
+        </div>
         <div class="col-9">
             <div class="row" style="border: 1px dashed gray;">
                 <div id="linegraph_div" class="col-12">
@@ -417,7 +418,10 @@
                     </svg>
                 </div>
                 <div class=row>
-                    <div id='seg_div' class="col-7" style="float: left">
+                    <div id='seg_div' class="col-6" style="float: left">
+                        <div class="row" style="height: 30px;">
+                            <div class="status" style="text-align: center;">Current Mode: None</div>
+                        </div>
                         <div class="row" style="display:inline-block; flex: 0 0 auto; padding-left:0; padding-right:0">
                             <div id="grid_div" width="769" height="769" style="padding-left:0; padding-right:0">
                                 <svg id="seg_svg" width="769" height="769">
@@ -430,7 +434,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id='lineage_div' class="col-5" height=650 width=650 style="float: left">
+                    <div id='lineage_div' class="col-6" height=650 width=650 style="float: left">
                         <svg id='button_svg' overflow="auto"></svg>
                         <svg id='lineage_svg' overflow="auto"></svg>
                     </div>
@@ -478,16 +482,16 @@
 
     let color_cell = d3.scaleOrdinal(d3.interpolateTurbo);
 
-    for(let i=1;i<=5;i++) {
-        document.getElementsByClassName("color-" + i)[0].style.backgroundColor = color_tableau(i-1);
+    for (let i = 1; i <= 5; i++) {
+        document.getElementsByClassName("color-" + i)[0].style.backgroundColor = color_tableau(i - 1);
     }
 
     window.addEventListener("keydown", (e) => {
-        if(e.code === 'KeyU') {
+        if (e.code === 'KeyU') {
             mode = 'Union';
-        } else if(e.code === 'KeyS') {
+        } else if (e.code === 'KeyS') {
             mode = 'Subtract';
-        } else if(e.code === 'KeyI') {
+        } else if (e.code === 'KeyI') {
             mode = 'Intersect';
         }
         document.getElementsByClassName('status')[0].innerText = `Current Mode: ${mode}`;
@@ -503,15 +507,15 @@
             const f_name = el.name.split('/')[1] + '.json';
             var file = new Blob([JSON.stringify(el['segmentation'])], {type: 'json'});
             var a = document.createElement("a"),
-                    url = URL.createObjectURL(file);
+                url = URL.createObjectURL(file);
             a.href = url;
             a.download = f_name;
             document.body.appendChild(a);
             a.click();
-            setTimeout(function() {
+            setTimeout(function () {
                 document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);  
-            }, 0); 
+                window.URL.revokeObjectURL(url);
+            }, 0);
         })
     });
 
@@ -520,15 +524,15 @@
             const f_name = el.name.split('/')[1] + '-lineage.json';
             var file = new Blob([JSON.stringify(el['lineage'])], {type: 'json'});
             var a = document.createElement("a"),
-                    url = URL.createObjectURL(file);
+                url = URL.createObjectURL(file);
             a.href = url;
             a.download = f_name;
             document.body.appendChild(a);
             a.click();
-            setTimeout(function() {
+            setTimeout(function () {
                 document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);  
-            }, 0); 
+                window.URL.revokeObjectURL(url);
+            }, 0);
         })
     });
 
@@ -623,7 +627,7 @@
     }
 
     function draw_cells(di, timestep) {
-        let dataset = checked_list[checked_list.length-1].path.split('/')[0];
+        let dataset = checked_list[checked_list.length - 1].path.split('/')[0];
         d3.select('#seg_svg')
             .select('defs')
             .select('pattern')
@@ -638,8 +642,8 @@
             .y(function (d) {
                 return seg_scale(d[1]);
             }) // apply the y scale to the y data
-        
-        let obj = Object.entries(data_sets[di]['segmentation'][timestep]).sort(([,a],[,b]) => a-b);
+
+        let obj = Object.entries(data_sets[di]['segmentation'][timestep]).sort(([, a], [, b]) => a - b);
         let cell_g = seg_g.selectAll('.data-' + di)
             .data(obj.map(([k, v]) => v))
             .enter()
@@ -662,7 +666,7 @@
             .style("stroke-width", 0.2)
             .style('stroke-opacity', 0.5)
     }
-    
+
     function draw_intersection(di, timestep) {
         let p = d3.line()
             .x(function (d) {
@@ -671,8 +675,8 @@
             .y(function (d) {
                 return seg_scale(d[1]);
             }) // apply the y scale to the y data
-        
-        let obj = Object.entries(data_sets[di]['segmentation'][timestep]).sort(([,a],[,b]) => a-b);
+
+        let obj = Object.entries(data_sets[di]['segmentation'][timestep]).sort(([, a], [, b]) => a - b);
         let clip_g = seg_g.selectAll('.clip-data-' + di)
             .data(obj.map(([k, v]) => v))
             .enter()
@@ -693,30 +697,32 @@
             .style('stroke', color_tableau(di))
             .style("stroke-width", 1.0)
             .style("stroke-dasharray", "1,1")
+            .on("mouseover", mouseOver)
+            .on("mouseout", mouseOut)
             .on("click", (e) => {
                 const clientX = e.clientX, clientY = e.clientY;
                 const targets = document.elementsFromPoint(clientX, clientY);
                 console.log(targets);
 
-                for(let el of targets) {
-                    if(el.parentNode && el.parentNode.classList && el.parentNode.classList.contains('cell')) {
-                        if(mode === 'Union' && !el.parentNode.classList.contains('cell-data-0')) { // search nearliest data-0 element
+                for (let el of targets) {
+                    if (el.parentNode && el.parentNode.classList && el.parentNode.classList.contains('cell')) {
+                        if (mode === 'Union' && !el.parentNode.classList.contains('cell-data-0')) { // search nearliest data-0 element
                             let dx = [-1, -1, -1, 0, 0, 1, 1, 1];
                             let dy = [-1, 0, 1, -1, 1, -1, 0, 1];
-                            for(let offset=5;offset<=20;offset+=5) {
-                                for(let d_idx=0;d_idx<dx.length;d_idx++) {
+                            for (let offset = 5; offset <= 20; offset += 5) {
+                                for (let d_idx = 0; d_idx < dx.length; d_idx++) {
                                     const target_lists = document.elementsFromPoint(clientX + dx[d_idx] * offset, clientY + dy[d_idx] * offset);
                                     el = target_lists.find(t => t.parentNode && t.parentNode.classList && t.parentNode.classList.contains('cell-data-0'));
-                                    if(el) break;
+                                    if (el) break;
                                 }
-                                if(el) break;
+                                if (el) break;
                             }
 
                         }
                         let p1 = new Path(el.getAttribute('d'));
                         let p2 = new Path(e.target.getAttribute('d'));
 
-                        switch(mode) {
+                        switch (mode) {
                             case 'Intersect':
                                 p1 = p1.intersect(p2);
                                 break;
@@ -734,26 +740,48 @@
                         let datum = p1.segments.map(d => [seg_scale.invert(d._point._x), seg_scale.invert(d._point._y)]);
                         let idx = el.parentNode.getAttribute('id').split('-')[1];
                         data_sets[0]['segmentation'][timestep][idx][0] = datum;
-                        
+
                         break;
                     }
                 }
             })
+
+        function mouseOver(d) {
+            {#console.log('over')#}
+            {#console.log(this)#}
+            {#console.log(this.parentNode)#}
+            {#console.log()#}
+            d3.select(this.parentNode).append("text")
+                .attr("x", function () {
+                    return d.y;
+                })
+                .attr("dx", "6") // margin
+                .attr("dy", ".35em") // vertical-align
+                .attr("class", "mylabel")//adding a label class
+                .text(function () {
+                    return d.path[1].classList[1].split('-')[1];
+                })
+                .attr('fill', 'black');
+        }
+
+        function mouseOut() {
+            d3.selectAll(".mylabel").remove()
+        }
     }
 
     // table div rendering
 
     document.getElementsByName('threshold')[0].addEventListener('input', filter_table);
     document.getElementById('tbody_selected').addEventListener('scroll', (e) => {
-        if(table_draw_lock) return;
-        render_table(refresh=false, true);
+        if (table_draw_lock) return;
+        render_table(refresh = false, true);
     })
     document.getElementById('tbody_unselected').addEventListener('scroll', (e) => {
         console.log('scroll')
-        if(table_draw_lock) return;
-        render_table(refresh=false, false);
+        if (table_draw_lock) return;
+        render_table(refresh = false, false);
     })
-    
+
     let table_draw_lock = false;
     let raw_data = [];
     let unselected_rows = [];
@@ -765,56 +793,57 @@
         const time = td[0].innerText;
         const base = td[1].innerText;
         let selected = [];
-        for(let idx=1;idx < td.length - 2;idx++) {
-            const target = td[1+idx].querySelector('select').value.split('(')[0].trim();
+        for (let idx = 1; idx < td.length - 2; idx++) {
+            const target = td[1 + idx].querySelector('select').value.split('(')[0].trim();
             selected.push(target);
         }
-        
+
         let selected_row = unselected_rows.filter(row => row['time'] === time && row['base'] === base);
-        if(selected_row.length === 0) {
+        if (selected_row.length === 0) {
             alert('row 선택 실패!');
             return;
         }
         selected_row = selected_row[0];
         selected.forEach((value, idx) => {
-            selected_row['column' + (idx+1)] = selected_row['column' + (idx+1)].filter(option => option['target'] == value);
+            selected_row['column' + (idx + 1)] = selected_row['column' + (idx + 1)].filter(option => option['target'] == value);
         })
 
         unselected_rows = unselected_rows.filter(row => row['time'] !== time || row['base'] !== base);
         selected_rows.push(selected_row);
-        
-        render_table(refresh=false, true);
-        render_table(refresh=false, false);
+
+        render_table(refresh = false, true);
+        render_table(refresh = false, false);
     }
 
     function sort_table() {
         function compare_func(a, b) {
-            if(Number(a['time']) > Number(b['time'])) return 1;
-            if(Number(a['time']) < Number(b['time'])) return -1;
+            if (Number(a['time']) > Number(b['time'])) return 1;
+            if (Number(a['time']) < Number(b['time'])) return -1;
 
-            if(Number(a['base']) > Number(b['base'])) return 1;
-            if(Number(a['base']) < Number(b['base'])) return -1;
+            if (Number(a['base']) > Number(b['base'])) return 1;
+            if (Number(a['base']) < Number(b['base'])) return -1;
 
             return 0;
         }
+
         unselected_rows.sort(compare_func);
         selected_rows.sort(compare_func);
     }
 
     async function draw_selection_table() {
         const files = ["0_1.json", "0_2.json", "1_2.json"];
-        if(checked_list.length === 0) return;
+        if (checked_list.length === 0) return;
         const base_dir = checked_list[0].path.split('/')[0];
-        
+
         raw_data = [];
-        for(const file of files) {
+        for (const file of files) {
             const column = file.split('.')[0].split('_')[1];
             const path = "{% static 'celltrack_vis/data/celltracking_results/' %}" + `${base_dir}/similarity/` + file;
-            
+
             await d3.json(path).then((data) => {
-                for(const [ step, row ] of Object.entries(data)) {
-                    for(const [ base_cell_id, element ] of Object.entries(row)) {
-                        if(element.length === 0) continue;
+                for (const [step, row] of Object.entries(data)) {
+                    for (const [base_cell_id, element] of Object.entries(row)) {
+                        if (element.length === 0) continue;
                         raw_data.push({
                             column: column,
                             time: step,
@@ -826,7 +855,7 @@
                 }
             })
         }
-        
+
         raw_data = raw_data.reduce((acc, cur) => {
             const key = [cur['time'], cur['base']];
             if (!acc[key]) {
@@ -851,12 +880,12 @@
     function filter_table() {
         const threshold = Number(document.getElementsByName("threshold")[0].value);
         const filtered_rows = [];
-        for(const [key, row] of Object.entries(raw_data)) {
+        for (const [key, row] of Object.entries(raw_data)) {
             filtered_rows[key] = {};
-            for(const [column, obj] of Object.entries(row)) {
+            for (const [column, obj] of Object.entries(row)) {
                 const options = [];
-                for(const [idx, acc] of Object.entries(obj['acc'])) {
-                    if(obj['acc'][idx] >= threshold) {
+                for (const [idx, acc] of Object.entries(obj['acc'])) {
+                    if (obj['acc'][idx] >= threshold) {
                         options.push({
                             target: obj['target'][idx],
                             acc: obj['acc'][idx]
@@ -870,10 +899,10 @@
         selected_rows = [];
         unselected_rows = [];
 
-        for(const [key, row] of Object.entries(filtered_rows)) {
+        for (const [key, row] of Object.entries(filtered_rows)) {
             const row_values = Object.values(row);
             const number_of_nonempty_options = row_values.filter(el => el.length > 0).length;
-            if(number_of_nonempty_options < row_values.length) continue;
+            if (number_of_nonempty_options < row_values.length) continue;
 
             const number_of_options = row_values.reduce((acc, cur) => {
                 return acc + cur.length;
@@ -882,13 +911,12 @@
                 time: key.split(',')[0],
                 base: key.split(',')[1]
             };
-            for(const [column, obj] of Object.entries(row)) {
+            for (const [column, obj] of Object.entries(row)) {
                 result_row['column' + column] = obj;
             }
-            if(number_of_options === row_values.length) { // option이 각각 1개씩만 있는 경우
+            if (number_of_options === row_values.length) { // option이 각각 1개씩만 있는 경우
                 selected_rows.push(result_row);
-            }
-            else {
+            } else {
                 unselected_rows.push(result_row);
             }
         }
@@ -896,7 +924,7 @@
         render_table();
     }
 
-    function render_table(refresh=true, selected) {
+    function render_table(refresh = true, selected) {
         table_draw_lock = true;
         const NUM_OF_MAX_ELEMENTS = 11;
 
@@ -906,7 +934,7 @@
         const template = document.getElementById("table_row_template");
         const mock_template = document.getElementById("table_mock_row_template");
 
-        if(refresh) {
+        if (refresh) {
             selected_tbody.querySelectorAll("tr").forEach(el => el.remove());
             unselected_tbody.querySelectorAll("tr").forEach(el => el.remove());
         }
@@ -915,14 +943,14 @@
 
         function add_row(el, selected, last) {
             const tbody = selected ? selected_tbody : unselected_tbody;
-            
-            if(!el) { // mock element
+
+            if (!el) { // mock element
                 const clone = document.importNode(mock_template.content, true);
                 const rows = selected ? selected_rows : unselected_rows;
                 const tr = clone.querySelector('tr');
                 const ROW_HEIGHT = 26;
 
-                if(last) {
+                if (last) {
                     tr.classList.add('last-element');
                     tr.style.height = `${(rows.length - NUM_OF_MAX_ELEMENTS) * ROW_HEIGHT}px`;
                 } else {
@@ -938,55 +966,55 @@
             const td = clone.querySelectorAll("td");
             td[0].textContent = el['time'];
             td[1].textContent = el['base'];
-            
-            for(let idx=1;;idx++) {
-                const column = el['column' + idx];
-                if(!column) break; // column이 없을 때까지 가져옴
 
-                const select = td[1+idx].querySelector("select");
-                for(let acc of column) {
+            for (let idx = 1; ; idx++) {
+                const column = el['column' + idx];
+                if (!column) break; // column이 없을 때까지 가져옴
+
+                const select = td[1 + idx].querySelector("select");
+                for (let acc of column) {
                     const option = document.createElement("option");
                     option.textContent = `${acc['target']} (${acc['acc'].toFixed(0)}%)`
                     select.appendChild(option);
                 }
             }
-            if(selected) {
+            if (selected) {
                 td[td.length - 1].querySelector("button").style.visibility = "hidden";
             }
 
             const tr = tbody.getElementsByTagName('tr');
-            tbody.insertBefore(clone, tr[tr.length-1]);
-            
+            tbody.insertBefore(clone, tr[tr.length - 1]);
+
         }
 
-        if(!refresh) {
+        if (!refresh) {
             const tbody = selected ? selected_tbody : unselected_tbody;
             const rows = selected ? selected_rows : unselected_rows;
             const ROW_HEIGHT = 26;
             const scrollTop = tbody.scrollTop;
             let start_idx = parseInt(Math.min(Math.max((scrollTop / ROW_HEIGHT), 0), rows.length + 1 - NUM_OF_MAX_ELEMENTS));
-            
-            if(selected) {
+
+            if (selected) {
                 $('#tbody_selected tr:not(.first-element):not(.last-element)').remove();
             } else {
                 $('#tbody_unselected tr:not(.first-element):not(.last-element)').remove();
             }
 
-            for(let idx=start_idx;idx<start_idx+NUM_OF_MAX_ELEMENTS;idx++) {
-                if(!rows[idx]) break;
-                add_row(rows[idx], selected, last=null);
+            for (let idx = start_idx; idx < start_idx + NUM_OF_MAX_ELEMENTS; idx++) {
+                if (!rows[idx]) break;
+                add_row(rows[idx], selected, last = null);
             }
 
             const tr = tbody.getElementsByTagName('tr');
-            if(scrollTop >= ROW_HEIGHT) {
+            if (scrollTop >= ROW_HEIGHT) {
                 tr[0].style.display = 'table';
                 tr[0].style.height = `${scrollTop}px`;
             } else {
                 tr[0].style.display = 'none';
             }
-            
+
             tr[tr.length - 1].style.height = `${(rows.length - (tr.length - 2)) * ROW_HEIGHT - scrollTop}px`;
-            if(start_idx + NUM_OF_MAX_ELEMENTS !== rows.length) {
+            if (start_idx + NUM_OF_MAX_ELEMENTS !== rows.length) {
                 tr[tr.length - 1].style.display = 'table';
             } else {
                 tr[tr.length - 1].style.display = 'none';
@@ -996,28 +1024,28 @@
             return;
         }
 
-        add_row(null, false, last=false); 
-        add_row(null, true, last=false);
+        add_row(null, false, last = false);
+        add_row(null, true, last = false);
 
-        add_row(null, false, last=true); 
-        add_row(null, true, last=true);
+        add_row(null, false, last = true);
+        add_row(null, true, last = true);
 
 
         unselected_rows.slice(0, NUM_OF_MAX_ELEMENTS).forEach(el => {
-            add_row(el, false, last=null);
+            add_row(el, false, last = null);
         });
 
         selected_rows.slice(0, NUM_OF_MAX_ELEMENTS).forEach(el => {
-            add_row(el, true, last=null);
+            add_row(el, true, last = null);
         });
 
         table_draw_lock = false;
-        
+
         // for(let i=0;i<50;i++) {
         //     add_row(unselected_rows[i], false);
         //     add_row(selected_rows[i], true);
         // }
-        
+
     }
 
     function draw_table() {
@@ -1221,7 +1249,7 @@
         let max_alg_num = 5, max_dataset_num = 10
         let datalist = Array.from(Array(max_dataset_num), () => new Array())
         let checked_data_num = Array(max_dataset_num).fill(0)
-        for(let nd=0; nd<num_datasets; nd++){
+        for (let nd = 0; nd < num_datasets; nd++) {
             full_name = data_sets[nd]['name']
             dname = full_name.split('/')[0].toUpperCase()
             aname = full_name.split('/')[1].toUpperCase()
@@ -1233,16 +1261,17 @@
         }
 
         let identic = Array.from(Array(max_dataset_num), () => Array.from(Array(max_alg_num), () => new Array(max_alg_num)))
-        async function read_similarity(ds, l, r){
-            let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + datasets[ds] + "/similarity/"+l+"_"+r+".json"
-            
+
+        async function read_similarity(ds, l, r) {
+            let p = "{% static 'celltrack_vis/data/celltracking_results/' %}" + datasets[ds] + "/similarity/" + l + "_" + r + ".json"
+
             await d3.json(p).then((data) => {
-                identic[ds][l][r]=[]
-                for(let i in data){
-                    identic[ds][l][r][+i]=[]
-                    for(let j in data[i]){
-                        identic[ds][l][r][+i][+j]=[]
-                        for(let k in data[i][j]){
+                identic[ds][l][r] = []
+                for (let i in data) {
+                    identic[ds][l][r][+i] = []
+                    for (let j in data[i]) {
+                        identic[ds][l][r][+i][+j] = []
+                        for (let k in data[i][j]) {
                             identic[ds][l][r][+i][+j].push(+data[i][j][k][0])
                         }
                     }
@@ -1251,10 +1280,10 @@
             })
         }
 
-        for(let i=0; i<max_dataset_num; i++){
-            if(checked_data_num[i]>=2){
-                for(let ll=0; ll<datalist[i].length-1; ll++){
-                    for(let rr=ll+1; rr<datalist[i].length; rr++){
+        for (let i = 0; i < max_dataset_num; i++) {
+            if (checked_data_num[i] >= 2) {
+                for (let ll = 0; ll < datalist[i].length - 1; ll++) {
+                    for (let rr = ll + 1; rr < datalist[i].length; rr++) {
                         read_similarity(i, ll, rr);
                     }
                 }
@@ -1272,93 +1301,93 @@
         // }
 
         // console.log(identic)
-        function have(obj, list){
-            for(let i=0; i<list.length; i++){
-                if(obj==list[i]) return 1
+        function have(obj, list) {
+            for (let i = 0; i < list.length; i++) {
+                if (obj == list[i]) return 1
             }
             return 0
         }
+
         setTimeout(() => { //set timeout start
-            for(let nd=0; nd<num_datasets; nd++){
+            for (let nd = 0; nd < num_datasets; nd++) {
                 let dataset_data = data_sets[nd]
                 let node_data = dataset_data['lineage']
                 // console.log(dataset_data)
                 d3.select(document.getElementsByClassName('overlay')[0]).lower()
-                
-                for(let i=0; i<node_data.length; i++){
-                    node_data[i]['dataset']=nd;
+
+                for (let i = 0; i < node_data.length; i++) {
+                    node_data[i]['dataset'] = nd;
                     let cur_node = node_data[i]
                     // console.log(cur_node)
 
                     max_timestep = Math.max(max_timestep, cur_node.death)
 
-                    for(let j=(+cur_node.birth); j<=(+cur_node.death); j++){
-                        if(checked_data_num[dataset_data['dataset_num']]>=2){
+                    for (let j = (+cur_node.birth); j <= (+cur_node.death); j++) {
+                        if (checked_data_num[dataset_data['dataset_num']] >= 2) {
                             let k
-                            for(k=0; k<max_alg_num; k++){
-                                if(identic[dataset_data['dataset_num']][k][dataset_data['alg_num']] != undefined){
+                            for (k = 0; k < max_alg_num; k++) {
+                                if (identic[dataset_data['dataset_num']][k][dataset_data['alg_num']] != undefined) {
                                     let l
                                     let cur_identic = identic[dataset_data['dataset_num']][k][dataset_data['alg_num']][j] // j time에 k->현데이터셋 identic관계
                                     let getin = false
-                                    if(cur_identic==undefined) continue
-                                    for(l=0; l<cur_identic.length; l++){ // l이 base, cur_identic[l]이 합치려는것
-                                        if(cur_identic[l]!=undefined && have(cur_node.id, cur_identic[l])){
-                                            getin=true
+                                    if (cur_identic == undefined) continue
+                                    for (l = 0; l < cur_identic.length; l++) { // l이 base, cur_identic[l]이 합치려는것
+                                        if (cur_identic[l] != undefined && have(cur_node.id, cur_identic[l])) {
+                                            getin = true
                                         }
                                     }
-                                    if(getin) break
+                                    if (getin) break
                                 }
                             }
-                            if(k<max_alg_num) continue
+                            if (k < max_alg_num) continue
 
-                            for(k=0; k<lineage_data[j].length; k++){
-                                if(lineage_data[j][k][0]==cur_node.id)
+                            for (k = 0; k < lineage_data[j].length; k++) {
+                                if (lineage_data[j][k][0] == cur_node.id)
                                     break
                             }
-                            if(k<lineage_data[j].length) continue
+                            if (k < lineage_data[j].length) continue
                         }
                         lineage_data[j].push([cur_node.id, nd])
                     }
                 }
             }
-            lineage_data.length=max_timestep+1
+            lineage_data.length = max_timestep + 1
             // console.log(lineage_data)
-            for(let nd=0; nd<num_datasets; nd++){
+            for (let nd = 0; nd < num_datasets; nd++) {
                 let dataset_data = data_sets[nd]
                 let node_data = dataset_data['lineage']
-                
-                for(let i=0; i<node_data.length; i++){
-                    node_data[i]['dataset']=nd;
+
+                for (let i = 0; i < node_data.length; i++) {
+                    node_data[i]['dataset'] = nd;
                     let cur_node = node_data[i]
 
-                    for(let j=(+cur_node.birth); j<=(+cur_node.death); j++){
-                        if(j>0){
-                            for(let k=0; k<lineage_data[j].length; k++){
-                                if(lineage_data[j][k][0]==cur_node.id && lineage_data[j][k][1]==cur_node.dataset){
-                                    for(let l=0; l<lineage_data[j-1].length; l++){
-                                        if((cur_node.parent==lineage_data[j-1][l][0] && cur_node.dataset==lineage_data[j-1][l][1]) ||
-                                            (lineage_data[j][k][0]==lineage_data[j-1][l][0] && lineage_data[j][k][1]==lineage_data[j-1][l][1])){
-                                            if(parent[j][k]==undefined) parent[j][k]=[]
+                    for (let j = (+cur_node.birth); j <= (+cur_node.death); j++) {
+                        if (j > 0) {
+                            for (let k = 0; k < lineage_data[j].length; k++) {
+                                if (lineage_data[j][k][0] == cur_node.id && lineage_data[j][k][1] == cur_node.dataset) {
+                                    for (let l = 0; l < lineage_data[j - 1].length; l++) {
+                                        if ((cur_node.parent == lineage_data[j - 1][l][0] && cur_node.dataset == lineage_data[j - 1][l][1]) ||
+                                            (lineage_data[j][k][0] == lineage_data[j - 1][l][0] && lineage_data[j][k][1] == lineage_data[j - 1][l][1])) {
+                                            if (parent[j][k] == undefined) parent[j][k] = []
                                             parent[j][k].push([l, nd])
                                         }
                                     }
 
-                                    for(let l=dataset_data.alg_num+1; l<max_alg_num; l++){
-                                        if(identic[dataset_data.dataset_num][dataset_data.alg_num][l] != undefined){
-                                            if(identic[dataset_data.dataset_num][dataset_data.alg_num][l][j]==undefined) continue
+                                    for (let l = dataset_data.alg_num + 1; l < max_alg_num; l++) {
+                                        if (identic[dataset_data.dataset_num][dataset_data.alg_num][l] != undefined) {
+                                            if (identic[dataset_data.dataset_num][dataset_data.alg_num][l][j] == undefined) continue
                                             let cur_identic = identic[dataset_data.dataset_num][dataset_data.alg_num][l][j][cur_node.id]
                                             // console.log(cur_identic)
-                                            if(cur_identic!=undefined){
-                                                for(let p=0; p<cur_identic.length; p++){
+                                            if (cur_identic != undefined) {
+                                                for (let p = 0; p < cur_identic.length; p++) {
                                                     // 초록색 10이 직전타임에서도 어딘가에 합쳐져있을수도 있고 독립노드일수도 있음
-                                                    for(let q=0; q<lineage_data[j-1].length; q++){
-                                                        if(lineage_data[j-1][q][1]==l && lineage_data[j-1][q][0]==cur_identic[p]){ //독립노드
-                                                            if(parent[j][k]==undefined) parent[j][k]=[]
+                                                    for (let q = 0; q < lineage_data[j - 1].length; q++) {
+                                                        if (lineage_data[j - 1][q][1] == l && lineage_data[j - 1][q][0] == cur_identic[p]) { //독립노드
+                                                            if (parent[j][k] == undefined) parent[j][k] = []
                                                             parent[j][k].push([q, l])
-                                                        }
-                                                        else if(identic[dataset_data.dataset_num][dataset_data.alg_num][l][j-1][lineage_data[j-1][q][0]] != undefined){ //1,2번째인덱스 => lineage_data[j-1][q][1]
-                                                            if(have(cur_identic[p], identic[dataset_data.dataset_num][dataset_data.alg_num][l][j-1][lineage_data[j-1][q][0]])){
-                                                                if(parent[j][k]==undefined) parent[j][k]=[]
+                                                        } else if (identic[dataset_data.dataset_num][dataset_data.alg_num][l][j - 1][lineage_data[j - 1][q][0]] != undefined) { //1,2번째인덱스 => lineage_data[j-1][q][1]
+                                                            if (have(cur_identic[p], identic[dataset_data.dataset_num][dataset_data.alg_num][l][j - 1][lineage_data[j - 1][q][0]])) {
+                                                                if (parent[j][k] == undefined) parent[j][k] = []
                                                                 parent[j][k].push([q, l])
                                                             }
                                                         }
@@ -1375,20 +1404,19 @@
             }
             // console.log(parent)
 
-            for(let i=0; i<=max_timestep; i++)
+            for (let i = 0; i <= max_timestep; i++)
                 max_yaxis_node = Math.max(max_yaxis_node, lineage_data[i].length)
 
             d3.select('#lineage_svg')
-                .attr("height", (max_yaxis_node+5)*20)
-                .attr("width", (max_timestep+5)*20)
-            
-            function super_ances(sib, nb){
-                if(+parent[nb][sib][0]==sib) return sib;
+                .attr("height", (max_yaxis_node + 5) * 20)
+                .attr("width", (max_timestep + 5) * 20)
+
+            function super_ances(sib, nb) {
+                if (+parent[nb][sib][0] == sib) return sib;
                 return super_ances(+parent[nb][sib][0], nb)
             }
 
-            function draw_lineage(start_timestep)
-            {
+            function draw_lineage(start_timestep) {
                 lineage_svg.selectChildren().remove()
                 lineage_line = lineage_svg.append("g")
                 lineage_node = lineage_svg.append("g")
@@ -1401,7 +1429,7 @@
 
                 // console.log(lineage_data)
                 // console.log(parent)
-                for(let i=start_timestep; i<=Math.min(lineage_data.length-1, start_timestep+50); i++){
+                for (let i = start_timestep; i <= Math.min(lineage_data.length - 1, start_timestep + 100); i++) {
                     // lineage_data[i].sort(function(a, b){
                     //     if(a[1]==b[1]) return super_ances(a[0], a[1])-super_ances(b[0], b[1]);
                     //     // 추가 : 노드 정렬하면서 parent 값도 바꿔야함
@@ -1420,46 +1448,48 @@
                     //     return a[1]-b[1];
                     // })
                     lineage_time.append("tspan")
-                        .attr("x", i*20+10)
+                        .attr("x", i * 20 + 10)
                         .attr("y", 13)
                         .text(i)
 
-                    for(let j=0; j<lineage_data[i].length; j++){
+                    for (let j = 0; j < lineage_data[i].length; j++) {
                         lineage_txt.append("tspan")
-                            .attr("x", i*20+10)
-                            .attr("y", j*20+33)
+                            .attr("x", i * 20 + 10)
+                            .attr("y", j * 20 + 33)
                             .text(lineage_data[i][j][0])
                         lineage_node.append("circle")
                             .attr("r", 5)
-                            .attr("cx", i*20+10)
-                            .attr("cy", j*20+30)
+                            .attr("cx", i * 20 + 10)
+                            .attr("cy", j * 20 + 30)
                             .attr("fill", () => color_tableau(lineage_data[i][j][1]))
                             .lower()
-                            
-                        if(i>0){
-                            if(parent[i][j]==undefined) continue
+
+                        if (i > 0) {
+                            if (parent[i][j] == undefined) continue
                             // console.log(i, j, parent[i][j])
                             parent[i][j].sort(function (a, b) {
-                                return a[0]-b[0];
+                                return a[0] - b[0];
                             })
-                            for(let k=0; k<parent[i][j].length; k++){
-                                let p = parent[i][j][k], s=0;
-                                while(k<parent[i][j].length && p[0]==parent[i][j][k][0]) s++, k++;
+                            for (let k = 0; k < parent[i][j].length; k++) {
+                                let p = parent[i][j][k], s = 0;
+                                while (k < parent[i][j].length && p[0] == parent[i][j][k][0]) s++, k++;
                                 k--;
 
-                                if(s>1){
+                                if (s > 1) {
                                     lineage_line.append("line")
-                                        .attr("class", (lineage_data[i][j][0]==lineage_data[i-1][p[0]][0]) ? "solid" : "dashed")
-                                        .attr("x1", i*20+10)
-                                        .attr("y1", j*20+30)
-                                        .attr("x2", (i-1)*20+10)
-                                        .attr("y2", p[0]*20+30)
+                                        .attr("class", (lineage_data[i][j][0] == lineage_data[i - 1][p[0]][0]) ? "solid" : "dashed")
+                                        .attr("x1", i * 20 + 10)
+                                        .attr("y1", j * 20 + 30)
+                                        .attr("x2", (i - 1) * 20 + 10)
+                                        .attr("y2", p[0] * 20 + 30)
                                         .attr("stroke-width", 3)
                                         .attr("stroke", () => color_tableau(p[1]))
                                         // .attr("stroke", "yellow")
-                                        .on("mouseover", function (event) {d3.select(event.target).attr("stroke-width", 5)})
+                                        .on("mouseover", function (event) {
+                                            d3.select(event.target).attr("stroke-width", 5)
+                                        })
                                         .on("click", function (event) {
-                                            if(event.target.getAttribute("stroke")=="red"){
+                                            if (event.target.getAttribute("stroke") == "red") {
                                                 d3.select(event.target).attr("stroke", () => color_tableau(p[1]))
                                                 button_svg.select("g").remove()
                                                 return;
@@ -1467,37 +1497,37 @@
 
                                             d3.select(event.target).attr("stroke", "red")
                                             let button_g = button_svg.append("g")
-                                            for(let numb=0; numb<s; numb++){
+                                            for (let numb = 0; numb < s; numb++) {
                                                 const rectsize = 20
                                                 button_g.append("rect")
-                                                    .attr("x", numb*rectsize)
+                                                    .attr("x", numb * rectsize)
                                                     .attr("y", 0)
                                                     .attr("width", rectsize)
                                                     .attr("height", rectsize)
-                                                    .attr("fill", () => color_tableau(parent[i][j][k-s+numb+1][1]))
+                                                    .attr("fill", () => color_tableau(parent[i][j][k - s + numb + 1][1]))
                                                     .on("click", function () {
                                                         d3.select(event.target)
-                                                            .attr("stroke", () => color_tableau(parent[i][j][k-s+numb+1][1]))
+                                                            .attr("stroke", () => color_tableau(parent[i][j][k - s + numb + 1][1]))
                                                         button_g.remove()
 
-                                                        if(numb==0) return;
+                                                        if (numb == 0) return;
                                                         let base_lineage = data_sets[0]['lineage']
-                                                        for(let lng=0; lng<base_lineage.length; lng++){
-                                                            if(lineage_data[i][j][0]==base_lineage[lng].id){
+                                                        for (let lng = 0; lng < base_lineage.length; lng++) {
+                                                            if (lineage_data[i][j][0] == base_lineage[lng].id) {
                                                                 new_id = 1
-                                                                for(let ii=0; ii<base_lineage.length; ii++){
-                                                                    if(base_lineage[ii].id==String(new_id))
+                                                                for (let ii = 0; ii < base_lineage.length; ii++) {
+                                                                    if (base_lineage[ii].id == String(new_id))
                                                                         new_id = new_id + 1
                                                                     else break;
                                                                 }
-                                                                base_lineage.splice(lng+1, 0, {
+                                                                base_lineage.splice(lng + 1, 0, {
                                                                     id: String(new_id),
                                                                     birth: String(i),
                                                                     death: base_lineage[lng].death,
                                                                     parent: base_lineage[lng].parent,
-                                                                    dataset : base_lineage[lng].dataset
+                                                                    dataset: base_lineage[lng].dataset
                                                                 })
-                                                                base_lineage[lng].death=String(i-1)
+                                                                base_lineage[lng].death = String(i - 1)
                                                                 break
                                                             }
                                                         }
@@ -1505,15 +1535,16 @@
                                                     .raise()
                                             }
                                         })
-                                        .on("mouseout", function(event) {d3.select(event.target).attr("stroke-width", 3)})
-                                }
-                                else{
+                                        .on("mouseout", function (event) {
+                                            d3.select(event.target).attr("stroke-width", 3)
+                                        })
+                                } else {
                                     lineage_line.append("line")
-                                        .attr("class", (lineage_data[i][j][0]==lineage_data[i-1][p[0]][0]) ? "solid" : "dashed")
-                                        .attr("x1", i*20+10)
-                                        .attr("y1", j*20+30)
-                                        .attr("x2", (i-1)*20+10)
-                                        .attr("y2", p[0]*20+30)
+                                        .attr("class", (lineage_data[i][j][0] == lineage_data[i - 1][p[0]][0]) ? "solid" : "dashed")
+                                        .attr("x1", i * 20 + 10)
+                                        .attr("y1", j * 20 + 30)
+                                        .attr("x2", (i - 1) * 20 + 10)
+                                        .attr("y2", p[0] * 20 + 30)
                                         .attr("stroke-width", 1)
                                         .attr("stroke", () => color_tableau(p[1]))
                                 }
@@ -1527,9 +1558,9 @@
 
             document.getElementById('lineage_div').addEventListener('scroll', () => {
                 let cur_scroll = $('#lineage_div').scrollLeft()
-                cur_scroll -= cur_scroll%20;
-                cur_scroll/=20
-                cur_scroll = Math.max(0, cur_scroll-10);
+                cur_scroll -= cur_scroll % 20;
+                cur_scroll /= 20
+                cur_scroll = Math.max(0, cur_scroll - 10);
 
                 draw_lineage(cur_scroll);
             })
@@ -1552,22 +1583,22 @@
         let summary = "{% static 'celltrack_vis/data/celltracking_results/' %}" + dataset.split('/')[0] + "/input/summary.json";
         await d3.json(summary).then(function (data) {
             let space = 0;
-            if(data['height'] < data['width']) {
-                space = (seg_width-(data['height'] / data['width'] * seg_width)) / 2;
+            if (data['height'] < data['width']) {
+                space = (seg_width - (data['height'] / data['width'] * seg_width)) / 2;
                 space = space / seg_width * img_width;
-            } else if(data['height'] > data['width']){
-                space = (seg_width-(data['width'] / data['height'] * seg_width)) / 2;
+            } else if (data['height'] > data['width']) {
+                space = (seg_width - (data['width'] / data['height'] * seg_width)) / 2;
                 space = space / seg_width * img_width;
             }
             // console.log(data['width'], data['height'], space)
-            for(let i of Object.keys(data_sets[data_sets.length - 1]['segmentation'])) {
-                for(let j of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i])) {
-                    for(let k of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i][j])) {
-                        for(let l of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i][j][k])) {
+            for (let i of Object.keys(data_sets[data_sets.length - 1]['segmentation'])) {
+                for (let j of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i])) {
+                    for (let k of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i][j])) {
+                        for (let l of Object.keys(data_sets[data_sets.length - 1]['segmentation'][i][j][k])) {
                             data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][0] = data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][0] / Math.max(data['height'], data['width']) * img_width;
                             data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][1] = data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][1] / Math.max(data['height'], data['width']) * img_width;
 
-                            if(data['height'] < data['width']) {
+                            if (data['height'] < data['width']) {
                                 data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][1] += space;
                             } else {
                                 data_sets[data_sets.length - 1]['segmentation'][i][j][k][l][0] += space;
@@ -1579,8 +1610,8 @@
         })
 
         // console.log(data_sets)
-        
-        num_timestep = data_sets[data_sets.length-1].num_timestep;
+
+        num_timestep = data_sets[data_sets.length - 1].num_timestep;
         draw_timeline()
         draw_linegraph()
 
@@ -1623,10 +1654,13 @@
 
     // timeline
     function draw_timeline() {
+
         let time_svg = d3.select('#time_svg')
-        let time_scale = d3.scaleLinear().domain([0, num_timestep]).range([0, 1000])
+        let time_width = document.getElementById('time_div').offsetWidth
+        console.log(time_width)
+        let time_scale = d3.scaleLinear().domain([0, num_timestep]).range([0, time_width - 70])
         time_svg.selectAll('g').remove();
-        
+
         let slider = time_svg.append('g')
             .attr('class', 'slider')
             .attr('transform', 'translate(20, 50)')
@@ -1654,9 +1688,9 @@
                     {#d3.select(this).attr('cx',event.x)#}
                     currentValue = time_scale.invert(Math.ceil(event.x))
                     update(currentValue);
-                    
+
                     $('#lineage_div').scrollTop(0);
-                    $('#lineage_div').scrollLeft(currentValue*20)
+                    $('#lineage_div').scrollLeft(currentValue * 20)
                 })
             );
 
@@ -1697,13 +1731,13 @@
             seg_g.selectAll('.clip').remove()
             {#seg_svg.select('dfs').selectAll('.cell').remove()#}
 
-            for(let di=checked_list.length-1;di >= 0;di--) {
+            for (let di = checked_list.length - 1; di >= 0; di--) {
                 draw_cells(di, h);
             }
-            for(let di=1;di < checked_list.length;di++) {
+            for (let di = 1; di < checked_list.length; di++) {
                 draw_intersection(di, h);
             }
-           
+
             // filter data set and redraw plot
 
         }
@@ -1749,47 +1783,49 @@
 
     {# structure #}
     let datasets = [
-        'DIC-C2DH-HeLa-01', 
-        'DIC-C2DH-HeLa-02', 
-        'Fluo-N2DH-SIM+-01', 
-        'Fluo-N2DH-SIM+-02', 
-        'PhC-C2DL-PSC-01', 
+        'DIC-C2DH-HeLa-01',
+        'DIC-C2DH-HeLa-02',
+        'Fluo-N2DH-SIM+-01',
+        'Fluo-N2DH-SIM+-02',
+        'PhC-C2DL-PSC-01',
         'PhC-C2DL-PSC-02'
     ];
     let algorithms = [
-        'KIT-Sch-GE', 
-        'MU-Lux-CZ' ,
+        'KIT-Sch-GE',
+        'MU-Lux-CZ',
         'BGU-IL'
     ];
     let paths = [];
-    for(let dataset of datasets) {
-        for(let algorithm of algorithms) {
+    for (let dataset of datasets) {
+        for (let algorithm of algorithms) {
             paths.push(dataset + '/' + algorithm);
         }
     }
     let datasets_num = {}
-    for(let i=0; i<datasets.length; i++)
-        datasets_num[datasets[i].toUpperCase()]=i
+    for (let i = 0; i < datasets.length; i++)
+        datasets_num[datasets[i].toUpperCase()] = i
     let alg_num = {}
-    for(let i=0; i<algorithms.length; i++)
-        alg_num[algorithms[i].toUpperCase()]=i
+    for (let i = 0; i < algorithms.length; i++)
+        alg_num[algorithms[i].toUpperCase()] = i
 
-    let summ=new Array(datasets.length)
-    async function read_summary(index){
+    let summ = new Array(datasets.length)
+
+    async function read_summary(index) {
         path = "{% static 'celltrack_vis/data/celltracking_results/' %}" + `${datasets[index]}/summary.csv`;
-        let dataset_summ=[]
+        let dataset_summ = []
         await d3.csv(path).then((data) => {
-            for(let i=0; i<data.length; i++){
+            for (let i = 0; i < data.length; i++) {
                 dataset_summ.push({
                     id: i,
                     name: data[i]['name']
                 })
             }
-            summ[index]=dataset_summ
+            summ[index] = dataset_summ
             // console.log(summ)
         })
     }
-    for(let i=0; i<datasets.length; i++)
+
+    for (let i = 0; i < datasets.length; i++)
         read_summary(i)
 
     let grouped = []; // key state for rendering
@@ -1885,7 +1921,7 @@
 
             $('#checked_div').sortable({
                 cursor: "row-resize",
-                items: $('.checked-row'), 
+                items: $('.checked-row'),
                 stop: update_checked_row
             }).disableSelection();
         }
@@ -1905,7 +1941,7 @@
             e.stopImmediatePropagation();
 
             let idx = e.target.parentNode.getAttribute('idx');
-            if(e.target.getAttribute('type') === 'checkbox') {
+            if (e.target.getAttribute('type') === 'checkbox') {
                 last_clicked = Number(idx);
             } else {
                 last_clicked = -1;
@@ -1934,9 +1970,9 @@
             e.preventDefault();
             e.stopImmediatePropagation();
 
-            if(e.target.getAttribute('type') === 'range') {
+            if (e.target.getAttribute('type') === 'range') {
                 dialog['opacity'] = e.target.value;
-            } else if(e.target.getAttribute('type') === 'color') {
+            } else if (e.target.getAttribute('type') === 'color') {
                 dialog['color'] = e.target.value;
             }
         }
@@ -1956,7 +1992,7 @@
 
             dialog_opened = false;
             let idx = dialog['idx'];
-            checked_list = checked_list.map(element => (element['idx'] === idx ? 
+            checked_list = checked_list.map(element => (element['idx'] === idx ?
                 {...element, opacity: dialog['opacity'], color: dialog['color']} : element)
             );
             set_dialog();
@@ -1983,8 +2019,8 @@
             }
 
             let delete_buttons = document.getElementsByClassName('close');
-            for(let delete_button of delete_buttons) {
-                if(add) {
+            for (let delete_button of delete_buttons) {
+                if (add) {
                     delete_button.addEventListener('click', on_checked);
                 } else {
                     delete_button.removeEventListener('click', on_checked);
@@ -1992,51 +2028,51 @@
             }
 
             let color_pickers = document.getElementsByClassName('checked-color');
-            for(let color_picker of color_pickers) {
-                if(add) {
+            for (let color_picker of color_pickers) {
+                if (add) {
                     color_picker.addEventListener('click', on_color_clicked);
                 } else {
                     color_picker.removeEventListener('click', on_color_clicked);
                 }
             }
             let dialog_close_button = document.getElementById('dialog-close-button');
-            if(!dialog_close_button) { // if overlay not exists
+            if (!dialog_close_button) { // if overlay not exists
                 return;
             }
 
-            if(add) {
+            if (add) {
                 dialog_close_button.addEventListener('click', on_dialog_close_clicked);
             } else {
                 dialog_close_button.removeEventListener('click', on_dialog_close_clicked);
             }
 
             let dialog_button = document.getElementById('dialog-button');
-            if(add) {
+            if (add) {
                 dialog_button.addEventListener('click', on_dialog_submit_clicked);
             } else {
                 dialog_button.removeEventListener('click', on_dialog_submit_clicked);
             }
 
             let opacity = document.getElementById('opacity');
-            if(add) {
+            if (add) {
                 opacity.addEventListener('change', on_dialog_changed);
             } else {
                 opacity.removeEventListener('change', on_dialog_changed);
             }
 
             let color = document.getElementById('color');
-            if(add) {
+            if (add) {
                 color.addEventListener('change', on_dialog_changed);
             } else {
                 color.removeEventListener('change', on_dialog_changed);
             }
 
             let structure_close_button = document.getElementById('structure-close-button');
-            if(!structure_close_button) { // if overlay not exists
+            if (!structure_close_button) { // if overlay not exists
                 return;
             }
 
-            if(add) {
+            if (add) {
                 structure_close_button.addEventListener('click', on_dialog_close_clicked);
             } else {
                 structure_close_button.removeEventListener('click', on_dialog_close_clicked);
@@ -2044,13 +2080,13 @@
         }
 
         function set_dialog() {
-            if(dialog_opened) {
+            if (dialog_opened) {
                 overlay.style.display = 'flex';
             } else {
                 overlay.style.display = 'none';
             }
 
-            if(dialog_idx === 0) {
+            if (dialog_idx === 0) {
                 document.getElementById('structure-outer').style.display = 'block';
                 document.getElementsByClassName('dialog')[0].style.display = 'none';
             } else {
@@ -2067,10 +2103,15 @@
             const isChecked = checked[idx];
             const isActive = active[idx];
 
-            if(isChecked) {
+            if (isChecked) {
                 const item = checked_list.find(el => el['idx'] === idx);
                 // console.log(checked_list.length)
-                if(!item) checked_list.push({'idx': idx, 'path': fullPath, color: color_tableau(checked_list.length), opacity: 1.0}); // push only if item is not exists
+                if (!item) checked_list.push({
+                    'idx': idx,
+                    'path': fullPath,
+                    color: color_tableau(checked_list.length),
+                    opacity: 1.0
+                }); // push only if item is not exists
             } else {
                 checked_list = checked_list.filter(el => el['idx'] !== idx);
             }
@@ -2120,7 +2161,7 @@
         set_dialog();
 
         draw_selection_table(); // other part dependency
-        if(checked_list.length > 0) {
+        if (checked_list.length > 0) {
             read_datasets(checked_list[checked_list.length - 1].path);
         }
     }
@@ -2130,29 +2171,49 @@
 
 
     function draw_linegraph() {
-        let x = d3.scaleLinear().range([0, num_timestep]),
-            y = d3.scaleLinear().range([100, 0]),
-            valueline = d3.line().x((d, i) => i)
-                .y((d) => d)
+
+        let line_data = [];
+        data_sets.forEach(function (data) {
+            let tmp = Object.keys(data['segmentation']).map(key => {
+                {#console.log(key, data['segmentation'][key], data['segmentation'][key].length)#}
+                return Object.keys(data['segmentation'][key]).length
+            })
+            console.log('tmp', tmp)
+            line_data.push(tmp);
+            console.log(line_data)
+        })
+        let time_width = document.getElementById('time_div').offsetWidth
+        let y_center = 50
+        let scale_x = d3.scaleLinear().domain([0, num_timestep]).range([0, time_width - 70]),
+            valueline = d3.line().x((d, i) => scale_x(i))
+                .y((d, i) => d - line_data[0][i] + 50)
+
         let svg = d3.select('#linegraph_svg')
         svg.selectAll('path').remove();
         svg.selectAll('g').remove();
-    
-        let line_data = [];
-        for (let i = 0; i < num_timestep; i++) {
-            line_data.push(Math.floor(Math.random() * 100))
-        }
-        svg.append("path")
-            .data([line_data])
-            .attr('class', 'line')
+
+        let lines = svg.selectAll(".lines")
+            .data(line_data)
+            .enter().append("g")
+            .attr("class", "lines");
+
+        lines.append("path")
+            .attr('class', (d, i) => 'line line-' + i)
             .attr('d', valueline)
             .attr('fill', 'none')
-            .attr('stroke', 'black')
-            .attr('stroke-width', '0.5px')
+            .attr('stroke-dasharray', (d, i) => {
+                if (i == 0) {
+                    return "5,5"
+                } else {
+                    return 0
+                }
+            })
+            .attr('stroke', (d, i) => color_tableau(i))
+            .attr('stroke-width', '1px')
 
-        svg.append("g")
-            .attr("transform", "translate(0," + 100 + ")")
-            .call(d3.axisBottom(x));
+        {#svg.append("g")#}
+        {#    .attr("transform", "translate(0," + 100 + ")")#}
+        {#    .call(d3.axisBottom(x));#}
 
     }
 
