@@ -420,7 +420,8 @@
                 <div class=row>
                     <div id='seg_div' class="col-6" style="float: left">
                         <div class="row" style="height: 30px;">
-                            <div class="status" style="text-align: center;">Current Mode: None</div>
+                            <div class="stat-id col-1" style="text-align: center;">ID</div>
+                            <div class="status col-11" style="text-align: center;">Current Mode: None</div>
                         </div>
                         <div class="row" style="display:inline-block; flex: 0 0 auto; padding-left:0; padding-right:0">
                             <div id="grid_div" width="769" height="769" style="padding-left:0; padding-right:0">
@@ -589,40 +590,6 @@
             .attr("height", seg_width)
             .attr("x", 0)
             .attr("y", 0);
-        {##}
-        {#let mask = d3.select('#seg_svg')#}
-        {#    .select('defs')#}
-        {#    .append('filter')#}
-        {#    .attr('id', 'minus')#}
-        {##}
-        {#mask.append('feComposite')#}
-        {#    .attr('in2', 'SourceGraphic')#}
-        {#    .attr('operator', 'in')#}
-        {#            {% comment %}.attr('type', 'linear')#}
-        {#            .attr('intercept', '-.05')#}
-        {#        mask.append('feComponentTransfer')#}
-        {#            .append('feFuncA')#}
-        {#            .attr('type', 'gamma')#}
-        {#            .attr('amplitude', '4')#}
-        {#            .attr('exponent', '.4'){% endcomment %}#}
-
-        {##}
-        {#mask.append('rect')#}
-        {#    .attr('class', 'cell')#}
-        {#    .attr('x', 0)#}
-        {#    .attr('y', 0)#}
-        {#    .attr('width', 1000)#}
-        {#    .attr('height', 1000)#}
-        {#mask.append('use')#}
-        {#    .attr('xlink:href', '.data-0')#}
-        {#    .attr('fill', 'white')#}
-        {#mask.append('use')#}
-        {#    .attr('xlink:href', '.data-1')#}
-        {#    .attr('fill', 'black')#}
-        {#d3.select('#seg_svg')#}
-        {#    .append('use')#}
-        {#    .attr('xlink:href', '.cell')#}
-        {#    .attr('mask', 'url(#minus)')#}
 
     }
 
@@ -751,6 +718,8 @@
             {#console.log(this)#}
             {#console.log(this.parentNode)#}
             {#console.log()#}
+
+            document.getElementsByClassName('stat-id')[0].innerText = `${d.path[1].classList[1].split('-')[1]}`;
             d3.select(this.parentNode).append("text")
                 .attr("x", function () {
                     return d.y;
@@ -759,6 +728,7 @@
                 .attr("dy", ".35em") // vertical-align
                 .attr("class", "mylabel")//adding a label class
                 .text(function () {
+                    console.log(d.path[1].classList[1].split('-')[1])
                     return d.path[1].classList[1].split('-')[1];
                 })
                 .attr('fill', 'black');
@@ -2198,7 +2168,7 @@
             .attr("class", "lines");
 
         lines.append("path")
-            .attr('class', (d, i) => 'line line-' + i)
+            .attr('class', (d, i) => 'graphline graphline-' + i)
             .attr('d', valueline)
             .attr('fill', 'none')
             .attr('stroke-dasharray', (d, i) => {
@@ -2211,10 +2181,100 @@
             .attr('stroke', (d, i) => color_tableau(i))
             .attr('stroke-width', '1px')
 
-        {#svg.append("g")#}
-        {#    .attr("transform", "translate(0," + 100 + ")")#}
-        {#    .call(d3.axisBottom(x));#}
+        let mouseG = svg.append("g")
+            .attr("class", "mouse-over-effects");
 
+        mouseG.append("path") // this is the black vertical line to follow mouse
+            .attr("class", "mouse-line")
+            .style("stroke", "black")
+            .style("stroke-width", "1px")
+            .style("opacity", "0");
+
+        let graphlines = document.getElementsByClassName('graphline');
+
+        var mousePerLine = mouseG.selectAll('.mouse-per-line')
+            .data(line_data)
+            .enter()
+            .append("g")
+            .attr("class", "mouse-per-line");
+
+        mousePerLine.append("circle")
+            .attr("r", 7)
+            .style("stroke", function (d) {
+                return color_tableau(d);
+            })
+            .style("fill", "none")
+            .style("stroke-width", "1px")
+            .style("opacity", "0");
+
+        mousePerLine.append("text")
+            .attr("transform", "translate(10,3)");
+
+        mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
+            .attr('width', time_width - 70) // can't catch mouse events on a g element
+            .attr('height', 100)
+            .attr('fill', 'none')
+            .attr('pointer-events', 'all')
+            .on('mouseout', function () { // on mouse out hide line, circles and text
+                d3.select(".mouse-line")
+                    .style("opacity", "0");
+                d3.selectAll(".mouse-per-line circle")
+                    .style("opacity", "0");
+                d3.selectAll(".mouse-per-line text")
+                    .style("opacity", "0");
+            })
+            .on('mouseover', function () { // on mouse in show line, circles and text
+                d3.select(".mouse-line")
+                    .style("opacity", "1");
+                d3.selectAll(".mouse-per-line circle")
+                    .style("opacity", "1");
+                d3.selectAll(".mouse-per-line text")
+                    .style("opacity", "1");
+            })
+            .on('mousemove', function (e) { // mouse moving over canvas
+                let mouse = d3.pointer(e, this);
+                console.log('mouse', mouse)
+                d3.select(".mouse-line")
+                    .attr("d", function () {
+                        var d = "M" + mouse[0] + "," + 100;
+                        d += " " + mouse[0] + "," + 0;
+                        return d;
+                    });
+
+                d3.selectAll(".mouse-per-line")
+                    .attr("transform", function (d, i) {
+                        {#console.log(width / mouse[0])#}
+                        let xDate = scale_x.invert(mouse[0]),
+                            bisect = d3.bisector(function (d) {
+                                return d;
+                            }).right;
+                        idx = bisect(d.values, xDate);
+
+                        let beginning = 0,
+                            end = graphlines[i].getTotalLength(),
+                            target = null;
+
+                        while (true) {
+                            target = Math.floor((beginning + end) / 2);
+                            pos = graphlines[i].getPointAtLength(target);
+                            if ((target === end || target === beginning) && pos.x !== mouse[0]) {
+                                break;
+                            }
+                            if (pos.x > mouse[0]) end = target;
+                            else if (pos.x < mouse[0]) beginning = target;
+                            else break; //position found
+                        }
+
+                        d3.select(this).select('text')
+                            .text(function (d, i, j) {
+                                console.log('d', d.values)
+                                console.log('e', e, d.values, this, d, i, j);
+                                return pos.y.toFixed(2)
+                            });
+
+                        return "translate(" + mouse[0] + "," + pos.y + ")";
+                    });
+            });
     }
 
     // read_datasets(0)
